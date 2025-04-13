@@ -42,7 +42,12 @@ const login = (props: Props) => {
         </Pressable>
         <View>
         <Link href='/+not-found' className="w-full text-center"><Text className="text-[14px] mx-auto text-white ">Forgot Password?</Text></Link>
-        <Link href='/SignUp' className="w-full text-center mt-6"><Text className="text-[14px] mx-auto text-white ">Don't have an account?</Text><Text className="text-[#8BBEFF] pl-1">Sign Up</Text></Link>
+    <View className="flex w-full mx-auto justify-center gap-1 flex-row mt-4">
+              <Text className="text-[14px] text-white">Don't have an account?</Text>
+              <Link href="/SignUp" className="text-[#8BBEFF] text-[14px]">
+                Sign Up
+              </Link>
+            </View>
         </View>
       </View>
     </View>
