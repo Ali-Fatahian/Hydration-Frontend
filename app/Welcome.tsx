@@ -9,7 +9,7 @@ import WaterIcon from '@/assets/WaterIcon'
 
 type Props = {}
 
-const welcome = (props: Props) => {
+const Welcome = (props: Props) => {
   const router = useRouter()
 
   return (
@@ -31,4 +31,4 @@ const welcome = (props: Props) => {
   )
 }
 
-export default welcome
+export default Welcome

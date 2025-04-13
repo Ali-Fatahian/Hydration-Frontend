@@ -5,7 +5,7 @@ import WaterIcon from "@/assets/WaterIcon";
 
 type Props = {};
 
-const login = (props: Props) => {
+const Login = (props: Props) => {
   return (
     <View className="bg-[#1e1f3f] h-full w-full py-[80px]">
       <Stack.Screen options={{ headerShown: false }} />
@@ -54,4 +54,4 @@ const login = (props: Props) => {
   );
 };
 
-export default login;
+export default Login;
