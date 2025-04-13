@@ -9,10 +9,12 @@ const SignUp = (props: Props) => {
   return (
     <View className="bg-[#1e1f3f] h-full w-full py-[50px]">
       <Stack.Screen options={{ headerShown: false }} />
-      <Text className="text-[20px] font-bold text-white text-center">
+      <View className="flex justify-center w-full flex-row gap-1">
         <WaterIcon />
+      <Text className="text-[20px] font-bold text-white text-center">
         HydrationIQ
       </Text>
+        </View>
       <View className="flex flex-col mt-[58px] gap-[60px]">
         <Text className="text-[18px] font-bold text-white text-center">
           Sign Up
