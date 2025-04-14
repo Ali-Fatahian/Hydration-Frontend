@@ -80,7 +80,7 @@ const CreatineIntake = (props: Props) => {
           </Text>
         </Pressable>
         <Pressable
-          onPress={() => router.push('/Dashboard')} // router.back() ||
+          onPress={() => router.push('/Profile')} // router.back() ||
           className="text-white text-[14px] mt-3 font-light text-center hover:underline active:underline"
         >
           Back
