@@ -58,7 +58,7 @@ const CreatineIntake = (props: Props) => {
         </Pressable>
         <View className="bg-[#2E2E5D] px-3 py-5 flex flex-col gap-6 rounded-lg mt-10">
           <View className="flex flex-row justify-between items-center gap-4 w-full max-w-[300px] mx-auto">
-            <BottleIcon />
+            <BottleIcon height={70} width={70} fill={'white'} />
             <View className="flex flex-col gap-2">
               <Text className="text-white text-[14px] font-bold">
                 HydrateFuel Creatine
