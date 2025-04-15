@@ -1,13 +1,17 @@
 import React from "react";
 
-type Props = {};
+type Props = {
+	height: number,
+	width: number,
+	fill: string
+};
 
-const BottleIcon = ({ height, width, fill }) => {
+const BottleIcon = (props: Props) => {
   return (
     <svg
-      fill={fill}
-      height={height}
-      width={width}
+      fill={props.fill}
+      height={props.height}
+      width={props.width}
       version="1.1"
       id="Capa_1"
       xmlns="http://www.w3.org/2000/svg"
