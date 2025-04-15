@@ -8,7 +8,7 @@ type Gender = "Male" | "Female";
 
 const EnterGender = (props: Props) => {
   const [selectedGender, setSelectedGender] = useState<Gender>("Male");
-  const router = useRouter()
+  const router = useRouter();
 
   return (
     <View className="bg-[#1e1f3f] h-full w-full py-[40px] px-2">
@@ -46,6 +46,12 @@ const EnterGender = (props: Props) => {
           <Text className="text-[14px] font-bold text-white text-center">
             Continue
           </Text>
+        </Pressable>
+        <Pressable
+          onPress={() => router.push("/Dashboard")} // router.back() ||
+          className="text-white text-[14px] mt-3 font-light text-center hover:underline active:underline"
+        >
+          Cancel
         </Pressable>
       </View>
     </View>
