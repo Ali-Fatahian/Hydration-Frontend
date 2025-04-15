@@ -48,7 +48,7 @@ const AIInsights = (props: Props) => {
             </View>
           </Pressable>
           <View className="bg-[#2E2E4D] p-3 flex flex-row w-full gap-2 rounded-md">
-            <BottleIcon height={32} width={32} fill={'#E4CCFF'} />
+            <BottleIcon height={32} width={32} fill={"#E4CCFF"} />
             <View className="text-[14px] font-bold text-[#B0B0C3]">
               Creatine Effect on Hydration
               <Text className="text-[14px] text-[#B0B0C3] mt-1">
@@ -57,6 +57,11 @@ const AIInsights = (props: Props) => {
             </View>
           </View>
         </View>
+        <Pressable className="bg-[#816BFF] cursor-pointer rounded-3xl py-3 px-20 mt-10 w-fit mx-auto hover:bg-[#735cf5] active:bg-[#5943d6] transition-colors">
+          <Text className="text-[14px] font-bold text-white text-center">
+            Back to Dashboard
+          </Text>
+        </Pressable>
       </View>
     </View>
   );
