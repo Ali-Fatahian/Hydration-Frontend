@@ -94,7 +94,10 @@ const NotificationsSummary = (props: Props) => {
             focus on reminders around this time?
           </Text>
         </View>
-        <Pressable className="bg-[#816BFF] mt-[40px] rounded-3xl py-3 px-20 w-fit mx-auto hover:bg-[#735cf5] active:bg-[#5943d6] transition-colors">
+        <Pressable
+          onPress={() => router.navigate("/NotificationsHistory")}
+          className="bg-[#816BFF] mt-[40px] rounded-3xl py-3 px-20 w-fit mx-auto hover:bg-[#735cf5] active:bg-[#5943d6] transition-colors"
+        >
           <Text className="text-sm font-bold text-white text-center">
             Notifications History
           </Text>
