@@ -36,6 +36,7 @@ const EnterWeight = (props: Props) => {
           <TextInput
             className="transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light pr-5 pl-9 py-3 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964] placeholder:text-[#B0B0C3]"
             placeholder="Weight..."
+            keyboardType="numeric"
           />
         </View>
         <Pressable

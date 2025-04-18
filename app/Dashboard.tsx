@@ -35,10 +35,24 @@ const Dashboard = (props: Props) => {
         <Text className="text-center text-white font-bold mt-8 text-xl">
           1200ml <Text className="text-[#AFAFC1] font-normal">of 3000ml</Text>
         </Text>
-        <Text className="bg-[#565967] px-5 py-4 text-[#afafc1] font-light text-xs rounded-lg mt-8">
-          <Ionicons name="bulb" color={"#FBC02D"} size={15} className="mr-2" />
-          It's hot today — add 300ml to your daily goal.
-        </Text>
+        {/* This shows the last notifications, for more click. */}
+        <Pressable
+          className="bg-[#565967] px-5 py-4 rounded-lg mt-8 flex flex-col gap-4 min-[366px]:flex-row min-[366px]:gap-0 justify-between hover:bg-[#4a4c58] transition-colors"
+          onPress={() => router.navigate("/NotificationsSummary")}
+        >
+          <View className="flex flex-row">
+            <Ionicons
+              name="bulb"
+              color={"#FBC02D"}
+              size={15}
+              className="mr-2"
+            />
+            <Text className="text-[#afafc1] font-light text-xs">
+              It's hot today — add 300ml to your daily goal.
+            </Text>
+          </View>
+          <Ionicons name="arrow-forward-outline" size={15} color={"#fff"} className="text-right" />
+        </Pressable>
         <View className="w-full mt-3">
           <View className="mt-6 w-full mx-auto grid grid-cols-3 justify-center gap-3">
             <View className="flex flex-col items-center">
