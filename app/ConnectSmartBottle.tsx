@@ -33,7 +33,7 @@ const ConnectSmartBottle = (props: Props) => {
           Connect Via Bluetooth
         </Text>
       </Pressable>
-      <Text className="text-[#AAAAAA] text-[14px] mt-4 text-center hover:underline"><Link href='/+not-found'>Skip for now</Link></Text>
+      <Text className="text-[#AAAAAA] text-[14px] mt-4 text-center hover:underline"><Link href='/Profile'>Skip for now</Link></Text>
     </View>
   );
 };
