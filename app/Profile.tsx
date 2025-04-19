@@ -27,7 +27,7 @@ const Profile = () => {
         </View>
         <View className="flex flex-col gap-2 items-center mt-3">
           <Pressable
-            onPress={() => router.navigate("/+not-found")}
+            onPress={() => router.navigate("/PersonalInformation")}
             className="bg-[#2E2E4D] p-3 flex flex-row justify-between items-center w-full rounded-md cursor-pointer transition-colors hover:bg-[#36366c]"
           >
             <View>
@@ -42,7 +42,7 @@ const Profile = () => {
             />
           </Pressable>
           <Pressable
-            onPress={() => router.navigate("/+not-found")}
+            onPress={() => router.navigate("/EnterGender")}
             className="bg-[#2E2E4D] p-3 flex flex-row justify-between items-center w-full rounded-md cursor-pointer transition-colors hover:bg-[#36366c]"
           >
             <View className="flex flex-row gap-1">
@@ -56,7 +56,7 @@ const Profile = () => {
             />
           </Pressable>
           <Pressable
-            onPress={() => router.navigate("/+not-found")}
+            onPress={() => router.navigate("/EnterWeight")}
             className="bg-[#2E2E4D] p-3 flex flex-row justify-between items-center w-full rounded-md cursor-pointer transition-colors hover:bg-[#36366c]"
           >
             <View className="flex flex-row gap-1">
@@ -72,7 +72,7 @@ const Profile = () => {
             />
           </Pressable>
           <Pressable
-            onPress={() => router.navigate("/+not-found")}
+            onPress={() => router.navigate("/CreatineIntake")}
             className="bg-[#2E2E4D] p-3 flex flex-row justify-between items-center w-full rounded-md cursor-pointer transition-colors hover:bg-[#36366c]"
           >
             <View className="flex flex-row gap-1">
@@ -88,7 +88,7 @@ const Profile = () => {
             />
           </Pressable>
           <Pressable
-            onPress={() => router.navigate("/+not-found")}
+            onPress={() => router.navigate("/ConnectSmartBottle")}
             className="bg-[#2E2E4D] p-3 flex flex-row justify-between items-center w-full rounded-md cursor-pointer transition-colors hover:bg-[#36366c]"
           >
             <View>
