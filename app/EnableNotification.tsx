@@ -34,7 +34,7 @@ const EnableNotification = (props: Props) => {
         </Text>
       </Pressable>
       <Text className="text-[#AAAAAA] text-[14px] mt-4 text-center hover:underline">
-        <Link href="/+not-found">Skip for now</Link>
+        <Link href="/Profile">Skip for now</Link>
       </Text>
     </View>
   );
