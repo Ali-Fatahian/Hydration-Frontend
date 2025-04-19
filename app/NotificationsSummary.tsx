@@ -1,25 +1,29 @@
-import { View, Text, Pressable, UIManager, Platform } from "react-native";
-import React, { useState } from "react";
+import { View, Text, Pressable, Animated } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
 import WaterIcon from "@/assets/WaterIcon";
 import { Link, Stack, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
 type Props = {};
 
-if (
-  Platform.OS === "android" &&
-  UIManager.setLayoutAnimationEnabledExperimental
-) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
-
 const NotificationsSummary = (props: Props) => {
   const router = useRouter();
   const [expanded, setExpanded] = useState(false);
+  const [contentHeight, setContentHeight] = useState(0);
+  const animation = useRef(new Animated.Value(0)).current;
+  const contentRef = useRef(null);
 
   const toggleAccordion = () => {
-    setExpanded(!expanded);
+    setExpanded((expanded) => !expanded);
   };
+
+  useEffect(() => {
+    Animated.timing(animation, {
+      toValue: expanded ? contentHeight : 0,
+      duration: 300,
+      useNativeDriver: false, // false because we animate height
+    }).start();
+  }, [expanded, contentHeight]);
 
   return (
     <View className="bg-[#1e1f3f] h-full w-full py-[40px] px-2">
@@ -57,36 +61,56 @@ const NotificationsSummary = (props: Props) => {
         <Pressable
           className="flex flex-row justify-between bg-[#2E2E4D] p-3 cursor-pointer transition-colors rounded-md mt-2 hover:bg-[#36366c]"
           onPress={toggleAccordion}
+          style={{ transitionDuration: "200ms" }}
         >
           <Text className="text-white">Details</Text>
-          <Ionicons name="arrow-down-outline" color={"#fff"} size={18} />
+          <Ionicons
+            name={expanded ? "arrow-up-outline" : "arrow-down-outline"}
+            color={"#fff"}
+            size={18}
+          />
         </Pressable>
         {/* Start of notifications */}
-        {expanded && (
-          <View className="flex flex-col rounded-md mt-1 gap-1">
-            <Pressable className="p-3 hover:bg-[#51518A] bg-[#3F3F6B] rounded-md transition-colors flex flex-row justify-between">
-              <Text className="text-[#afafc1] font-light text-xs">
-                Time to drink water - 300ml
-              </Text>
-              <Ionicons color={"#afafc1"} size={16} name="square-outline" />
-              {/* When checked <Ionicons color={'#afafc1'} size={14} name='checkbox-outline' /> */}
-            </Pressable>
-            <Pressable className="p-3 hover:bg-[#51518A] bg-[#3F3F6B] rounded-md transition-colors flex flex-row justify-between">
-              <Text className="text-[#afafc1] font-light text-xs">
-                Time to drink water - 300ml
-              </Text>
-              <Ionicons color={"#afafc1"} size={16} name="square-outline" />
-              {/* When checked <Ionicons color={'#afafc1'} size={14} name='checkbox-outline' /> */}
-            </Pressable>
-            <Pressable className="p-3 hover:bg-[#51518A] bg-[#3F3F6B] rounded-md transition-colors flex flex-row justify-between">
-              <Text className="text-[#afafc1] font-light text-xs">
-                Time to drink water - 300ml
-              </Text>
-              <Ionicons color={"#afafc1"} size={16} name="square-outline" />
-              {/* When checked <Ionicons color={'#afafc1'} size={14} name='checkbox-outline' /> */}
-            </Pressable>
+        <Animated.View
+          style={[
+            {
+              overflow: "hidden",
+              height: animation,
+            },
+          ]}
+        >
+          <View
+            ref={contentRef}
+            onLayout={(event) => {
+              const height = event.nativeEvent.layout.height;
+              setContentHeight(height);
+            }}
+          >
+            <View className="flex flex-col rounded-md mt-1 gap-1">
+              <Pressable className="p-3 hover:bg-[#51518A] bg-[#3F3F6B] rounded-md transition-colors flex flex-row justify-between">
+                <Text className="text-[#afafc1] font-light text-xs">
+                  Time to drink water - 300ml
+                </Text>
+                <Ionicons color={"#afafc1"} size={16} name="square-outline" />
+                {/* When checked <Ionicons color={'#afafc1'} size={14} name='checkbox-outline' /> */}
+              </Pressable>
+              <Pressable className="p-3 hover:bg-[#51518A] bg-[#3F3F6B] rounded-md transition-colors flex flex-row justify-between">
+                <Text className="text-[#afafc1] font-light text-xs">
+                  Time to drink water - 300ml
+                </Text>
+                <Ionicons color={"#afafc1"} size={16} name="square-outline" />
+                {/* When checked <Ionicons color={'#afafc1'} size={14} name='checkbox-outline' /> */}
+              </Pressable>
+              <Pressable className="p-3 hover:bg-[#51518A] bg-[#3F3F6B] rounded-md transition-colors flex flex-row justify-between">
+                <Text className="text-[#afafc1] font-light text-xs">
+                  Time to drink water - 300ml
+                </Text>
+                <Ionicons color={"#afafc1"} size={16} name="square-outline" />
+                {/* When checked <Ionicons color={'#afafc1'} size={14} name='checkbox-outline' /> */}
+              </Pressable>
+            </View>
           </View>
-        )}
+        </Animated.View>
         <View className="bg-[#2E2E4D] p-3 w-full rounded-md mt-4">
           <Text className="text-white font-bold">AI Suggestions</Text>
           <Text className="text-gray-400 text-sm mt-2">
