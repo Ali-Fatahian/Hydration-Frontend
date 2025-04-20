@@ -47,6 +47,8 @@ const NotificationsHistory = (props: Props) => {
       const response = await axios.get("url", {});
       if (response.status === 200) {
         setNotifications(response.data);
+      } else {
+        setError('Something went wrong, please try again.')
       }
     } catch (err: any) {
       setError(err.message);

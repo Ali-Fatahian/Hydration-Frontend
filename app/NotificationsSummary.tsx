@@ -3,10 +3,28 @@ import React, { useEffect, useRef, useState } from "react";
 import WaterIcon from "@/assets/WaterIcon";
 import { Link, Stack, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import axios from "axios";
+
+const defaultData = {
+  id: 1,
+  data_created: "2025-4-20",
+  notifications: [
+    { id: 1, text: "Time to drink water - 300ml", seen: false },
+    { id: 2, text: "Time to drink water - 300ml", seen: false },
+    { id: 3, text: "Time to drink water - 300ml", seen: true },
+  ],
+};
+
+const defaultAIMessage =
+  "You are most likely to respond to reminders at 8-10 pm. Want to focus on reminders around this time?";
 
 type Props = {};
 
 const NotificationsSummary = (props: Props) => {
+  const [data, setData] = useState(defaultData);
+  const [suggestion, setSuggestion] = useState(defaultAIMessage);
+  const [error, setError] = useState("");
+  const [aiError, setAiError] = useState("");
   const router = useRouter();
   const [expanded, setExpanded] = useState(false);
   const [contentHeight, setContentHeight] = useState(0);
@@ -17,12 +35,43 @@ const NotificationsSummary = (props: Props) => {
     setExpanded((expanded) => !expanded);
   };
 
+  const postData = async (id: number) => {};
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await axios.get("url", {});
+      if (response.status === 200) {
+        setData(response.data);
+      } else {
+        setError("Something went wrong, please try again.");
+      }
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
+  const fetchAISuggestion = async () => {
+    try {
+      const response = await axios.get("url", {});
+      if (response.status === 200) {
+        setSuggestion(response.data);
+      } else {
+        setAiError("Something went wrong, please try again.");
+      }
+    } catch (err: any) {
+      setAiError(err.message);
+    }
+  };
+
   useEffect(() => {
     Animated.timing(animation, {
       toValue: expanded ? contentHeight : 0,
       duration: 300,
       useNativeDriver: false, // false because we animate height
     }).start();
+
+    fetchNotifications();
+    fetchAISuggestion();
   }, [expanded, contentHeight]);
 
   return (
@@ -47,14 +96,24 @@ const NotificationsSummary = (props: Props) => {
             />
             <View className="grid grid-cols-2">
               <Text className="mr-1 text-white">Today's reminders:</Text>
-              <Text className="text-white">3</Text>
+              {data && Object.keys(data).length > 0 ? (
+                <Text className="text-white">{Object.keys(data).length}</Text>
+              ) : (
+                <Text className="text-white">0</Text>
+              )}
             </View>
           </View>
           <View className="flex flex-row gap-2">
             <Ionicons name="eye-outline" color={"#E4CCFF"} size={18} />
             <View className="grid grid-cols-2">
               <Text className="mr-1 text-white">Viewed:</Text>
-              <Text className="text-white">3</Text>
+              {data && Object.keys(data).length > 0 ? (
+                <Text className="text-white">
+                  {data.notifications.filter((obj) => obj.seen === true).length}
+                </Text>
+              ) : (
+                <Text className="text-white">0</Text>
+              )}
             </View>
           </View>
         </View>
@@ -87,36 +146,50 @@ const NotificationsSummary = (props: Props) => {
             }}
           >
             <View className="flex flex-col rounded-md mt-1 gap-1">
-              <Pressable className="p-3 hover:bg-[#51518A] bg-[#3F3F6B] rounded-md transition-colors flex flex-row justify-between">
-                <Text className="text-[#afafc1] font-light text-xs">
-                  Time to drink water - 300ml
-                </Text>
-                <Ionicons color={"#afafc1"} size={16} name="square-outline" />
-                {/* When checked <Ionicons color={'#afafc1'} size={14} name='checkbox-outline' /> */}
-              </Pressable>
-              <Pressable className="p-3 hover:bg-[#51518A] bg-[#3F3F6B] rounded-md transition-colors flex flex-row justify-between">
-                <Text className="text-[#afafc1] font-light text-xs">
-                  Time to drink water - 300ml
-                </Text>
-                <Ionicons color={"#afafc1"} size={16} name="square-outline" />
-                {/* When checked <Ionicons color={'#afafc1'} size={14} name='checkbox-outline' /> */}
-              </Pressable>
-              <Pressable className="p-3 hover:bg-[#51518A] bg-[#3F3F6B] rounded-md transition-colors flex flex-row justify-between">
-                <Text className="text-[#afafc1] font-light text-xs">
-                  Time to drink water - 300ml
-                </Text>
-                <Ionicons color={"#afafc1"} size={16} name="square-outline" />
-                {/* When checked <Ionicons color={'#afafc1'} size={14} name='checkbox-outline' /> */}
-              </Pressable>
+              {data && Object.keys(data).length > 0
+                ? data.notifications.map((n) => (
+                    <Pressable
+                      onPress={() => postData(n.id)}
+                      key={n.id}
+                      className="p-3 hover:bg-[#51518A] bg-[#3F3F6B] rounded-md transition-colors flex flex-row justify-between"
+                    >
+                      <Text className="text-[#afafc1] font-light text-xs">
+                        {n.text}
+                      </Text>
+                      {n.seen === false ? (
+                        <Ionicons
+                          color={"#afafc1"}
+                          size={16}
+                          name="square-outline"
+                        />
+                      ) : (
+                        <Ionicons
+                          color={"#afafc1"}
+                          size={14}
+                          name="checkbox-outline"
+                        />
+                      )}
+                    </Pressable>
+                  ))
+                : error.length > 0 && (
+                    <View className="bg-[#B22222] p-2 rounded-md">
+                      <Text className="text-sm text-gray-200">{error}</Text>
+                    </View>
+                  )}
             </View>
           </View>
         </Animated.View>
         <View className="bg-[#2E2E4D] p-3 w-full rounded-md mt-4">
           <Text className="text-white font-bold">AI Suggestions</Text>
-          <Text className="text-gray-400 text-sm mt-2">
-            You are most likely to respond to reminders at 8-10 pm. Want to
-            focus on reminders around this time?
-          </Text>
+          {suggestion && suggestion.length > 0 ? (
+            <Text className="text-gray-400 text-sm mt-2">{suggestion}</Text>
+          ) : (
+            aiError.length > 0 && (
+              <View className="bg-[#B22222] p-2 rounded-md mt-2">
+                <Text className="text-sm text-gray-200">{aiError}</Text>
+              </View>
+            )
+          )}
         </View>
         <Pressable
           onPress={() => router.navigate("/NotificationsHistory")}
