@@ -1,12 +1,61 @@
 import { View, Text, Pressable } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import WaterIcon from "@/assets/WaterIcon";
 import { Link, Stack, useRouter } from "expo-router";
+import axios from "axios";
+
+const defaultData = [
+  {
+    id: 3,
+    date_created: "2025-4-19",
+    notifications: [
+      "Morning Hydration Tip: Start with 200ml",
+      "Morning Hydration Tip: Start with 200ml",
+      "Morning Hydration Tip: Start with 200ml",
+    ],
+  },
+  {
+    id: 2,
+    date_created: "2025-4-18",
+    notifications: [
+      "Morning Hydration Tip: Start with 200ml",
+      "Morning Hydration Tip: Start with 200ml",
+      "Morning Hydration Tip: Start with 200ml",
+    ],
+  },
+  {
+    id: 1,
+    date_created: "2025-4-17",
+    notifications: [
+      "Morning Hydration Tip: Start with 200ml",
+      "Morning Hydration Tip: Start with 200ml",
+      "Morning Hydration Tip: Start with 200ml",
+    ],
+  },
+];
 
 type Props = {};
 
 const NotificationsHistory = (props: Props) => {
+  const [notifications, setNotifications] = useState(defaultData);
   const router = useRouter();
+  const [error, setError] = useState("");
+  const today = new Date();
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get("url", {});
+      if (response.status === 200) {
+        setNotifications(response.data);
+      }
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <View className="bg-[#1e1f3f] h-full w-full py-[40px] px-2">
@@ -25,46 +74,24 @@ const NotificationsHistory = (props: Props) => {
           Last 7 days (Scroll to see more)
         </Text>
         <View className="bg-[#2D2F50] flex flex-col gap-5 p-3 rounded-md mt-6 max-h-[216px] overflow-y-scroll">
-          {/* Show different days and details from database */}
-          <View>
-            <Text className="text-white mb-2 font-bold">Yesterday</Text>
-            <Text className="text-gray-200 text-[14px] mb-1">
-              {/* For each notification */}
-              Morning Hydration Tip: Start with 200ml
-            </Text>
-            <Text className="text-gray-200 mb-1">
-              Morning Hydration Tip: Start with 200ml
-            </Text>
-            <Text className="text-gray-200 mb-1">
-              Morning Hydration Tip: Start with 200ml
-            </Text>
-          </View>
-          <View>
-            <Text className="text-white mb-2 font-bold">Tuesday</Text>
-            <Text className="text-gray-200 text-[14px] mb-1">
-              {/* For each notification */}
-              Morning Hydration Tip: Start with 200ml
-            </Text>
-            <Text className="text-gray-200 mb-1">
-              Morning Hydration Tip: Start with 200ml
-            </Text>
-            <Text className="text-gray-200 mb-1">
-              Morning Hydration Tip: Start with 200ml
-            </Text>
-          </View>
-          <View>
-            <Text className="text-white mb-2 font-bold">Tuesday</Text>
-            <Text className="text-gray-200 text-[14px] mb-1">
-              {/* For each notification */}
-              Morning Hydration Tip: Start with 200ml
-            </Text>
-            <Text className="text-gray-200 mb-1">
-              Morning Hydration Tip: Start with 200ml
-            </Text>
-            <Text className="text-gray-200 mb-1">
-              Morning Hydration Tip: Start with 200ml
-            </Text>
-          </View>
+          {notifications && notifications.length > 0
+            ? notifications.map((n) => (
+                <View key={n.id}>
+                  <Text className="text-white mb-2 font-bold">
+                    {today.getDate() - Number(n.date_created.slice(n.date_created.length - 2)) === 1
+                      ? "Yesterday"
+                      : n.date_created}
+                  </Text>
+                  {n.notifications.map((x, i) => (
+                    <Text key={i} className="text-gray-200 text-[14px] mb-1">{x}</Text>
+                  ))}
+                </View>
+              ))
+            : error.length > 0 && (
+                <View className="bg-[#B22222] p-2 rounded-md">
+                  <Text className="text-sm text-gray-200">{error}</Text>
+                </View>
+              )}
         </View>
         <Pressable
           onPress={() => router.navigate("/Dashboard")}
