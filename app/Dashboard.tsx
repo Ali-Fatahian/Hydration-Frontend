@@ -1,4 +1,4 @@
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, ScrollView } from "react-native";
 import React from "react";
 import { Stack, useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
@@ -12,7 +12,7 @@ const Dashboard = (props: Props) => {
   const router = useRouter();
 
   return (
-    <View className="bg-[#1e1f3f] h-full w-full py-[40px] px-2">
+    <ScrollView className="bg-[#1e1f3f] h-full w-full py-[40px] px-2">
       <Stack.Screen options={{ headerShown: false }} />
       <View className="w-full max-w-lg mx-auto">
         <View className="flex justify-center w-full flex-row gap-1">
@@ -51,7 +51,12 @@ const Dashboard = (props: Props) => {
               It's hot today — add 300ml to your daily goal.
             </Text>
           </View>
-          <Ionicons name="arrow-forward-outline" size={15} color={"#fff"} className="text-right" />
+          <Ionicons
+            name="arrow-forward-outline"
+            size={15}
+            color={"#fff"}
+            className="text-right"
+          />
         </Pressable>
         <View className="w-full mt-3">
           <View className="mt-6 w-full mx-auto grid grid-cols-3 justify-center gap-3">
@@ -113,7 +118,7 @@ const Dashboard = (props: Props) => {
           </Text>
         </Pressable>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 

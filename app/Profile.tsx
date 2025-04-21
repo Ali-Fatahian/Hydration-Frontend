@@ -1,4 +1,4 @@
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, ScrollView } from "react-native";
 import React from "react";
 import { router, Stack } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
@@ -7,7 +7,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 const Profile = () => {
   return (
-    <View className="bg-[#1e1f3f] h-full w-full py-[40px] px-2">
+    <ScrollView className="bg-[#1e1f3f] h-full w-full py-[40px] px-2">
       <Stack.Screen options={{ headerShown: false }} />
       <View className="w-full max-w-lg mx-auto">
         <View className="flex justify-center w-full flex-row gap-1">
@@ -125,7 +125,7 @@ const Profile = () => {
           </Text>
         </Pressable>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 

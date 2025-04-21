@@ -1,4 +1,11 @@
-import { View, Text, Modal, Pressable, TextInput } from "react-native";
+import {
+  View,
+  Text,
+  Modal,
+  Pressable,
+  TextInput,
+  ScrollView,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import { Stack, useRouter } from "expo-router";
 import { WebView } from "react-native-webview";
@@ -59,7 +66,7 @@ const CreatineIntake = (props: Props) => {
   }, []);
 
   return (
-    <View className="bg-[#1e1f3f] h-full w-full py-[40px] px-2">
+    <ScrollView className="bg-[#1e1f3f] h-full w-full py-[40px] px-2">
       <Stack.Screen options={{ headerShown: false }} />
       <View className="w-full max-w-lg mx-auto">
         {isWebViewVisible && (
@@ -184,7 +191,10 @@ const CreatineIntake = (props: Props) => {
               </Text>
             </View>
           </View>
-          <Pressable onPress={() => setIsWebViewVisible(true)} className="bg-[#816BFF] cursor-pointer rounded-3xl py-3 px-20 w-fit mx-auto hover:bg-[#735cf5] active:bg-[#5943d6] transition-colors">
+          <Pressable
+            onPress={() => setIsWebViewVisible(true)}
+            className="bg-[#816BFF] cursor-pointer rounded-3xl py-3 px-20 w-fit mx-auto hover:bg-[#735cf5] active:bg-[#5943d6] transition-colors"
+          >
             <Text className="text-[14px] font-bold text-white text-center">
               Shop
             </Text>
@@ -197,7 +207,7 @@ const CreatineIntake = (props: Props) => {
           Back
         </Pressable>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 

@@ -1,4 +1,4 @@
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, ScrollView } from "react-native";
 import React, { useEffect, useState } from "react";
 import WaterIcon from "@/assets/WaterIcon";
 import { Link, Stack, useRouter } from "expo-router";
@@ -48,7 +48,7 @@ const NotificationsHistory = (props: Props) => {
       if (response.status === 200) {
         setNotifications(response.data);
       } else {
-        setError('Something went wrong, please try again.')
+        setError("Something went wrong, please try again.");
       }
     } catch (err: any) {
       setError(err.message);
@@ -60,7 +60,7 @@ const NotificationsHistory = (props: Props) => {
   }, []);
 
   return (
-    <View className="bg-[#1e1f3f] h-full w-full py-[40px] px-2">
+    <ScrollView className="bg-[#1e1f3f] h-full w-full py-[40px] px-2">
       <Stack.Screen options={{ headerShown: false }} />
       <View className="w-full max-w-lg mx-auto">
         <View className="flex justify-center w-full flex-row gap-1">
@@ -80,12 +80,18 @@ const NotificationsHistory = (props: Props) => {
             ? notifications.map((n) => (
                 <View key={n.id}>
                   <Text className="text-white mb-2 font-bold">
-                    {today.getDate() - Number(n.date_created.slice(n.date_created.length - 2)) === 1
+                    {today.getDate() -
+                      Number(
+                        n.date_created.slice(n.date_created.length - 2)
+                      ) ===
+                    1
                       ? "Yesterday"
                       : n.date_created}
                   </Text>
                   {n.notifications.map((x, i) => (
-                    <Text key={i} className="text-gray-200 text-[14px] mb-1">{x}</Text>
+                    <Text key={i} className="text-gray-200 text-[14px] mb-1">
+                      {x}
+                    </Text>
                   ))}
                 </View>
               ))
@@ -110,7 +116,7 @@ const NotificationsHistory = (props: Props) => {
           Back
         </Link>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 

@@ -1,4 +1,4 @@
-import { View, Text } from "react-native";
+import { View, Text, ScrollView } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Link, Stack } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
@@ -56,7 +56,7 @@ const DailyGoal = (props: Props) => {
   }, []);
 
   return (
-    <View className="bg-[#1e1f3f] h-full w-full py-[60px]">
+    <ScrollView className="bg-[#1e1f3f] h-full w-full py-[60px]">
       <Stack.Screen options={{ headerShown: false }} />
       <View className="w-full max-w-lg mx-auto">
         <View className="flex justify-center w-full flex-row gap-1">
@@ -125,7 +125,7 @@ const DailyGoal = (props: Props) => {
           </Link>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
