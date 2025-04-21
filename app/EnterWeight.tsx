@@ -34,9 +34,10 @@ const EnterWeight = (props: Props) => {
             classes="absolute left-[3px] top-[5px]"
           />
           <TextInput
-            className="transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light pr-5 pl-9 py-3 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964] placeholder:text-[#B0B0C3]"
+            className="transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light pr-5 pl-9 py-3 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964]"
             placeholder="Weight..."
             keyboardType="numeric"
+            placeholderTextColor={"#B0B0C3"}
           />
         </View>
         <Pressable
@@ -48,7 +49,7 @@ const EnterWeight = (props: Props) => {
           </Text>
         </Pressable>
         <Pressable
-          onPress={() => router.push("/Dashboard")} // router.back() ||
+          onPress={() => router.push("/Dashboard")}
           className="text-white text-[14px] mt-3 font-light text-center hover:underline active:underline"
         >
           Cancel

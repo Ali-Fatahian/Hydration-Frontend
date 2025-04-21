@@ -29,15 +29,17 @@ const PersonalInformation = (props: Props) => {
           <View className="mt-6">
             <Text className="text-white mb-2">Full Name</Text>
             <TextInput
-              className="peer transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light placeholder:text-gray-400 px-5 py-3 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964]"
+              className="peer transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light px-5 py-3 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964]"
               placeholder="User's Full Name"
+              placeholderTextColor={"#9CA3AF"}
             />
           </View>
           <View className="mt-4">
             <Text className="text-white mb-2">Email</Text>
             <TextInput
-              className="peer transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light placeholder:text-gray-400 px-5 py-3 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964]"
+              className="peer transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light px-5 py-3 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964]"
               placeholder="User's Email"
+              placeholderTextColor={"#9CA3AF"}
             />
           </View>
         </View>
