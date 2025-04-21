@@ -1,6 +1,7 @@
 import { View, Text, Modal, Pressable, TextInput } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Stack, useRouter } from "expo-router";
+import { WebView } from "react-native-webview";
 import WaterIcon from "@/assets/WaterIcon";
 import BottleIcon from "@/assets/BottleIcon";
 import axios from "axios";
@@ -11,6 +12,7 @@ const CreatineIntake = (props: Props) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [creatineIntake, setCreatineIntake] = useState("");
   const [backendIntakeVal, setBackendIntakeVal] = useState("");
+  const [isWebViewVisible, setIsWebViewVisible] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
@@ -60,6 +62,29 @@ const CreatineIntake = (props: Props) => {
     <View className="bg-[#1e1f3f] h-full w-full py-[40px] px-2">
       <Stack.Screen options={{ headerShown: false }} />
       <View className="w-full max-w-lg mx-auto">
+        {isWebViewVisible && (
+          <View style={{ flex: 1, width: "100%" }}>
+            <WebView
+              source={{ uri: "https://google.com" }} // Replace with your URL
+              style={{ flex: 1 }}
+            />
+            {/* Close Button to return to the main page */}
+            <Pressable
+              style={{
+                position: "absolute",
+                top: 40,
+                left: 20,
+                backgroundColor: "#FF6347",
+                paddingVertical: 10,
+                paddingHorizontal: 20,
+                borderRadius: 8,
+              }}
+              onPress={() => setIsWebViewVisible(false)}
+            >
+              <Text style={{ color: "white", fontWeight: "bold" }}>Close</Text>
+            </Pressable>
+          </View>
+        )}
         <Modal
           animationType="slide"
           transparent={true}
@@ -159,14 +184,14 @@ const CreatineIntake = (props: Props) => {
               </Text>
             </View>
           </View>
-          <Pressable className="bg-[#816BFF] cursor-pointer rounded-3xl py-3 px-20 w-fit mx-auto hover:bg-[#735cf5] active:bg-[#5943d6] transition-colors">
+          <Pressable onPress={() => setIsWebViewVisible(true)} className="bg-[#816BFF] cursor-pointer rounded-3xl py-3 px-20 w-fit mx-auto hover:bg-[#735cf5] active:bg-[#5943d6] transition-colors">
             <Text className="text-[14px] font-bold text-white text-center">
               Shop
             </Text>
           </Pressable>
         </View>
         <Pressable
-          onPress={() => router.push("/Profile")} // router.back() ||
+          onPress={() => router.push("/Profile")}
           className="text-white font-bold mt-6 text-center hover:underline active:underline"
         >
           Back
