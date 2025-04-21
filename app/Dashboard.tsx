@@ -59,7 +59,7 @@ const Dashboard = (props: Props) => {
           />
         </Pressable>
         <View className="w-full mt-3">
-          <View className="mt-6 w-full mx-auto grid grid-cols-3 justify-center gap-3">
+          <View className="mt-6 w-full mx-auto flex flex-row justify-evenly gap-3">
             <View className="flex flex-col items-center">
               <ShoeIcon height={80} width={80} fill="#635994" />
               <View>

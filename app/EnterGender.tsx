@@ -26,7 +26,7 @@ const EnterGender = (props: Props) => {
         <Text className="text-center mt-10 text-[#C9C9E3] text-[14px]">
           Please choose and click continue
         </Text>
-        <View className="grid grid-cols-1 min-[270px]:grid-cols-2 gap-4 mt-10 max-w-sm mx-auto">
+        <View className="flex flex-col min-[270px]:flex-row gap-4 mt-10 max-w-sm mx-auto">
           {(["Male", "Female"] as Gender[]).map((gender) => (
             <Pressable key={gender} onPress={() => setSelectedGender(gender)}>
               <Text

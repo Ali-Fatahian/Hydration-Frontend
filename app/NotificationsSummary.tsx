@@ -94,7 +94,7 @@ const NotificationsSummary = (props: Props) => {
               color={"#E4CCFF"}
               size={18}
             />
-            <View className="grid grid-cols-2">
+            <View className="flex flex-row">
               <Text className="mr-1 text-white">Today's reminders:</Text>
               {data && Object.keys(data).length > 0 ? (
                 <Text className="text-white">{Object.keys(data).length}</Text>
@@ -105,7 +105,7 @@ const NotificationsSummary = (props: Props) => {
           </View>
           <View className="flex flex-row gap-2">
             <Ionicons name="eye-outline" color={"#E4CCFF"} size={18} />
-            <View className="grid grid-cols-2">
+            <View className="flex flex-row">
               <Text className="mr-1 text-white">Viewed:</Text>
               {data && Object.keys(data).length > 0 ? (
                 <Text className="text-white">
