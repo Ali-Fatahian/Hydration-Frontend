@@ -75,7 +75,7 @@ const NotificationsHistory = (props: Props) => {
         <Text className="text-gray-300 text-xs text-center mt-2">
           Last 7 days (Scroll to see more)
         </Text>
-        <View className="bg-[#2D2F50] flex flex-col gap-5 p-3 rounded-md mt-6 max-h-[216px] overflow-y-scroll">
+        <ScrollView className="bg-[#2D2F50] flex flex-col gap-5 p-3 rounded-md mt-6 max-h-[216px] overflow-y-scroll">
           {notifications && notifications.length > 0
             ? notifications.map((n) => (
                 <View key={n.id}>
@@ -100,7 +100,7 @@ const NotificationsHistory = (props: Props) => {
                   <Text className="text-sm text-gray-200">{error}</Text>
                 </View>
               )}
-        </View>
+        </ScrollView>
         <Pressable
           onPress={() => router.navigate("/Dashboard")}
           className="bg-[#816BFF] mt-[40px] rounded-3xl py-3 px-20 w-fit mx-auto hover:bg-[#735cf5] active:bg-[#5943d6] transition-colors"
