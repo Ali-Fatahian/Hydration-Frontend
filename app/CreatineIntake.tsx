@@ -69,10 +69,15 @@ const CreatineIntake = (props: Props) => {
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[40px] px-2">
       <Stack.Screen options={{ headerShown: false }} />
       <View className="w-full max-w-lg mx-auto">
-        {isWebViewVisible && (
-          <View style={{ flex: 1, width: "100%" }}>
+        <Modal
+          animationType="slide"
+          transparent={false}
+          visible={isWebViewVisible}
+          onRequestClose={() => setIsWebViewVisible(false)}
+        >
+          <View style={{ flex: 1 }}>
             <WebView
-              source={{ uri: "https://google.com" }} // Replace with your URL
+              source={{ uri: "https://google.com" }}
               style={{ flex: 1 }}
             />
             {/* Close Button to return to the main page */}
@@ -91,7 +96,7 @@ const CreatineIntake = (props: Props) => {
               <Text style={{ color: "white", fontWeight: "bold" }}>Close</Text>
             </Pressable>
           </View>
-        )}
+        </Modal>
         <Modal
           animationType="slide"
           transparent={true}
