@@ -1,11 +1,12 @@
-import { View, Text, Pressable, ScrollView } from "react-native";
-import React from "react";
+import { View, Text, Pressable, ScrollView, Image } from "react-native";
+import React, { useState } from "react";
 import { router, Stack } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
-import DefaultProfile from "@/assets/DefaultProfile";
 import { Ionicons } from "@expo/vector-icons";
 
 const Profile = () => {
+  const [image, setImage] = useState<string | null>(null);
+
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[40px] px-2">
       <Stack.Screen options={{ headerShown: false }} />
@@ -20,7 +21,19 @@ const Profile = () => {
           Profile
         </Text>
         <View className="flex flex-col gap-4 justify-center items-center w-full mt-6">
-          <DefaultProfile />
+          <Image
+            style={{
+              width: 128,
+              height: 128,
+              borderRadius: 9999,
+              borderWidth: 2,
+              borderColor: "white",
+              backgroundColor: "gray",
+            }}
+            source={
+              image ? { uri: image } : require("../assets/default-profile.png") // fallback image
+            }
+          />
           <Text className="text-[14px] font-bold text-gray-400">
             John_doe@gmail.com
           </Text>
