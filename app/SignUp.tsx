@@ -11,38 +11,50 @@ const SignUp = (props: Props) => {
   const [password, setPassword] = useState("");
   const [fullname, setFullname] = useState("");
   const [error, setError] = useState("");
+  // const [message, setMessage] = useState("");
   const router = useRouter();
 
   const handleEmailChange = (value: string) => {
     setEmail(value);
     setError("");
+    // setMessage("")
   };
 
   const handleFullnameChange = (value: string) => {
     setFullname(value);
     setError("");
+    // setMessage("")
   };
 
   const handlePasswordChange = (value: string) => {
     setPassword(value);
     setError("");
+    // setMessage("")
   };
 
-  const sendData = async (email: string, password: string) => {
+  const sendData = async (
+    fullname: string,
+    email: string,
+    password: string
+  ) => {
     try {
-      await axios.post("url", {
+      const response = await axios.post("url", {
+        fullname,
         email,
         password,
       });
-      router.navigate("/Dashboard");
+      if (response.status === 200) {
+        // setMessage(response.data);
+        router.push("/Dashboard");
+      }
     } catch (err: any) {
       setError(err.message);
     }
   };
 
   const formSubmitHandler = () => {
-    if (email.length > 0 && password.length > 0) {
-      sendData(email, password);
+    if (email.length > 0 && password.length > 0 && fullname.length > 0) {
+      sendData(fullname, email, password);
     } else {
       setError("Please fill out all the fields.");
     }
@@ -58,11 +70,11 @@ const SignUp = (props: Props) => {
             HydrationIQ
           </Text>
         </View>
-        <View className="flex flex-col mt-[58px] gap-[60px]">
+        <View className="flex flex-col mt-[58px]">
           <Text className="text-[18px] font-bold text-white text-center">
             Sign Up
           </Text>
-          <View className="flex flex-col justify-center w-full max-w-lg gap-8 mx-auto px-3">
+          <View className="flex flex-col justify-center w-full max-w-lg gap-8 mx-auto mt-6">
             <View className="relative w-full">
               <TextInput
                 value={fullname}
@@ -97,21 +109,26 @@ const SignUp = (props: Props) => {
                 Password
               </Text>
             </View>
-            {error.length > 0 && (
-              <View className="bg-[#B22222] p-2 rounded-md">
-                <Text className="text-sm text-gray-200">{error}</Text>
-              </View>
-            )}
           </View>
+          {error.length > 0 && (
+            <View className="bg-[#B22222] p-2 rounded-md mt-6">
+              <Text className="text-sm text-gray-200">{error}</Text>
+            </View>
+          )}
+          {/* {message.length > 0 && (
+            <View className="bg-[#3CB371] mt-6 p-2 rounded-md">
+              <Text className="text-sm text-gray-200">{message}</Text>
+            </View>
+          )} */}
           <Pressable
             onPress={formSubmitHandler}
-            className="bg-[#816BFF] rounded-3xl py-3 px-20 w-fit mx-auto hover:bg-[#735cf5] active:bg-[#5943d6] transition-colors"
+            className="bg-[#816BFF] rounded-3xl mt-6 py-3 px-20 w-fit mx-auto hover:bg-[#735cf5] active:bg-[#5943d6] transition-colors"
           >
             <Text className="text-sm font-bold text-white text-center">
               Register
             </Text>
           </Pressable>
-          <View className="flex w-full mx-auto justify-center gap-1 flex-row">
+          <View className="flex w-full mx-auto justify-center gap-1 flex-row mt-6">
             <Text className="text-[14px] text-white">
               Already have an account?
             </Text>

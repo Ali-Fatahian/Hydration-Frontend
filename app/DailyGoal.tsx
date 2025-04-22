@@ -11,15 +11,20 @@ type Props = {};
 const DailyGoal = (props: Props) => {
   const [dailyGoal, setDailyGoal] = useState("");
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
 
   const handleInputChange = (value: string) => {
     setDailyGoal(value);
     setError("");
+    setMessage("");
   };
 
   const sendData = async () => {
     try {
-      await axios.post("url", {});
+      const response = await axios.post("url", {});
+      if (response.status === 200) {
+        setMessage(response.data);
+      }
     } catch (err: any) {
       setError(err.message);
     }
@@ -83,6 +88,11 @@ const DailyGoal = (props: Props) => {
               </View>
             </View>
           )}
+          {message.length > 0 && (
+            <View className="bg-[#3CB371] mt-3 p-2 rounded-md">
+              <Text className="text-sm text-gray-200">{message}</Text>
+            </View>
+          )}
           <View className="bg-[#565967] px-5 py-4 rounded-lg mt-4">
             <View className="">
               <Ionicons
@@ -121,7 +131,7 @@ const DailyGoal = (props: Props) => {
             href="/Dashboard"
             className="text-white text-[14px] mt-3 font-light text-center hover:underline active:underline"
           >
-            Cancel
+            Back
           </Link>
         </View>
       </View>

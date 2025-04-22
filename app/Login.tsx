@@ -10,25 +10,31 @@ const Login = (props: Props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  // const [message, setMessage] = useState("");
   const router = useRouter();
 
   const handleEmailChange = (value: string) => {
     setEmail(value);
     setError("");
+    // setMessage("");
   };
 
   const handlePasswordChange = (value: string) => {
     setPassword(value);
     setError("");
+    // setMessage("");
   };
 
   const sendData = async (email: string, password: string) => {
     try {
-      await axios.post("url", {
+      const response = await axios.post("url", {
         email,
         password,
       });
-      router.navigate("/Dashboard");
+      if (response.status === 200) {
+        // setMessage(response.data);
+        router.push("/Dashboard");
+      }
     } catch (err: any) {
       setError(err.message);
     }
@@ -52,11 +58,11 @@ const Login = (props: Props) => {
             HydrationIQ
           </Text>
         </View>
-        <View className="flex flex-col mt-[58px] gap-[60px]">
+        <View className="flex flex-col mt-[58px] gap-4">
           <Text className="text-[18px] font-bold text-white text-center">
             Log In
           </Text>
-          <View className="flex flex-col justify-center w-full max-w-lg gap-8 mx-auto px-3">
+          <View className="flex flex-col mt-6 justify-center w-full max-w-lg gap-8 mx-auto">
             <View className="relative w-full">
               <TextInput
                 onChangeText={handleEmailChange}
@@ -80,21 +86,26 @@ const Login = (props: Props) => {
                 Password
               </Text>
             </View>
-            {error.length > 0 && (
-              <View className="bg-[#B22222] p-2 rounded-md">
-                <Text className="text-sm text-gray-200">{error}</Text>
-              </View>
-            )}
           </View>
+          {error.length > 0 && (
+            <View className="bg-[#B22222] p-2 rounded-md">
+              <Text className="text-sm text-gray-200">{error}</Text>
+            </View>
+          )}
+          {/* {message.length > 0 && (
+            <View className="bg-[#3CB371] p-2 rounded-md">
+              <Text className="text-sm text-gray-200">{message}</Text>
+            </View>
+          )} */}
           <Pressable
             onPress={formSubmitHandler}
-            className="bg-[#816BFF] rounded-3xl py-3 px-20 w-fit mx-auto hover:bg-[#735cf5] active:bg-[#5943d6] transition-colors"
+            className="bg-[#816BFF] mt-6 rounded-3xl py-3 px-20 w-fit mx-auto hover:bg-[#735cf5] active:bg-[#5943d6] transition-colors"
           >
             <Text className="text-sm font-bold text-white text-center">
               Submit
             </Text>
           </Pressable>
-          <View>
+          <View className="mt-4">
             <Link href="/+not-found" className="w-full text-center">
               <Text className="text-[14px] mx-auto text-white ">
                 Forgot Password?

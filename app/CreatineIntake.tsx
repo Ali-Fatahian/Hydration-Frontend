@@ -119,6 +119,7 @@ const CreatineIntake = (props: Props) => {
                 keyboardType="numeric"
                 onChangeText={(v) => {
                   setError("");
+                  setMessage("");
                   setCreatineIntake(v);
                 }}
                 value={creatineIntake}

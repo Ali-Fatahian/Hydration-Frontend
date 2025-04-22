@@ -1,14 +1,58 @@
 import { View, Text, ScrollView } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Stack, useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
 import { Pressable, TextInput } from "react-native-gesture-handler";
 import KGIcon from "@/assets/KGIcon";
+import axios from "axios";
 
 type Props = {};
 
 const EnterWeight = (props: Props) => {
   const router = useRouter();
+  const [weight, setWeight] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get("url", {});
+      if (response.status === 200) {
+        setWeight(response.data);
+      } else {
+        setError("Something went wrong, please try again.");
+      }
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
+  const sendData = async () => {
+    try {
+      const response = await axios.post("url", {});
+      if (response.status === 200) {
+        setMessage(response.data);
+      }
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
+  const formSubmitHandler = () => {
+    if (weight && weight.length > 0) {
+      if (!isNaN(Number(weight))) {
+        sendData();
+      } else {
+        setError("You must type in numbers.");
+      }
+    } else {
+      setError("The field must not be empty.");
+    }
+  };
+
+  useEffect(() => {
+    // fetchData();
+  }, [])
 
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[40px] px-2">
@@ -38,21 +82,37 @@ const EnterWeight = (props: Props) => {
             placeholder="Weight..."
             keyboardType="numeric"
             placeholderTextColor={"#B0B0C3"}
+            value={weight}
+            onChange={(e: any) => {
+              setWeight(e.target.value);
+              setError("");
+              setMessage("");
+            }}
           />
+          {error.length > 0 && (
+            <View className="bg-[#B22222] mt-3 p-2 rounded-md">
+              <Text className="text-sm text-gray-200">{error}</Text>
+            </View>
+          )}
+          {message.length > 0 && (
+            <View className="bg-[#3CB371] mt-3 p-2 rounded-md">
+              <Text className="text-sm text-gray-200">{message}</Text>
+            </View>
+          )}
         </View>
         <Pressable
-          onPress={() => router.navigate("/Dashboard")}
+          onPress={() => formSubmitHandler()}
           className="bg-[#816BFF] cursor-pointer rounded-3xl py-3 px-20 mt-10 w-fit mx-auto hover:bg-[#735cf5] active:bg-[#5943d6] transition-colors"
         >
           <Text className="text-[14px] font-bold text-white text-center">
-            Continue
+            Submit
           </Text>
         </Pressable>
         <Pressable
           onPress={() => router.push("/Dashboard")}
           className="text-white text-[14px] mt-3 font-light text-center hover:underline active:underline"
         >
-          Cancel
+          Back
         </Pressable>
       </View>
     </ScrollView>
