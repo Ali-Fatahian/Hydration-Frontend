@@ -1,10 +1,11 @@
 import { View, Text, ScrollView } from "react-native";
 import React, { useEffect, useState } from "react";
-import { Stack, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
 import { Pressable, TextInput } from "react-native-gesture-handler";
 import KGIcon from "@/assets/KGIcon";
 import axios from "axios";
+import Drawer from "expo-router/drawer";
 
 type Props = {};
 
@@ -52,11 +53,10 @@ const EnterWeight = (props: Props) => {
 
   useEffect(() => {
     // fetchData();
-  }, [])
+  }, []);
 
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[40px] px-2">
-      <Stack.Screen options={{ headerShown: false }} />
       <View className="w-full max-w-lg mx-auto">
         <View className="flex justify-center w-full flex-row gap-1">
           <WaterIcon />
