@@ -1,6 +1,6 @@
 import { View, Text, Pressable, ScrollView } from "react-native";
 import React from "react";
-import { Link, Stack } from "expo-router";
+import { Link } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -9,7 +9,6 @@ type Props = {};
 const ConnectSmartBottle = (props: Props) => {
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[60px]">
-      <Stack.Screen options={{ headerShown: false }} />
       <View className="w-full max-w-lg mx-auto">
         <View className="flex justify-center w-full flex-row gap-1">
           <WaterIcon />

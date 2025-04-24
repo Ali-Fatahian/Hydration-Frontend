@@ -7,7 +7,7 @@ import {
   ScrollView,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import { Stack, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { WebView } from "react-native-webview";
 import WaterIcon from "@/assets/WaterIcon";
 import BottleIcon from "@/assets/BottleIcon";
@@ -67,7 +67,6 @@ const CreatineIntake = (props: Props) => {
 
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[40px] px-2">
-      <Stack.Screen options={{ headerShown: false }} />
       <View className="w-full max-w-lg mx-auto">
         <Modal
           animationType="slide"
