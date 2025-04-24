@@ -1,7 +1,7 @@
 import { View, Text, Pressable, Animated, ScrollView } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import WaterIcon from "@/assets/WaterIcon";
-import { Link, Stack, useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 
@@ -76,7 +76,6 @@ const NotificationsSummary = (props: Props) => {
 
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[40px] px-2">
-      <Stack.Screen options={{ headerShown: false }} />
       <View className="w-full max-w-lg mx-auto">
         <View className="flex justify-center w-full flex-row gap-1">
           <WaterIcon />

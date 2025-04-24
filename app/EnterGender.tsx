@@ -12,7 +12,6 @@ const EnterGender = (props: Props) => {
 
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[40px] px-2">
-      <Stack.Screen options={{ headerShown: false }} />
       <View className="w-full max-w-lg mx-auto">
         <View className="flex justify-center w-full flex-row gap-1">
           <WaterIcon />
@@ -48,7 +47,7 @@ const EnterGender = (props: Props) => {
           </Text>
         </Pressable>
         <Pressable
-          onPress={() => router.push("/Dashboard")} // router.back() ||
+          onPress={() => router.push("/Profile")} // router.back() ||
           className="text-white text-[14px] mt-3 font-light text-center hover:underline active:underline"
         >
           Cancel

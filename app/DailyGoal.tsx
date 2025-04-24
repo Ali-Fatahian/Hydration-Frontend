@@ -62,7 +62,6 @@ const DailyGoal = (props: Props) => {
 
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[60px]">
-      <Stack.Screen options={{ headerShown: false }} />
       <View className="w-full max-w-lg mx-auto">
         <View className="flex justify-center w-full flex-row gap-1">
           <WaterIcon />
@@ -71,13 +70,13 @@ const DailyGoal = (props: Props) => {
           </Text>
         </View>
         <Text className="block mt-[60px] text-center text-white font-bold text-[16px]">
-          Set your daily goal
+          Water Intake
         </Text>
         <View className="w-full mt-[50] px-2">
           <TextInput
             className='w-full max-w-lg mx-auto peer transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light px-5 py-3 text-sm text-white rounded-md outline-none select-all focus:bg-[#373964]"'
             keyboardType="numeric"
-            placeholder="Enter your daily goal(ml)"
+            placeholder="Enter your today's water intake(ml)"
             value={dailyGoal}
             onChange={(e: any) => handleInputChange(e.target.value)}
           />
@@ -95,27 +94,25 @@ const DailyGoal = (props: Props) => {
           )}
           <View className="bg-[#565967] px-5 py-4 rounded-lg mt-4">
             <View className="">
-              <Ionicons
+              {/* <Ionicons
                 name="bulb"
                 color={"#FBC02D"}
                 size={15}
-                className="mr-2"
-              />
-              <Text className="text-[#afafc1] font-light text-xs mt-3">
+                className="inline-block"
+              /> */}
+              {/* <Text className="text-[#afafc1] font-light text-xs mt-3">
                 <Text className="font-bold">How to calculate:</Text> Water
                 intake (in ounces) = Body weight (in pounds) × 0.5
-              </Text>
-              <Text className="text-[#afafc1] font-light text-xs mt-2">
+              </Text> */}
+              {/* <Text className="text-[#afafc1] font-light text-xs mt-2">
                 For example, If you weigh 150 pounds: 150lbs × 0.5 = 75 ounces
-              </Text>
-              <Text className="text-[#afafc1] font-light text-xs mt-4">
+              </Text> */}
+              {/* <Text className="text-[#afafc1] font-light text-xs mt-4">
                 <Text className="font-bold">Exercise:</Text> Add 12–16 ounces
                 for every 30 minutes of activity.
-              </Text>
-              <Text className="text-[#afafc1] font-light text-xs mt-4">
-                <Text className="font-bold">Heat:</Text> If you're in a hot
-                climate, aim to drink more to compensate for water lost through
-                sweat.
+              </Text> */}
+              <Text className="text-[#afafc1] font-light text-xs inline-block">
+                Only use this if you are not using a connected water bottle.
               </Text>
             </View>
           </View>

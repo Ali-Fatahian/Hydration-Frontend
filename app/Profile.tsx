@@ -9,7 +9,6 @@ const Profile = () => {
 
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[40px] px-2">
-      <Stack.Screen options={{ headerShown: false }} />
       <View className="w-full max-w-lg mx-auto">
         <View className="flex justify-center w-full flex-row gap-1">
           <WaterIcon />
@@ -106,7 +105,7 @@ const Profile = () => {
           >
             <View>
               <Text className="text-white text-[14px] font-bold">
-                Reconnect Smart Phone
+                Connect Smart Bottle
               </Text>
             </View>
             <Ionicons
@@ -116,7 +115,7 @@ const Profile = () => {
             />
           </Pressable>
           <Pressable
-            onPress={() => router.navigate("/+not-found")}
+            onPress={() => router.navigate("/EnableNotification")}
             className="bg-[#2E2E4D] p-3 flex flex-row justify-between items-center w-full rounded-md cursor-pointer transition-colors hover:bg-[#36366c]"
           >
             <View className="flex flex-row gap-1">

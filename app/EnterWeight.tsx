@@ -5,7 +5,6 @@ import WaterIcon from "@/assets/WaterIcon";
 import { Pressable, TextInput } from "react-native-gesture-handler";
 import KGIcon from "@/assets/KGIcon";
 import axios from "axios";
-import Drawer from "expo-router/drawer";
 
 type Props = {};
 
@@ -109,7 +108,7 @@ const EnterWeight = (props: Props) => {
           </Text>
         </Pressable>
         <Pressable
-          onPress={() => router.push("/Dashboard")}
+          onPress={() => router.push("/Profile")}
           className="text-white text-[14px] mt-3 font-light text-center hover:underline active:underline"
         >
           Back
