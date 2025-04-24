@@ -1,10 +1,9 @@
 import { View, Text, ScrollView } from "react-native";
 import React, { useEffect, useState } from "react";
-import { Link, Stack } from "expo-router";
+import { Link } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
 import { Pressable, TextInput } from "react-native-gesture-handler";
 import axios from "axios";
-import { Ionicons } from "@expo/vector-icons";
 
 type Props = {};
 

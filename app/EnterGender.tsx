@@ -1,7 +1,7 @@
 import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
 import React, { useState } from "react";
 import WaterIcon from "@/assets/WaterIcon";
-import { Stack, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 
 type Props = {};
 type Gender = "Male" | "Female";

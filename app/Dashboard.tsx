@@ -1,6 +1,6 @@
 import { View, Text, Pressable, ScrollView } from "react-native";
 import React from "react";
-import { Stack, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
 import { Ionicons } from "@expo/vector-icons";
 import ShoeIcon from "@/assets/ShoeIcon";
