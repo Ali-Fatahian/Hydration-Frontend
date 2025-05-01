@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Link, useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type Props = {};
 
@@ -27,12 +28,13 @@ const Login = (props: Props) => {
 
   const sendData = async (email: string, password: string) => {
     try {
-      const response = await axios.post("url", {
+      const response = await axios.post("http://localhost:8000/api/login", {
         email,
         password,
       });
       if (response.status === 200) {
         // setMessage(response.data);
+        await AsyncStorage.setItem('token', JSON.stringify(response.data['token']))
         router.push("/Dashboard");
       }
     } catch (err: any) {
