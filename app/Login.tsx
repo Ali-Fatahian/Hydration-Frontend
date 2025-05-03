@@ -35,6 +35,7 @@ const Login = (props: Props) => {
       if (response.status === 200) {
         // setMessage(response.data);
         await AsyncStorage.setItem('token', JSON.stringify(response.data['token']))
+        await AsyncStorage.setItem('id', JSON.stringify(response.data['id']))
         router.push("/Dashboard");
       }
     } catch (err: any) {
