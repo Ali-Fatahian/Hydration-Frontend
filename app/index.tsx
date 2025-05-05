@@ -1,16 +1,25 @@
-// Only show this on the first launch,
-// Or if user has not finished the set up process,
-// Show login afterwards if user is not logged in
-
 import { View, Text, Pressable, ScrollView } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type Props = {};
 
 const Index = (props: Props) => {
   const router = useRouter();
+
+  const checkAuth = async () => {
+    const token = await AsyncStorage.getItem("token");
+    if (token) {
+      router.navigate("/Dashboard");
+      return;
+    }
+  };
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
 
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[80px]">
