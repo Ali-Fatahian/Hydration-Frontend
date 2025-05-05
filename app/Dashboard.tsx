@@ -34,10 +34,9 @@ const Dashboard = (props: Props) => {
 
   const fetchNotification = async () => {
     try {
-      const response = await axiosInstance.get("notifications");
+      const response = await axiosInstance.get("latest_notification");
       if (response.status === 200) {
-        const notifications = response.data;
-        setNotification(notifications[notifications.length - 1]); // We only want the last notification
+        setNotification(response.data);
       }
     } catch (err: any) {
       setNotificationError(err.message);
@@ -230,7 +229,8 @@ const Dashboard = (props: Props) => {
                   Creatine:
                 </Text>
                 <View className="flex flex-row gap-1">
-                  {creatineIntake.length > 0 && creatineIntakeError.length === 0 ? (
+                  {creatineIntake.length > 0 &&
+                  creatineIntakeError.length === 0 ? (
                     <Text className="text-[14px] font-bold text-[#AFAFC1]">
                       {Number(creatineIntake)}
                     </Text>
