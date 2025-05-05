@@ -2,49 +2,41 @@ import { View, Text, Pressable, ScrollView } from "react-native";
 import React, { useEffect, useState } from "react";
 import WaterIcon from "@/assets/WaterIcon";
 import { Link, useRouter } from "expo-router";
-import axios from "axios";
+import axiosInstance from "@/axiosInstance";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const defaultData = [
-  {
-    id: 3,
-    date_created: "2025-4-19",
-    notifications: [
-      "Morning Hydration Tip: Start with 200ml",
-      "Morning Hydration Tip: Start with 200ml",
-      "Morning Hydration Tip: Start with 200ml",
-    ],
-  },
-  {
-    id: 2,
-    date_created: "2025-4-18",
-    notifications: [
-      "Morning Hydration Tip: Start with 200ml",
-      "Morning Hydration Tip: Start with 200ml",
-      "Morning Hydration Tip: Start with 200ml",
-    ],
-  },
-  {
-    id: 1,
-    date_created: "2025-4-17",
-    notifications: [
-      "Morning Hydration Tip: Start with 200ml",
-      "Morning Hydration Tip: Start with 200ml",
-      "Morning Hydration Tip: Start with 200ml",
-    ],
-  },
-];
+type NotificationType = {
+  id: number;
+  message: string;
+  seen: boolean;
+  date_created: string;
+};
+
+type NotificationsType = {
+  [date: string]: NotificationType[]; // e.g., "2025-05-05": [...]
+};
 
 type Props = {};
 
 const NotificationsHistory = (props: Props) => {
-  const [notifications, setNotifications] = useState(defaultData);
+  const [notifications, setNotifications] = useState<NotificationsType | null>(
+    null
+  );
   const router = useRouter();
   const [error, setError] = useState("");
   const today = new Date();
 
+  const checkAuth = async () => {
+    const token = await AsyncStorage.getItem("token");
+    if (!token) {
+      router.navigate("/Login");
+      return;
+    }
+  };
+
   const fetchData = async () => {
     try {
-      const response = await axios.get("url", {});
+      const response = await axiosInstance.get("notifications");
       if (response.status === 200) {
         setNotifications(response.data);
       } else {
@@ -56,6 +48,7 @@ const NotificationsHistory = (props: Props) => {
   };
 
   useEffect(() => {
+    checkAuth();
     fetchData();
   }, []);
 
@@ -75,21 +68,17 @@ const NotificationsHistory = (props: Props) => {
           Last 7 days (Scroll to see more)
         </Text>
         <ScrollView className="bg-[#2D2F50] flex flex-col gap-5 p-3 rounded-md mt-6 max-h-[216px] overflow-y-scroll">
-          {notifications && notifications.length > 0
-            ? notifications.map((n) => (
-                <View key={n.id}>
+          {notifications && Object.keys(notifications).length > 0
+            ? Object.entries(notifications).map(([date, items], i) => (
+                <View key={i}>
                   <Text className="text-white mb-2 font-bold">
-                    {today.getDate() -
-                      Number(
-                        n.date_created.slice(n.date_created.length - 2)
-                      ) ===
-                    1
+                    {today.getDate() - Number(date.slice(date.length - 2)) === 1
                       ? "Yesterday"
-                      : n.date_created}
+                      : date}
                   </Text>
-                  {n.notifications.map((x, i) => (
+                  {items.map((notification, i) => (
                     <Text key={i} className="text-gray-200 text-[14px] mb-1">
-                      {x}
+                      {notification.message}
                     </Text>
                   ))}
                 </View>
