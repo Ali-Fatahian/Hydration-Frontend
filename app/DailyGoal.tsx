@@ -1,28 +1,48 @@
 import { View, Text, ScrollView } from "react-native";
 import React, { useEffect, useState } from "react";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
 import { Pressable, TextInput } from "react-native-gesture-handler";
-import axios from "axios";
+import axiosInstance from "@/axiosInstance";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type Props = {};
 
 const DailyGoal = (props: Props) => {
-  const [dailyGoal, setDailyGoal] = useState("");
+  const [userConsumption, setUserConsumption] = useState("");
+  const [dailyGoal, setDailyGoal] = useState<{
+    id: string;
+    user_water_intake: string;
+  } | null>(null);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
+  const router = useRouter();
+
+  const checkAuth = async () => {
+    const token = await AsyncStorage.getItem("token");
+    if (!token) {
+      router.navigate("/Login");
+      return;
+    }
+  };
+
   const handleInputChange = (value: string) => {
-    setDailyGoal(value);
+    setUserConsumption(value);
     setError("");
     setMessage("");
   };
 
   const sendData = async () => {
     try {
-      const response = await axios.post("url", {});
+      const response = await axiosInstance.patch(
+        `water_intake_details/${dailyGoal?.id}`,
+        {
+          user_water_intake: userConsumption,
+        }
+      );
       if (response.status === 200) {
-        setMessage(response.data);
+        setMessage(response.data.message);
       }
     } catch (err: any) {
       setError(err.message);
@@ -30,8 +50,8 @@ const DailyGoal = (props: Props) => {
   };
 
   const formSubmitHandler = () => {
-    if (dailyGoal && dailyGoal.length > 0) {
-      if (!isNaN(Number(dailyGoal))) {
+    if (userConsumption && userConsumption.length > 0) {
+      if (!isNaN(Number(userConsumption))) {
         // typeof Number('asdf') does not work
         sendData();
       } else {
@@ -44,7 +64,7 @@ const DailyGoal = (props: Props) => {
 
   const fetchDailyGoal = async () => {
     try {
-      const response = await axios.get("url", {});
+      const response = await axiosInstance.get("water_intake");
       if (response.status === 200) {
         setDailyGoal(response.data);
       } else {
@@ -56,7 +76,8 @@ const DailyGoal = (props: Props) => {
   };
 
   useEffect(() => {
-    // fetchDailyGoal()
+    checkAuth();
+    fetchDailyGoal();
   }, []);
 
   return (
@@ -75,8 +96,13 @@ const DailyGoal = (props: Props) => {
           <TextInput
             className='w-full max-w-lg mx-auto peer transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light px-5 py-3 text-sm text-white rounded-md outline-none select-all focus:bg-[#373964]"'
             keyboardType="numeric"
-            placeholder="Enter your today's water intake(ml)"
-            value={dailyGoal}
+            placeholder={
+              dailyGoal?.user_water_intake
+                ? String(Number(dailyGoal.user_water_intake))
+                : `Enter your today's water intake(ml)`
+            }
+            placeholderTextColor={"#9CA3AF"}
+            value={userConsumption}
             onChange={(e: any) => handleInputChange(e.target.value)}
           />
           {error && error.length > 0 && (
