@@ -4,26 +4,25 @@ import WaterIcon from "@/assets/WaterIcon";
 import { Link, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
-
-const defaultData = {
-  id: 1,
-  data_created: "2025-4-20",
-  notifications: [
-    { id: 1, text: "Time to drink water - 300ml", seen: false },
-    { id: 2, text: "Time to drink water - 300ml", seen: false },
-    { id: 3, text: "Time to drink water - 300ml", seen: true },
-  ],
-};
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axiosInstance from "@/axiosInstance";
 
 const defaultAIMessage =
   "You are most likely to respond to reminders at 8-10 pm. Want to focus on reminders around this time?";
 
 type Props = {};
 
+type NotificationType = {
+  id: number;
+  message: string;
+  seen: boolean;
+};
+
 const NotificationsSummary = (props: Props) => {
-  const [data, setData] = useState(defaultData);
+  const [data, setData] = useState<null | NotificationType[]>(null);
   const [suggestion, setSuggestion] = useState(defaultAIMessage);
   const [error, setError] = useState("");
+  const [updateErr, setUpdateErr] = useState("");
   const [aiError, setAiError] = useState("");
   const router = useRouter();
   const [expanded, setExpanded] = useState(false);
@@ -31,15 +30,40 @@ const NotificationsSummary = (props: Props) => {
   const animation = useRef(new Animated.Value(0)).current;
   const contentRef = useRef(null);
 
+  const checkAuth = async () => {
+    const token = await AsyncStorage.getItem("token");
+    if (!token) {
+      router.navigate("/Login");
+      return;
+    }
+  };
+
   const toggleAccordion = () => {
     setExpanded((expanded) => !expanded);
   };
 
-  const postData = async (id: number) => {};
+  const postData = async (n: NotificationType) => {
+    try {
+      const response = await axiosInstance.patch(`notifications/${n.id}`, {
+        seen: !n.seen,
+      });
+      if (response.status === 200) {
+        setData((prev) =>
+          prev
+            ? prev.map((item) =>
+                item.id === n.id ? { ...item, seen: !item.seen } : item
+              )
+            : prev
+        );
+      }
+    } catch (e: any) {
+      setUpdateErr(e.message);
+    }
+  };
 
   const fetchNotifications = async () => {
     try {
-      const response = await axios.get("url", {});
+      const response = await axiosInstance.get("today_notifications");
       if (response.status === 200) {
         setData(response.data);
       } else {
@@ -64,6 +88,8 @@ const NotificationsSummary = (props: Props) => {
   };
 
   useEffect(() => {
+    checkAuth();
+
     Animated.timing(animation, {
       toValue: expanded ? contentHeight : 0,
       duration: 300,
@@ -71,6 +97,7 @@ const NotificationsSummary = (props: Props) => {
     }).start();
 
     fetchNotifications();
+
     fetchAISuggestion();
   }, [expanded, contentHeight]);
 
@@ -108,7 +135,7 @@ const NotificationsSummary = (props: Props) => {
               <Text className="mr-1 text-white">Viewed:</Text>
               {data && Object.keys(data).length > 0 ? (
                 <Text className="text-white">
-                  {data.notifications.filter((obj) => obj.seen === true).length}
+                  {data.filter((obj) => obj.seen === true).length}
                 </Text>
               ) : (
                 <Text className="text-white">0</Text>
@@ -146,14 +173,14 @@ const NotificationsSummary = (props: Props) => {
           >
             <View className="flex flex-col rounded-md mt-1 gap-1">
               {data && Object.keys(data).length > 0
-                ? data.notifications.map((n) => (
+                ? data.map((n) => (
                     <Pressable
-                      onPress={() => postData(n.id)}
+                      onPress={() => postData(n)}
                       key={n.id}
                       className="p-3 hover:bg-[#51518A] bg-[#3F3F6B] rounded-md transition-colors flex flex-row justify-between"
                     >
                       <Text className="text-[#afafc1] font-light text-xs">
-                        {n.text}
+                        {n.message}
                       </Text>
                       {n.seen === false ? (
                         <Ionicons
@@ -176,6 +203,11 @@ const NotificationsSummary = (props: Props) => {
                     </View>
                   )}
             </View>
+            {updateErr.length > 0 && (
+              <View className="bg-[#B22222] p-2 rounded-md">
+                <Text className="text-sm text-gray-200">{updateErr}</Text>
+              </View>
+            )}
           </View>
         </Animated.View>
         <View className="bg-[#2E2E4D] p-3 w-full rounded-md mt-4">
