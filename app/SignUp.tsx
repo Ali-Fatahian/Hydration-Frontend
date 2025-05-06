@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Link, useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
 import axios from "axios";
+import Loader from "@/assets/Loader";
 
 type Props = {};
 
@@ -11,6 +12,7 @@ const SignUp = (props: Props) => {
   const [password, setPassword] = useState("");
   const [fullname, setFullname] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   // const [message, setMessage] = useState("");
   const router = useRouter();
 
@@ -37,6 +39,7 @@ const SignUp = (props: Props) => {
     email: string,
     password: string
   ) => {
+    setLoading(true);
     try {
       const response = await axios.post("url", {
         fullname,
@@ -50,6 +53,7 @@ const SignUp = (props: Props) => {
     } catch (err: any) {
       setError(err.message);
     }
+    setLoading(false);
   };
 
   const formSubmitHandler = () => {
@@ -119,6 +123,7 @@ const SignUp = (props: Props) => {
               <Text className="text-sm text-gray-200">{message}</Text>
             </View>
           )} */}
+          {loading && <Loader className="mt-4" />}
           <Pressable
             onPress={formSubmitHandler}
             className="bg-[#816BFF] rounded-3xl mt-6 py-3 px-20 w-fit mx-auto hover:bg-[#735cf5] active:bg-[#5943d6] transition-colors"

@@ -1,10 +1,11 @@
 import { View, Text, Pressable, ScrollView, Image } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { router } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axiosInstance from "@/axiosInstance";
+import { useFocusEffect } from "@react-navigation/native";
 
 const Profile = () => {
   const [user, setUser] = useState<{
@@ -36,10 +37,12 @@ const Profile = () => {
     }
   };
 
-  useEffect(() => {
-    checkAuth();
-    fetchUserInfo();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      checkAuth();
+      fetchUserInfo();
+    }, [])
+  );
 
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[40px] px-2">

@@ -5,6 +5,7 @@ import WaterIcon from "@/assets/WaterIcon";
 import { Pressable, TextInput } from "react-native-gesture-handler";
 import axiosInstance from "@/axiosInstance";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Loader from "@/assets/Loader";
 
 type Props = {};
 
@@ -16,6 +17,7 @@ const DailyGoal = (props: Props) => {
   } | null>(null);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const router = useRouter();
 
@@ -34,6 +36,7 @@ const DailyGoal = (props: Props) => {
   };
 
   const sendData = async () => {
+    setLoading(true)
     try {
       const response = await axiosInstance.patch(
         `water_intake_details/${dailyGoal?.id}`,
@@ -47,6 +50,7 @@ const DailyGoal = (props: Props) => {
     } catch (err: any) {
       setError(err.message);
     }
+    setLoading(false)
   };
 
   const formSubmitHandler = () => {
@@ -141,6 +145,7 @@ const DailyGoal = (props: Props) => {
               </Text>
             </View>
           </View>
+          {loading && <Loader className="mt-4" />}
           <Pressable
             onPress={formSubmitHandler}
             className="bg-[#816BFF] mt-[40px] rounded-3xl py-3 px-20 w-fit mx-auto hover:bg-[#735cf5] active:bg-[#5943d6] transition-colors"
