@@ -1,9 +1,10 @@
 import { View, Text, Pressable, TextInput, ScrollView } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Loader from "@/assets/Loader";
 
 type Props = {};
 
@@ -11,8 +12,17 @@ const Login = (props: Props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   // const [message, setMessage] = useState("");
   const router = useRouter();
+
+  const checkAuth = async () => {
+    const token = await AsyncStorage.getItem("token");
+    if (token) {
+      router.navigate("/Dashboard");
+      return;
+    }
+  };
 
   const handleEmailChange = (value: string) => {
     setEmail(value);
@@ -27,6 +37,7 @@ const Login = (props: Props) => {
   };
 
   const sendData = async (email: string, password: string) => {
+    setLoading(true);
     try {
       const response = await axios.post("http://localhost:8000/api/login", {
         email,
@@ -34,13 +45,17 @@ const Login = (props: Props) => {
       });
       if (response.status === 200) {
         // setMessage(response.data);
-        await AsyncStorage.setItem('token', JSON.stringify(response.data['token']))
-        await AsyncStorage.setItem('id', JSON.stringify(response.data['id']))
+        await AsyncStorage.setItem(
+          "token",
+          JSON.stringify(response.data["token"])
+        );
+        await AsyncStorage.setItem("id", JSON.stringify(response.data["id"]));
         router.push("/Dashboard");
       }
     } catch (err: any) {
       setError(err.message);
     }
+    setLoading(false);
   };
 
   const formSubmitHandler = () => {
@@ -50,6 +65,10 @@ const Login = (props: Props) => {
       setError("Please fill out all the fields.");
     }
   };
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
 
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[80px]">
@@ -99,6 +118,7 @@ const Login = (props: Props) => {
               <Text className="text-sm text-gray-200">{message}</Text>
             </View>
           )} */}
+          {loading && <Loader className="mt-2" />}
           <Pressable
             onPress={formSubmitHandler}
             className="bg-[#816BFF] mt-6 rounded-3xl py-3 px-20 w-fit mx-auto hover:bg-[#735cf5] active:bg-[#5943d6] transition-colors"
