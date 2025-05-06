@@ -4,7 +4,9 @@ import { useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
 import { Pressable, TextInput } from "react-native-gesture-handler";
 import KGIcon from "@/assets/KGIcon";
-import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axiosInstance from "@/axiosInstance";
+import Loader from "@/assets/Loader";
 
 type Props = {};
 
@@ -13,29 +15,34 @@ const EnterWeight = (props: Props) => {
   const [weight, setWeight] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const fetchData = async () => {
-    try {
-      const response = await axios.get("url", {});
-      if (response.status === 200) {
-        setWeight(response.data);
-      } else {
-        setError("Something went wrong, please try again.");
-      }
-    } catch (err: any) {
-      setError(err.message);
+  const checkAuth = async () => {
+    const token = await AsyncStorage.getItem("token");
+    if (!token) {
+      router.navigate("/Login");
+      return;
     }
   };
 
   const sendData = async () => {
+    setLoading(true);
     try {
-      const response = await axios.post("url", {});
+      const userId = await AsyncStorage.getItem("id");
+      const response = await axiosInstance.patch(`users/${userId}`, {
+        weight,
+      });
       if (response.status === 200) {
-        setMessage(response.data);
+        setMessage(
+          `Successfully set to ${String(
+            Number(response.data["weight"])
+          )}`
+        );
       }
     } catch (err: any) {
       setError(err.message);
     }
+    setLoading(false);
   };
 
   const formSubmitHandler = () => {
@@ -51,7 +58,7 @@ const EnterWeight = (props: Props) => {
   };
 
   useEffect(() => {
-    // fetchData();
+    checkAuth();
   }, []);
 
   return (
@@ -67,7 +74,7 @@ const EnterWeight = (props: Props) => {
           Weight
         </Text>
         <Text className="text-center mt-10 text-[#C9C9E3] text-[14px]">
-          Please enter your weight in kg and click continue
+          Please enter your weight in kg and click submit
         </Text>
         <View className="mt-10 w-full max-w-sm mx-auto relative">
           <KGIcon
@@ -98,6 +105,7 @@ const EnterWeight = (props: Props) => {
               <Text className="text-sm text-gray-200">{message}</Text>
             </View>
           )}
+          {loading && <Loader className="mt-4 mb-[-20px]" />}
         </View>
         <Pressable
           onPress={() => formSubmitHandler()}
