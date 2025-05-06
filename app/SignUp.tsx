@@ -1,9 +1,10 @@
 import { View, Text, Pressable, TextInput, ScrollView } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
 import axios from "axios";
 import Loader from "@/assets/Loader";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type Props = {};
 
@@ -15,6 +16,14 @@ const SignUp = (props: Props) => {
   const [loading, setLoading] = useState(false);
   // const [message, setMessage] = useState("");
   const router = useRouter();
+
+  const checkAuth = async () => {
+    const token = await AsyncStorage.getItem("token");
+    if (!token) {
+      router.navigate("/Login");
+      return;
+    }
+  };
 
   const handleEmailChange = (value: string) => {
     setEmail(value);
@@ -63,6 +72,10 @@ const SignUp = (props: Props) => {
       setError("Please fill out all the fields.");
     }
   };
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
 
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[50px]">
