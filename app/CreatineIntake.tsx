@@ -12,6 +12,8 @@ import { WebView } from "react-native-webview";
 import WaterIcon from "@/assets/WaterIcon";
 import BottleIcon from "@/assets/BottleIcon";
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axiosInstance from "@/axiosInstance";
 
 type Props = {};
 
@@ -24,11 +26,26 @@ const CreatineIntake = (props: Props) => {
   const [error, setError] = useState("");
   const router = useRouter();
 
+  const checkAuth = async () => {
+    const token = await AsyncStorage.getItem("token");
+    if (!token) {
+      router.navigate("/Login");
+      return;
+    }
+  };
+
   const sendData = async () => {
     try {
-      const response = await axios.post("url", {});
+      const userId = await AsyncStorage.getItem("id");
+      const response = await axiosInstance.patch(`users/${userId}`, {
+        creatine_intake: creatineIntake,
+      });
       if (response.status === 200) {
-        setMessage(response.data);
+        setMessage(
+          `Successfully set to ${String(
+            Number(response.data["creatine_intake"])
+          )}`
+        );
       }
     } catch (err: any) {
       setError(err.message);
@@ -47,22 +64,8 @@ const CreatineIntake = (props: Props) => {
     }
   };
 
-  const fetchCreatineIntake = async () => {
-    try {
-      const response = await axios.get("url", {});
-      if (response.status === 200) {
-        setCreatineIntake(response.data);
-        setBackendIntakeVal(response.data);
-      } else {
-        setError("Something went wrong, please try again.");
-      }
-    } catch (err: any) {
-      setError(err.message);
-    }
-  };
-
   useEffect(() => {
-    // fetchCreatineIntake()
+    checkAuth();
   }, []);
 
   return (
@@ -173,12 +176,7 @@ const CreatineIntake = (props: Props) => {
           className="mt-5 p-3 rounded-lg bg-[#2D2F50] hover:bg-[#373964] transition-colors cursor-pointer"
         >
           <Text className="text-white font-bold text-[14px]">
-            Enter amount (g/day){" "}
-            {backendIntakeVal && backendIntakeVal.length > 0 && (
-              <Text className="text-xs text-gray-400 font-normal">
-                Currently: {backendIntakeVal}g
-              </Text>
-            )}
+            Enter amount (g/day)
           </Text>
           <Text className="text-white text-[12px] font-light mt-2">
             Most users take 3-5g/day
