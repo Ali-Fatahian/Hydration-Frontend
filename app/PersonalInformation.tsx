@@ -14,6 +14,7 @@ import * as FileSystem from "expo-file-system";
 import WaterIcon from "@/assets/WaterIcon";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axiosInstance from "@/axiosInstance";
+import Loader from "@/assets/Loader";
 
 type Props = {};
 
@@ -30,6 +31,7 @@ const PersonalInformation = (props: Props) => {
   const [error, setError] = useState("");
   const [formError, setFormError] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const checkImageValidity = async (uri: string) => {
@@ -99,6 +101,7 @@ const PersonalInformation = (props: Props) => {
   }, []);
 
   const sendData = async () => {
+    setLoading(true);
     try {
       const formData = new FormData();
       formData.append("fullname", fullname);
@@ -134,6 +137,7 @@ const PersonalInformation = (props: Props) => {
     } catch (err: any) {
       setError(err.message);
     }
+    setLoading(false);
   };
 
   const pickImage = async () => {
@@ -247,6 +251,7 @@ const PersonalInformation = (props: Props) => {
             <Text className="text-sm text-gray-200">{message}</Text>
           </View>
         )}
+        {loading && <Loader className="mt-4 mb-[-20px]" />}
         <Pressable
           onPress={() => sendData()}
           className="bg-[#816BFF] mt-[40px] rounded-3xl py-3 px-20 w-fit mx-auto hover:bg-[#735cf5] active:bg-[#5943d6] transition-colors"
