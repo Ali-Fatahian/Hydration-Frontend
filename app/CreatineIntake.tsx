@@ -11,19 +11,19 @@ import { useRouter } from "expo-router";
 import { WebView } from "react-native-webview";
 import WaterIcon from "@/assets/WaterIcon";
 import BottleIcon from "@/assets/BottleIcon";
-import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axiosInstance from "@/axiosInstance";
+import Loader from "@/assets/Loader";
 
 type Props = {};
 
 const CreatineIntake = (props: Props) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [creatineIntake, setCreatineIntake] = useState("");
-  const [backendIntakeVal, setBackendIntakeVal] = useState("");
   const [isWebViewVisible, setIsWebViewVisible] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const checkAuth = async () => {
@@ -35,6 +35,7 @@ const CreatineIntake = (props: Props) => {
   };
 
   const sendData = async () => {
+    setLoading(true);
     try {
       const userId = await AsyncStorage.getItem("id");
       const response = await axiosInstance.patch(`users/${userId}`, {
@@ -50,6 +51,7 @@ const CreatineIntake = (props: Props) => {
     } catch (err: any) {
       setError(err.message);
     }
+    setLoading(false);
   };
 
   const formSubmitHandler = () => {
@@ -136,6 +138,7 @@ const CreatineIntake = (props: Props) => {
                   <Text className="text-sm text-gray-200">{message}</Text>
                 </View>
               )}
+              {loading && <Loader className="mt-3" />}
               <Pressable
                 onPress={() => {
                   formSubmitHandler();
