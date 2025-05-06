@@ -1,10 +1,11 @@
 import { View, Text, Pressable, TextInput, ScrollView } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Link, useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Loader from "@/assets/Loader";
+import { useFocusEffect } from "@react-navigation/native";
 
 type Props = {};
 
@@ -66,9 +67,11 @@ const Login = (props: Props) => {
     }
   };
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      checkAuth();
+    }, [])
+  );
 
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[80px]">
