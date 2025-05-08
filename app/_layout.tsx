@@ -148,6 +148,20 @@ export default function Layout() {
               drawerItemStyle: { display: "none" },
             }}
           />
+          <Drawer.Screen
+            name="PasswordResetRequest"
+            options={{
+              headerShown: false,
+              drawerItemStyle: { display: "none" },
+            }}
+          />
+          <Drawer.Screen
+            name="PasswordResetConfirm"
+            options={{
+              headerShown: false,
+              drawerItemStyle: { display: "none" },
+            }}
+          />
         </Drawer>
     </GestureHandlerRootView>
   );

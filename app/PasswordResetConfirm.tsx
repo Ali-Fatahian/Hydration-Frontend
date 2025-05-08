@@ -1,6 +1,6 @@
 import { View, Text, Pressable, TextInput, ScrollView } from "react-native";
 import React, { useCallback, useState } from "react";
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -9,12 +9,11 @@ import { useFocusEffect } from "@react-navigation/native";
 
 type Props = {};
 
-const Login = (props: Props) => {
+const PasswordResetConfirm = (props: Props) => {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  // const [message, setMessage] = useState("");
+  const [message, setMessage] = useState("");
   const router = useRouter();
 
   const checkAuth = async () => {
@@ -28,30 +27,19 @@ const Login = (props: Props) => {
   const handleEmailChange = (value: string) => {
     setEmail(value);
     setError("");
-    // setMessage("");
   };
 
-  const handlePasswordChange = (value: string) => {
-    setPassword(value);
-    setError("");
-    // setMessage("");
-  };
-
-  const sendData = async (email: string, password: string) => {
+  const sendData = async (email: string) => {
     setLoading(true);
     try {
-      const response = await axios.post("http://localhost:8000/api/login", {
-        email,
-        password,
-      });
+      const response = await axios.post(
+        "http://localhost:8000/api/password_reset",
+        {
+          email,
+        }
+      );
       if (response.status === 200) {
-        // setMessage(response.data);
-        await AsyncStorage.setItem(
-          "token",
-          JSON.stringify(response.data["token"])
-        );
-        await AsyncStorage.setItem("id", JSON.stringify(response.data["id"]));
-        router.push("/Dashboard");
+        setMessage(response.data["message"]);
       }
     } catch (err: any) {
       setError(err.message);
@@ -60,8 +48,8 @@ const Login = (props: Props) => {
   };
 
   const formSubmitHandler = () => {
-    if (email.length > 0 && password.length > 0) {
-      sendData(email.toLowerCase(), password);
+    if (email.length > 0) {
+      sendData(email.toLowerCase());
     } else {
       setError("Please fill out all the fields.");
     }
@@ -84,7 +72,7 @@ const Login = (props: Props) => {
         </View>
         <View className="flex flex-col mt-[58px] gap-4">
           <Text className="text-[18px] font-bold text-white text-center">
-            Log In
+            Reset Your Password
           </Text>
           <View className="flex flex-col mt-6 justify-center w-full max-w-lg gap-8 mx-auto">
             <View className="relative w-full">
@@ -98,29 +86,17 @@ const Login = (props: Props) => {
                 Email
               </Text>
             </View>
-            <View className="relative w-full">
-              <TextInput
-                value={password}
-                onChangeText={handlePasswordChange}
-                secureTextEntry={true}
-                className="peer transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light px-5 py-3 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964]"
-                placeholder=""
-              />
-              <Text className="z-2 text-white text-sm font-light pointer-events-none absolute left-5 inset-y-0 h-fit flex items-center select-none transition-all peer-focus:text-gray-400 peer-placeholder-shown:text-sm px-1 peer-focus:px-1 peer-placeholder-shown:px-0 peer-placeholder-shown:bg-transparent m-0 peer-focus:m-0 peer-placeholder-shown:m-auto -translate-y-1/2 peer-focus:-translate-y-1/2 peer-placeholder-shown:translate-y-0">
-                Password
-              </Text>
-            </View>
           </View>
           {error.length > 0 && (
             <View className="bg-[#B22222] p-2 rounded-md">
               <Text className="text-sm text-gray-200">{error}</Text>
             </View>
           )}
-          {/* {message.length > 0 && (
+          {message.length > 0 && (
             <View className="bg-[#3CB371] p-2 rounded-md">
               <Text className="text-sm text-gray-200">{message}</Text>
             </View>
-          )} */}
+          )}
           {loading && <Loader className="mt-2" />}
           <Pressable
             onPress={formSubmitHandler}
@@ -130,25 +106,10 @@ const Login = (props: Props) => {
               Submit
             </Text>
           </Pressable>
-          <View className="mt-4">
-            <Link href="/PasswordResetRequest" className="w-full text-center">
-              <Text className="text-[14px] mx-auto text-white ">
-                Forgot Password?
-              </Text>
-            </Link>
-            <View className="flex w-full mx-auto justify-center gap-1 flex-row mt-4">
-              <Text className="text-[14px] text-white">
-                Don't have an account?
-              </Text>
-              <Link href="/SignUp" className="text-[#8BBEFF] text-[14px]">
-                Sign Up
-              </Link>
-            </View>
-          </View>
         </View>
       </View>
     </ScrollView>
   );
 };
 
-export default Login;
+export default PasswordResetConfirm;
