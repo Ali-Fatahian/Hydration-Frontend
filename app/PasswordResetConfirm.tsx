@@ -1,6 +1,6 @@
 import { View, Text, Pressable, TextInput, ScrollView } from "react-native";
 import React, { useCallback, useState } from "react";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams, Link } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -10,7 +10,9 @@ import { useFocusEffect } from "@react-navigation/native";
 type Props = {};
 
 const PasswordResetConfirm = (props: Props) => {
-  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
+  const { uid, token } = useLocalSearchParams();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -24,35 +26,46 @@ const PasswordResetConfirm = (props: Props) => {
     }
   };
 
-  const handleEmailChange = (value: string) => {
-    setEmail(value);
+  const handlePasswordChange = (value: string) => {
+    setPassword(value);
     setError("");
   };
 
-  const sendData = async (email: string) => {
+  const handlePasswordConfirmChange = (value: string) => {
+    setPasswordConfirm(value);
+    setError("");
+  };
+
+  const sendData = async () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/password_reset",
+        "http://localhost:8000/api/password_reset_confirm",
         {
-          email,
+          uid,
+          token,
+          password,
         }
       );
       if (response.status === 200) {
         setMessage(response.data["message"]);
       }
     } catch (err: any) {
-      setError(err.message);
+      setError(err.response.data["error"]);
     }
     setLoading(false);
   };
 
   const formSubmitHandler = () => {
-    if (email.length > 0) {
-      sendData(email.toLowerCase());
-    } else {
-      setError("Please fill out all the fields.");
+    if (password.length === 0 || passwordConfirm.length === 0) {
+      setError("Please fill out all the fields");
+      return;
     }
+    if (password !== passwordConfirm) {
+      setError("The password fields must be the same");
+      return;
+    }
+    sendData();
   };
 
   useFocusEffect(
@@ -77,13 +90,26 @@ const PasswordResetConfirm = (props: Props) => {
           <View className="flex flex-col mt-6 justify-center w-full max-w-lg gap-8 mx-auto">
             <View className="relative w-full">
               <TextInput
-                onChangeText={handleEmailChange}
-                value={email}
+                value={password}
+                onChangeText={handlePasswordChange}
+                secureTextEntry={true}
                 className="peer transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light px-5 py-3 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964]"
                 placeholder=""
               />
               <Text className="z-2 text-white text-sm font-light pointer-events-none absolute left-5 inset-y-0 h-fit flex items-center select-none transition-all peer-focus:text-gray-400 peer-placeholder-shown:text-sm px-1 peer-focus:px-1 peer-placeholder-shown:px-0 peer-placeholder-shown:bg-transparent m-0 peer-focus:m-0 peer-placeholder-shown:m-auto -translate-y-1/2 peer-focus:-translate-y-1/2 peer-placeholder-shown:translate-y-0">
-                Email
+                Password
+              </Text>
+            </View>
+            <View className="relative w-full">
+              <TextInput
+                value={passwordConfirm}
+                onChangeText={handlePasswordConfirmChange}
+                secureTextEntry={true}
+                className="peer transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light px-5 py-3 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964]"
+                placeholder=""
+              />
+              <Text className="z-2 text-white text-sm font-light pointer-events-none absolute left-5 inset-y-0 h-fit flex items-center select-none transition-all peer-focus:text-gray-400 peer-placeholder-shown:text-sm px-1 peer-focus:px-1 peer-placeholder-shown:px-0 peer-placeholder-shown:bg-transparent m-0 peer-focus:m-0 peer-placeholder-shown:m-auto -translate-y-1/2 peer-focus:-translate-y-1/2 peer-placeholder-shown:translate-y-0">
+                Confirm Password
               </Text>
             </View>
           </View>
@@ -106,6 +132,11 @@ const PasswordResetConfirm = (props: Props) => {
               Submit
             </Text>
           </Pressable>
+          <View>
+            <Link href="/Login" className="w-full text-center">
+              <Text className="text-[14px] mx-auto text-white ">Back</Text>
+            </Link>
+          </View>
         </View>
       </View>
     </ScrollView>

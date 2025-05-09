@@ -33,16 +33,14 @@ const PasswordResetRequest = (props: Props) => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/password_reset",
-        {
-          email,
-        }
-      );
+        "http://192.168.178.101:8000/api/password_reset", {
+          email
+        })
       if (response.status === 200) {
         setMessage(response.data["message"]);
       }
     } catch (err: any) {
-      setError(err.response.data['error']);
+      setError(err.message);
     }
     setLoading(false);
   };

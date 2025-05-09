@@ -1,12 +1,24 @@
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Drawer } from "expo-router/drawer";
-import "../global.css";
 import React, { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Linking from "expo-linking";
+import "../global.css";
 
 export default function Layout() {
   const [authenticated, setAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const linking = {
+    prefixes: [Linking.createURL("/"), "myapp://"
+    // , "https://yourfrontend.com"
+    ],
+    config: {
+      screens: {
+        PasswordResetConfirm: "PasswordResetConfirm", // Matches the filename
+      },
+    },
+  };
 
   const checkAuth = async () => {
     try {
