@@ -8,6 +8,7 @@ type Props = {
   keyboardType?: "default" | "email-address" | "numeric";
   secureTextEntry?: boolean;
   multiline?: boolean;
+  classes?: string;
 };
 
 const FloatingLabelInput = ({
@@ -16,7 +17,8 @@ const FloatingLabelInput = ({
   onChangeText,
   keyboardType,
   secureTextEntry,
-  multiline
+  multiline,
+  classes,
 }: Props) => {
   const [isFocused, setIsFocused] = useState(false);
 
@@ -41,7 +43,7 @@ const FloatingLabelInput = ({
         secureTextEntry={secureTextEntry}
         keyboardType={keyboardType}
         multiline={multiline}
-        className="peer transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light px-5 py-4 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964]"
+        className={`peer transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light px-5 py-4 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964] ${classes}`}
         placeholder=""
       />
       <Text

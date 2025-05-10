@@ -1,4 +1,4 @@
-import { View, Text, Pressable, TextInput, ScrollView } from "react-native";
+import { View, Text, Pressable, ScrollView } from "react-native";
 import React, { useCallback, useState } from "react";
 import { Link, useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
@@ -6,6 +6,7 @@ import axios from "axios";
 import Loader from "@/assets/Loader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
+import FloatingLabelInput from "@/components/FloatingLabelInput";
 
 type Props = {};
 
@@ -93,40 +94,32 @@ const SignUp = (props: Props) => {
           <Text className="text-[18px] font-bold text-white text-center">
             Sign Up
           </Text>
-          <View className="flex flex-col justify-center w-full max-w-lg gap-8 mx-auto mt-6">
+          <View className="flex flex-col justify-center w-full max-w-lg gap-10 mx-auto mt-10">
             <View className="relative w-full">
-              <TextInput
+              <FloatingLabelInput
                 value={fullname}
                 onChangeText={handleFullnameChange}
-                className="peer transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light px-5 py-3 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964]"
-                placeholder=""
+                label="Full Name"
+                multiline={true}
               />
-              <Text className="z-2 text-white text-sm font-light pointer-events-none absolute left-5 inset-y-0 h-fit flex items-center select-none transition-all peer-focus:text-gray-400 peer-placeholder-shown:text-sm px-1 peer-focus:px-1 peer-placeholder-shown:px-0 peer-placeholder-shown:bg-transparent m-0 peer-focus:m-0 peer-placeholder-shown:m-auto -translate-y-1/2 peer-focus:-translate-y-1/2 peer-placeholder-shown:translate-y-0">
-                Full Name
-              </Text>
             </View>
             <View className="relative w-full">
-              <TextInput
+              <FloatingLabelInput
                 value={email}
                 onChangeText={handleEmailChange}
-                className="peer transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light px-5 py-3 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964]"
-                placeholder=""
+                label="Email"
+                multiline={true}
+                keyboardType="email-address"
               />
-              <Text className="z-2 text-white text-sm font-light pointer-events-none absolute left-5 inset-y-0 h-fit flex items-center select-none transition-all peer-focus:text-gray-400 peer-placeholder-shown:text-sm px-1 peer-focus:px-1 peer-placeholder-shown:px-0 peer-placeholder-shown:bg-transparent m-0 peer-focus:m-0 peer-placeholder-shown:m-auto -translate-y-1/2 peer-focus:-translate-y-1/2 peer-placeholder-shown:translate-y-0">
-                Email
-              </Text>
             </View>
             <View className="relative w-full">
-              <TextInput
+              <FloatingLabelInput
                 value={password}
                 onChangeText={handlePasswordChange}
                 secureTextEntry={true}
-                className="peer transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light px-5 py-3 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964]"
-                placeholder=""
+                label="Password"
+                classes="h-[48px]"
               />
-              <Text className="z-2 text-white text-sm font-light pointer-events-none absolute left-5 inset-y-0 h-fit flex items-center select-none transition-all peer-focus:text-gray-400 peer-placeholder-shown:text-sm px-1 peer-focus:px-1 peer-placeholder-shown:px-0 peer-placeholder-shown:bg-transparent m-0 peer-focus:m-0 peer-placeholder-shown:m-auto -translate-y-1/2 peer-focus:-translate-y-1/2 peer-placeholder-shown:translate-y-0">
-                Password
-              </Text>
             </View>
           </View>
           {error.length > 0 && (
@@ -142,7 +135,7 @@ const SignUp = (props: Props) => {
           {loading && <Loader className="mt-4" />}
           <Pressable
             onPress={formSubmitHandler}
-            className="bg-[#816BFF] rounded-3xl mt-6 py-3 px-20 w-fit mx-auto hover:bg-[#735cf5] active:bg-[#5943d6] transition-colors"
+            className="bg-[#816BFF] rounded-3xl mt-8 py-3 px-20 w-fit mx-auto hover:bg-[#735cf5] active:bg-[#5943d6] transition-colors"
           >
             <Text className="text-sm font-bold text-white text-center">
               Register

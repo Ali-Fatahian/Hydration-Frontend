@@ -1,4 +1,4 @@
-import { View, Text, Pressable, TextInput, ScrollView } from "react-native";
+import { View, Text, Pressable, ScrollView } from "react-native";
 import React, { useCallback, useState } from "react";
 import { Link, useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
@@ -105,6 +105,7 @@ const Login = (props: Props) => {
                 secureTextEntry={true}
                 label="Password"
                 keyboardType="default"
+                classes="h-[48px]"
               />
             </View>
           </View>
