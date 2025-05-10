@@ -5,6 +5,7 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Linking from "expo-linking";
 import "../global.css";
+import CustomDrawerContent from "@/components/CustomDrawerContent";
 
 export default function Layout() {
   const [authenticated, setAuthenticated] = useState(false);
@@ -45,23 +46,18 @@ export default function Layout() {
     return null;
   }
 
-  console.log("loading", loading);
-  console.log("Auth", authenticated);
-
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <SafeAreaView
-          style={{ flex: 1 }}
-          edges={["top", "left", "right"]}
-        >
+        <SafeAreaView style={{ flex: 1 }} edges={["top", "left", "right"]}>
           <Drawer
+            drawerContent={(props) => <CustomDrawerContent {...props} />}
             screenOptions={{
               headerStyle: {
                 borderBottomWidth: 0,
                 elevation: 0,
                 shadowOpacity: 0,
-                height: 0
+                height: 0,
               },
               headerShadowVisible: false,
               headerTitleStyle: {
