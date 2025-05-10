@@ -6,6 +6,7 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Loader from "@/assets/Loader";
 import { useFocusEffect } from "@react-navigation/native";
+import FloatingLabelInput from "@/components/FloatingLabelInput";
 
 type Props = {};
 
@@ -40,7 +41,8 @@ const Login = (props: Props) => {
   const sendData = async (email: string, password: string) => {
     setLoading(true);
     try {
-      const response = await axios.post("http://localhost:8000/api/login", { // http://192.168.178.101:8000 for phone on the same network
+      const response = await axios.post("http://localhost:8000/api/login", {
+        // http://192.168.178.101:8000 for phone on the same network
         email,
         password,
       });
@@ -86,29 +88,24 @@ const Login = (props: Props) => {
           <Text className="text-[18px] font-bold text-white text-center">
             Log In
           </Text>
-          <View className="flex flex-col mt-6 justify-center w-full max-w-lg gap-8 mx-auto">
+          <View className="flex flex-col mt-10 justify-center w-full max-w-lg gap-10 mx-auto">
             <View className="relative w-full">
-              <TextInput
+              <FloatingLabelInput
+                label="Email"
+                keyboardType="email-address"
                 onChangeText={handleEmailChange}
                 value={email}
-                className="peer transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light px-5 py-3 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964]"
-                placeholder=""
+                multiline={true}
               />
-              <Text className="z-2 text-white text-sm font-light pointer-events-none absolute left-5 inset-y-0 h-fit flex items-center select-none transition-all peer-focus:text-gray-400 peer-placeholder-shown:text-sm px-1 peer-focus:px-1 peer-placeholder-shown:px-0 peer-placeholder-shown:bg-transparent m-0 peer-focus:m-0 peer-placeholder-shown:m-auto -translate-y-1/2 peer-focus:-translate-y-1/2 peer-placeholder-shown:translate-y-0">
-                Email
-              </Text>
             </View>
             <View className="relative w-full">
-              <TextInput
+              <FloatingLabelInput
                 value={password}
                 onChangeText={handlePasswordChange}
                 secureTextEntry={true}
-                className="peer transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light px-5 py-3 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964]"
-                placeholder=""
+                label="Password"
+                keyboardType="default"
               />
-              <Text className="z-2 text-white text-sm font-light pointer-events-none absolute left-5 inset-y-0 h-fit flex items-center select-none transition-all peer-focus:text-gray-400 peer-placeholder-shown:text-sm px-1 peer-focus:px-1 peer-placeholder-shown:px-0 peer-placeholder-shown:bg-transparent m-0 peer-focus:m-0 peer-placeholder-shown:m-auto -translate-y-1/2 peer-focus:-translate-y-1/2 peer-placeholder-shown:translate-y-0">
-                Password
-              </Text>
             </View>
           </View>
           {error.length > 0 && (
