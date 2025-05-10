@@ -1,6 +1,7 @@
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Drawer } from "expo-router/drawer";
 import React, { useEffect, useState } from "react";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Linking from "expo-linking";
 import "../global.css";
@@ -10,8 +11,10 @@ export default function Layout() {
   const [loading, setLoading] = useState(true);
 
   const linking = {
-    prefixes: [Linking.createURL("/"), "myapp://"
-    // , "https://yourfrontend.com"
+    prefixes: [
+      Linking.createURL("/"),
+      "myapp://",
+      // , "https://yourfrontend.com"
     ],
     config: {
       screens: {
@@ -47,134 +50,138 @@ export default function Layout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-        <Drawer
-          screenOptions={{
-            headerStyle: {
-              height: 40,
-              backgroundColor: "#26274a",
-              borderBottomWidth: 0,
-              elevation: 0,
-              shadowOpacity: 0,
-            },
-            headerShadowVisible: false,
-            headerTitleStyle: {
-              fontSize: 16,
-              color: "white",
-            },
-            headerTintColor: "white",
-          }}
+      <SafeAreaProvider>
+        <SafeAreaView
+          style={{ flex: 1 }}
+          edges={["top", "left", "right"]}
         >
-          {/* {!authenticated && ( */}
+          <Drawer
+            screenOptions={{
+              headerStyle: {
+                borderBottomWidth: 0,
+                elevation: 0,
+                shadowOpacity: 0,
+                height: 0
+              },
+              headerShadowVisible: false,
+              headerTitleStyle: {
+                fontSize: 16,
+                color: "white",
+              },
+              headerTintColor: "white",
+              headerTransparent: true,
+            }}
+          >
+            {/* {!authenticated && ( */}
             {/* <React.Fragment> */}
-              <Drawer.Screen name="index" options={{ title: "Welcome" }} />
-              <Drawer.Screen name="SignUp" options={{ title: "Sign Up" }} />
-              <Drawer.Screen name="Login" options={{ title: "Login" }} />
+            <Drawer.Screen name="index" options={{ title: "Welcome" }} />
+            <Drawer.Screen name="SignUp" options={{ title: "Sign Up" }} />
+            <Drawer.Screen name="Login" options={{ title: "Login" }} />
             {/* </React.Fragment>
           )} */}
 
-          {/* {authenticated && (
+            {/* {authenticated && (
             <React.Fragment> */}
-              <Drawer.Screen
-                name="Dashboard"
-                options={{ title: "Dashboard" }}
-              />
-              <Drawer.Screen name="Profile" options={{ title: "Profile" }} />
-              <Drawer.Screen
-                name="NotificationsSummary"
-                options={{ title: "Notifications" }}
-              />
-              <Drawer.Screen
-                name="ConnectSmartBottle"
-                options={{ title: "Connect Bottle" }}
-              />
+            <Drawer.Screen name="Dashboard" options={{ title: "Dashboard" }} />
+            <Drawer.Screen name="Profile" options={{ title: "Profile" }} />
+            <Drawer.Screen
+              name="NotificationsSummary"
+              options={{ title: "Notifications" }}
+            />
+            <Drawer.Screen
+              name="ConnectSmartBottle"
+              options={{ title: "Connect Bottle" }}
+            />
             {/* </React.Fragment>
           )} */}
 
-          <Drawer.Screen
-            name="AIInsights"
-            options={{
-              headerShown: false,
-              drawerItemStyle: { display: "none" },
-            }}
-          />
-          <Drawer.Screen
-            name="EnterGender"
-            options={{
-              headerShown: false,
-              drawerItemStyle: { display: "none" },
-            }}
-          />
-          <Drawer.Screen
-            name="ActivityLevel"
-            options={{
-              headerShown: false,
-              drawerItemStyle: { display: "none" },
-            }}
-          />
-          <Drawer.Screen
-            name="CreatineIntake"
-            options={{
-              headerShown: false,
-              drawerItemStyle: { display: "none" },
-            }}
-          />
-          <Drawer.Screen
-            name="EnterWeight"
-            options={{
-              headerShown: false,
-              drawerItemStyle: { display: "none" },
-            }}
-          />
-          <Drawer.Screen
-            name="DailyGoal"
-            options={{
-              headerShown: false,
-              drawerItemStyle: { display: "none" },
-            }}
-          />
-          <Drawer.Screen
-            name="EnableNotification"
-            options={{
-              headerShown: false,
-              drawerItemStyle: { display: "none" },
-            }}
-          />
-          <Drawer.Screen
-            name="+not-found"
-            options={{
-              headerShown: false,
-              drawerItemStyle: { display: "none" },
-            }}
-          />
-          <Drawer.Screen
-            name="PersonalInformation"
-            options={{
-              headerShown: false,
-              drawerItemStyle: { display: "none" },
-            }}
-          />
-          <Drawer.Screen
-            name="NotificationsHistory"
-            options={{
-              headerShown: false,
-              drawerItemStyle: { display: "none" },
-            }}
-          />
-          <Drawer.Screen
-            name="PasswordResetRequest"
-            options={{
-              headerShown: false,
-              drawerItemStyle: { display: "none" },
-            }}
-          />
-          <Drawer.Screen
-            name="PasswordResetConfirm"
-            options={{
-              headerShown: false,
-              drawerItemStyle: { display: "none" },
-            }}
-          />
-        </Drawer>
+            <Drawer.Screen
+              name="AIInsights"
+              options={{
+                headerShown: false,
+                drawerItemStyle: { display: "none" },
+              }}
+            />
+            <Drawer.Screen
+              name="EnterGender"
+              options={{
+                headerShown: false,
+                drawerItemStyle: { display: "none" },
+              }}
+            />
+            <Drawer.Screen
+              name="ActivityLevel"
+              options={{
+                headerShown: false,
+                drawerItemStyle: { display: "none" },
+              }}
+            />
+            <Drawer.Screen
+              name="CreatineIntake"
+              options={{
+                headerShown: false,
+                drawerItemStyle: { display: "none" },
+              }}
+            />
+            <Drawer.Screen
+              name="EnterWeight"
+              options={{
+                headerShown: false,
+                drawerItemStyle: { display: "none" },
+              }}
+            />
+            <Drawer.Screen
+              name="DailyGoal"
+              options={{
+                headerShown: false,
+                drawerItemStyle: { display: "none" },
+              }}
+            />
+            <Drawer.Screen
+              name="EnableNotification"
+              options={{
+                headerShown: false,
+                drawerItemStyle: { display: "none" },
+              }}
+            />
+            <Drawer.Screen
+              name="+not-found"
+              options={{
+                headerShown: false,
+                drawerItemStyle: { display: "none" },
+              }}
+            />
+            <Drawer.Screen
+              name="PersonalInformation"
+              options={{
+                headerShown: false,
+                drawerItemStyle: { display: "none" },
+              }}
+            />
+            <Drawer.Screen
+              name="NotificationsHistory"
+              options={{
+                headerShown: false,
+                drawerItemStyle: { display: "none" },
+              }}
+            />
+            <Drawer.Screen
+              name="PasswordResetRequest"
+              options={{
+                headerShown: false,
+                drawerItemStyle: { display: "none" },
+              }}
+            />
+            <Drawer.Screen
+              name="PasswordResetConfirm"
+              options={{
+                headerShown: false,
+                drawerItemStyle: { display: "none" },
+              }}
+            />
+          </Drawer>
+        </SafeAreaView>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }

@@ -1,6 +1,6 @@
 import { View, Text, Pressable, ScrollView } from "react-native";
-import React, { useEffect } from "react";
-import { useRouter } from "expo-router";
+import React, { useCallback } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -17,12 +17,14 @@ const Index = (props: Props) => {
     }
   };
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      checkAuth();
+    }, [])
+  );
 
   return (
-    <ScrollView className="bg-[#1e1f3f] h-full w-full py-[80px]">
+    <ScrollView className="bg-[#1e1f3f] h-full w-full py-[50px] px-4">
       <View className="w-full max-w-lg mx-auto">
         <View className="flex flex-col justify-between h-[100%]">
           <View className="flex flex-col justify-center [&>*]:text-center gap-[70px]">

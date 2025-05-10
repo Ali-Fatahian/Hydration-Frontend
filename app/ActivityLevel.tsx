@@ -42,7 +42,7 @@ const ActivityLevel = (props: Props) => {
   };
 
   return (
-    <ScrollView className="bg-[#1e1f3f] h-full w-full py-[60px] px-1">
+    <ScrollView className="bg-[#1e1f3f] h-full w-full py-[50px] px-1">
       <View className="w-full max-w-lg mx-auto">
         <View className="flex justify-center w-full flex-row gap-1">
           <WaterIcon />

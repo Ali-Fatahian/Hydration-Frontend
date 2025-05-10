@@ -71,7 +71,7 @@ const CreatineIntake = (props: Props) => {
   }, []);
 
   return (
-    <ScrollView className="bg-[#1e1f3f] h-full w-full py-[40px] px-2">
+    <ScrollView className="bg-[#1e1f3f] h-full w-full py-[50px] px-2">
       <View className="w-full max-w-lg mx-auto">
         <Modal
           animationType="slide"

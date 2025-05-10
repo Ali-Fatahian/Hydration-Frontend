@@ -40,7 +40,7 @@ const Login = (props: Props) => {
   const sendData = async (email: string, password: string) => {
     setLoading(true);
     try {
-      const response = await axios.post("http://localhost:8000/api/login", {
+      const response = await axios.post("http://localhost:8000/api/login", { // http://192.168.178.101:8000 for phone on the same network
         email,
         password,
       });
@@ -74,7 +74,7 @@ const Login = (props: Props) => {
   );
 
   return (
-    <ScrollView className="bg-[#1e1f3f] h-full w-full py-[80px]">
+    <ScrollView className="bg-[#1e1f3f] h-full w-full px-4 py-[50px]">
       <View className="w-full max-w-lg mx-auto">
         <View className="flex justify-center w-full flex-row gap-1">
           <WaterIcon />
