@@ -1,8 +1,7 @@
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView, Pressable, TextInput } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Link, useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
-import { Pressable, TextInput } from "react-native-gesture-handler";
 import axiosInstance from "@/axiosInstance";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Loader from "@/assets/Loader";
@@ -36,7 +35,7 @@ const DailyGoal = (props: Props) => {
   };
 
   const sendData = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
       const response = await axiosInstance.patch(
         `water_intake_details/${dailyGoal?.id}`,
@@ -50,7 +49,7 @@ const DailyGoal = (props: Props) => {
     } catch (err: any) {
       setError(err.message);
     }
-    setLoading(false)
+    setLoading(false);
   };
 
   const formSubmitHandler = () => {
@@ -148,10 +147,10 @@ const DailyGoal = (props: Props) => {
           {loading && <Loader className="mt-4" />}
           <Pressable
             onPress={formSubmitHandler}
-            className="bg-[#816BFF] mt-[40px] rounded-3xl py-3 px-20 w-fit mx-auto hover:bg-[#735cf5] active:bg-[#5943d6] transition-colors"
+            className="bg-[#816BFF] mt-6 rounded-3xl py-3 px-20 w-fit mx-auto hover:bg-[#735cf5] active:bg-[#5943d6] transition-colors"
           >
             <Text className="text-sm font-bold text-white text-center">
-              Continue
+              Submit
             </Text>
           </Pressable>
           <Link
