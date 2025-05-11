@@ -5,10 +5,11 @@ import {
   Pressable,
   TextInput,
   ScrollView,
+  Image,
+  Linking,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
-import { WebView } from "react-native-webview";
 import WaterIcon from "@/assets/WaterIcon";
 import BottleIcon from "@/assets/BottleIcon";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -17,12 +18,26 @@ import Loader from "@/assets/Loader";
 
 type Props = {};
 
+type creatineType = {
+  id: number;
+  company_name: string;
+  product_name: string;
+  picture: string;
+  price: number;
+  discount: number;
+  size: string;
+  link: string;
+  partner_id: string;
+  description: string;
+};
+
 const CreatineIntake = (props: Props) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [creatineIntake, setCreatineIntake] = useState("");
-  const [isWebViewVisible, setIsWebViewVisible] = useState(false);
+  const [creatineList, setCreatineList] = useState<creatineType[] | []>([]);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [fetchError, setFetchError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -66,8 +81,31 @@ const CreatineIntake = (props: Props) => {
     }
   };
 
+  const fetchCreatineList = async () => {
+    try {
+      const response = await axiosInstance.get("creatine_products");
+      if (response.status === 200) {
+        setCreatineList(response.data);
+      } else {
+        setFetchError("Something went wrong. Please try again.");
+      }
+    } catch (err: any) {
+      setFetchError(err.message);
+    }
+  };
+
+  function calculateDiscount(
+    originalPrice: number,
+    discountPercentage: number
+  ) {
+    const discountAmount = (originalPrice * discountPercentage) / 100;
+    const discountedPrice = originalPrice - discountAmount;
+    return Math.round(discountedPrice * 2) / 2; // Round evey .5
+  }
+
   useEffect(() => {
     checkAuth();
+    fetchCreatineList();
   }, []);
 
   return (
@@ -75,89 +113,70 @@ const CreatineIntake = (props: Props) => {
       <View className="w-full max-w-lg mx-auto">
         <Modal
           animationType="slide"
-          transparent={false}
-          visible={isWebViewVisible}
-          onRequestClose={() => setIsWebViewVisible(false)}
-        >
-          <View style={{ flex: 1 }}>
-            <WebView
-              source={{ uri: "https://google.com" }}
-              style={{ flex: 1 }}
-            />
-            {/* Close Button to return to the main page */}
-            <Pressable
-              style={{
-                position: "absolute",
-                top: 40,
-                left: 20,
-                backgroundColor: "#FF6347",
-                paddingVertical: 10,
-                paddingHorizontal: 20,
-                borderRadius: 8,
-              }}
-              onPress={() => setIsWebViewVisible(false)}
-            >
-              <Text style={{ color: "white", fontWeight: "bold" }}>Close</Text>
-            </Pressable>
-          </View>
-        </Modal>
-        <Modal
-          animationType="slide"
           transparent={true}
           visible={modalVisible}
           onRequestClose={() => {
-            alert("Modal has been closed.");
             setModalVisible(false);
           }}
         >
           <View className="flex-1 justify-center items-center bg-opacity-80 bg-black">
-            <View className="bg-[#2E2E5D] p-6 rounded-lg w-[90%] max-w-lg">
-              <Text className="text-white text-lg font-bold mb-4">
-                Enter Creatine Intake (g/day)
-              </Text>
-
-              <TextInput
-                className="peer transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light px-5 py-3 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964]"
-                placeholder="e.g. 3"
-                placeholderTextColor="#C9C9E3"
-                keyboardType="numeric"
-                onChangeText={(v) => {
-                  setError("");
-                  setMessage("");
-                  setCreatineIntake(v);
-                }}
-                value={creatineIntake}
-              />
-              {error.length > 0 && (
-                <View className="bg-[#B22222] mt-3 p-2 rounded-md">
-                  <Text className="text-sm text-gray-200">{error}</Text>
-                </View>
-              )}
-              {message.length > 0 && (
-                <View className="bg-[#3CB371] mt-3 p-2 rounded-md">
-                  <Text className="text-sm text-gray-200">{message}</Text>
-                </View>
-              )}
-              {loading && <Loader className="mt-3" />}
-              <Pressable
-                onPress={() => {
-                  formSubmitHandler();
-                }}
-                className="mt-4 py-2 hover:bg-[#448AFF] bg-[#2979FF] transition-colors rounded-lg w-full"
-              >
-                <Text className="text-white text-center font-semibold">
-                  Submit
-                </Text>
-              </Pressable>
+            <ScrollView className="bg-[#2E2E5D] p-6 rounded-sm max-w-lg flex-1">
+              {creatineList.length > 0 &&
+                fetchError.length === 0 &&
+                creatineList.map((creatine) => (
+                  <View className="w-full mt-6 first:mt-0" key={creatine.id}>
+                    <View className="w-full">
+                      <Image
+                        source={{ uri: creatine.picture }}
+                        resizeMode="contain"
+                        className="w-20 aspect-[.5] rounded-md"
+                      />
+                      <View className="w-full">
+                        <Text className="text-white font-bold mt-3">{`${creatine.product_name} by ${creatine.company_name}`}</Text>
+                        <Text
+                          className="text-light text-gray-300 text-xs mt-2"
+                          ellipsizeMode="tail"
+                        >
+                          {creatine.description}
+                        </Text>
+                        <Text className="text-xs text-gray-400 mt-3">
+                          {creatine.size} grams
+                        </Text>
+                        <View className="flex flex-row justify-start gap-4 mt-3">
+                          <Text className="text-sm text-gray-200">
+                            {calculateDiscount(
+                              creatine.price,
+                              creatine.discount
+                            )}{" "}
+                            €
+                          </Text>
+                          <Text className="px-3 py-1 bg-red-500 rounded-md">
+                            {creatine.discount}% Discount
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                    <Pressable
+                      className="mt-4 py-2 hover:bg-[#448AFF] bg-[#2979FF] transition-colors rounded-lg w-full max-w-[250px] mx-auto"
+                      onPress={() =>
+                        Linking.openURL(
+                          `${creatine.link}?${creatine.partner_id}`
+                        )
+                      }
+                    >
+                      <Text className="text-white text-center">Continue</Text>
+                    </Pressable>
+                  </View>
+                ))}
               <Pressable
                 onPress={() => setModalVisible(false)}
-                className="mt-4 py-2 bg-gray-600 hover:bg-gray-500 transition-colors rounded-lg w-full"
+                className="mt-6 py-2 bg-gray-600 hover:bg-gray-500 transition-colors rounded-lg w-full"
               >
                 <Text className="text-white text-center font-semibold">
                   Close
                 </Text>
               </Pressable>
-            </View>
+            </ScrollView>
           </View>
         </Modal>
 
@@ -170,20 +189,45 @@ const CreatineIntake = (props: Props) => {
         <Text className="block mt-[60px] text-center text-white font-bold text-[16px]">
           Creatine Intake
         </Text>
-        <Text className="text-center mt-10 text-[#C9C9E3] text-[14px]">
+        <Text className="mt-10 text-[#C9C9E3] text-[14px]">
           Enter your daily creatine intake to help us personalize hydration and
           supplement tips
         </Text>
+        <TextInput
+          className="transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light px-5 py-3 mt-4 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964]"
+          placeholder="e.g. 3"
+          placeholderTextColor="#C9C9E3"
+          keyboardType="numeric"
+          onChangeText={(v) => {
+            setError("");
+            setMessage("");
+            setCreatineIntake(v);
+          }}
+          value={creatineIntake}
+        />
+        <View className="bg-[#565967] px-5 py-4 rounded-lg mt-4">
+          <Text className="text-[#afafc1] font-light text-xs inline-block">
+            Most users take 3-5g daily.
+          </Text>
+        </View>
+        {error.length > 0 && (
+          <View className="bg-[#B22222] mt-3 p-2 rounded-md">
+            <Text className="text-sm text-gray-200">{error}</Text>
+          </View>
+        )}
+        {message.length > 0 && (
+          <View className="bg-[#3CB371] mt-3 p-2 rounded-md">
+            <Text className="text-sm text-gray-200">{message}</Text>
+          </View>
+        )}
+        {loading && <Loader className="mt-3" />}
         <Pressable
-          onPress={() => setModalVisible(true)}
-          className="mt-5 p-3 rounded-lg bg-[#2D2F50] hover:bg-[#373964] transition-colors cursor-pointer"
+          onPress={() => {
+            formSubmitHandler();
+          }}
+          className="mt-4 py-2 hover:bg-[#448AFF] bg-[#2979FF] transition-colors rounded-lg w-full"
         >
-          <Text className="text-white font-bold text-[14px]">
-            Enter amount (g/day)
-          </Text>
-          <Text className="text-white text-[12px] font-light mt-2">
-            Most users take 3-5g/day
-          </Text>
+          <Text className="text-white text-center font-semibold">Submit</Text>
         </Pressable>
         <View className="bg-[#2E2E5D] px-3 py-5 flex flex-col gap-6 rounded-lg mt-10">
           <View className="flex flex-row justify-between items-center gap-4 w-full max-w-[300px] mx-auto">
@@ -198,7 +242,7 @@ const CreatineIntake = (props: Props) => {
             </View>
           </View>
           <Pressable
-            onPress={() => setIsWebViewVisible(true)}
+            onPress={() => setModalVisible(true)}
             className="bg-[#816BFF] cursor-pointer rounded-3xl py-3 px-20 w-fit mx-auto hover:bg-[#735cf5] active:bg-[#5943d6] transition-colors"
           >
             <Text className="text-[14px] font-bold text-white text-center">
