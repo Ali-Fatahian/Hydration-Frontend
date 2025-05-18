@@ -1,4 +1,4 @@
-import { View, Text, Pressable, ScrollView } from "react-native";
+import { View, Text, Pressable, ScrollView, Platform } from "react-native";
 import React, { useCallback, useState } from "react";
 import { Link, useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
@@ -95,7 +95,7 @@ const Login = (props: Props) => {
                 keyboardType="email-address"
                 onChangeText={handleEmailChange}
                 value={email}
-                multiline={true}
+                multiline={Platform.OS === "ios" || Platform.OS === "android"}
               />
             </View>
             <View className="relative w-full">

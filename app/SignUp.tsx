@@ -1,4 +1,4 @@
-import { View, Text, Pressable, ScrollView } from "react-native";
+import { View, Text, Pressable, ScrollView, Platform } from "react-native";
 import React, { useCallback, useState } from "react";
 import { Link, useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
@@ -100,7 +100,7 @@ const SignUp = (props: Props) => {
                 value={fullname}
                 onChangeText={handleFullnameChange}
                 label="Full Name"
-                multiline={true}
+                multiline={Platform.OS === "ios" || Platform.OS === "android"}
               />
             </View>
             <View className="relative w-full">
@@ -108,7 +108,7 @@ const SignUp = (props: Props) => {
                 value={email}
                 onChangeText={handleEmailChange}
                 label="Email"
-                multiline={true}
+                multiline={Platform.OS === "ios" || Platform.OS === "android"}
                 keyboardType="email-address"
               />
             </View>
