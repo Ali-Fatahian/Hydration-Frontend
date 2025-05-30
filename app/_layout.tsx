@@ -1,11 +1,13 @@
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Drawer } from "expo-router/drawer";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Linking from "expo-linking";
 import "../global.css";
 import CustomDrawerContent from "@/components/CustomDrawerContent";
+import { useFocusEffect } from "@react-navigation/native";
+import { Platform } from "react-native";
 
 export default function Layout() {
   const [authenticated, setAuthenticated] = useState(false);
@@ -26,21 +28,19 @@ export default function Layout() {
 
   const checkAuth = async () => {
     try {
-      console.log("Checking auth...");
       const token = await AsyncStorage.getItem("token");
-      console.log("Token:", token); // Log token to verify value
-      setAuthenticated(!!token); // If token exists, authenticated = true
+      setAuthenticated(!!token);
     } catch (err) {
-      console.error("Error fetching token:", err);
     } finally {
-      console.log("Authentication check complete.");
-      setLoading(false); // Set loading to false after the auth check completes
+      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      checkAuth();
+    }, [])
+  );
 
   if (loading) {
     return null;
@@ -57,7 +57,7 @@ export default function Layout() {
                 borderBottomWidth: 0,
                 elevation: 0,
                 shadowOpacity: 0,
-                height: 0,
+                height: Platform.OS === "web" ? 40 : 0,
               },
               headerShadowVisible: false,
               headerTitleStyle: {
@@ -68,28 +68,70 @@ export default function Layout() {
               headerTransparent: true,
             }}
           >
-            {/* {!authenticated && ( */}
-            {/* <React.Fragment> */}
-            <Drawer.Screen name="index" options={{ title: "Welcome" }} />
-            <Drawer.Screen name="SignUp" options={{ title: "Sign Up" }} />
-            <Drawer.Screen name="Login" options={{ title: "Login" }} />
-            {/* </React.Fragment>
-          )} */}
+            <Drawer.Screen
+              name="index"
+              options={{
+                title: "Welcome",
+                drawerItemStyle: {
+                  display: authenticated ? "none" : "flex",
+                },
+              }}
+            />
+            <Drawer.Screen
+              name="SignUp"
+              options={{
+                title: "Sign Up",
+                drawerItemStyle: {
+                  display: authenticated ? "none" : "flex",
+                },
+              }}
+            />
+            <Drawer.Screen
+              name="Login"
+              options={{
+                title: "Login",
+                drawerItemStyle: {
+                  display: authenticated ? "none" : "flex",
+                },
+              }}
+            />
 
-            {/* {authenticated && (
-            <React.Fragment> */}
-            <Drawer.Screen name="Dashboard" options={{ title: "Dashboard" }} />
-            <Drawer.Screen name="Profile" options={{ title: "Profile" }} />
+            <Drawer.Screen
+              name="Dashboard"
+              options={{
+                title: "Dashboard",
+                drawerItemStyle: {
+                  display: authenticated ? "flex" : "none",
+                },
+              }}
+            />
+            <Drawer.Screen
+              name="Profile"
+              options={{
+                title: "Profile",
+                drawerItemStyle: {
+                  display: authenticated ? "flex" : "none",
+                },
+              }}
+            />
             <Drawer.Screen
               name="NotificationsSummary"
-              options={{ title: "Notifications" }}
+              options={{
+                title: "Notifications",
+                drawerItemStyle: {
+                  display: authenticated ? "flex" : "none",
+                },
+              }}
             />
             <Drawer.Screen
               name="ConnectSmartBottle"
-              options={{ title: "Connect Bottle" }}
+              options={{
+                title: "Connect Bottle",
+                drawerItemStyle: {
+                  display: authenticated ? "flex" : "none",
+                },
+              }}
             />
-            {/* </React.Fragment>
-          )} */}
 
             <Drawer.Screen
               name="AIInsights"
