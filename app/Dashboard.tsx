@@ -18,10 +18,9 @@ const Dashboard = (props: Props) => {
   const [weather, setWeather] = useState(""); // Comes directly from AI
   const [activityLevel, setActivityLevel] = useState("");
   const [notificationError, setNotificationError] = useState("");
-  const [creatineIntakeError, setCreatineIntakeError] = useState("");
+  const [userError, setUserError] = useState("");
   const [waterIntakeError, setWaterIntakeError] = useState("");
   const [weatherError, setWeatherError] = useState("");
-  const [activityLevelError, setActivityLevelError] = useState("");
   const router = useRouter();
 
   const checkAuth = async () => {
@@ -54,47 +53,36 @@ const Dashboard = (props: Props) => {
     }
   };
 
-  const fetchCreatineItake = async () => {
+  const fetchUserInfo = async () => {
     try {
       const userId = await AsyncStorage.getItem("id");
       const response = await axiosInstance.get(`users/${userId}`);
       if (response.status === 200) {
         setCreatineIntake(response.data["creatine_intake"]);
+        setActivityLevel(response.data["activity"]);
       }
     } catch (err: any) {
-      setCreatineIntakeError(err.message);
+      setUserError(err.message);
     }
   };
 
-  const fetchWeatherInfo = async () => {
-    try {
-      const response = await axios.get("weather-api-url");
-      if (response.status === 200) {
-        setWeather(response.data);
-      }
-    } catch (err: any) {
-      setWeatherError(err.message);
-    }
-  };
-
-  const fetchActivityInfo = async () => {
-    try {
-      const response = await axios.get("activity-api-url");
-      if (response.status === 200) {
-        setActivityLevel(response.data);
-      }
-    } catch (err: any) {
-      setActivityLevelError(err.message);
-    }
-  };
+  // const fetchWeatherInfo = async () => {
+  //   try {
+  //     const response = await axios.get("weather-api-url");
+  //     if (response.status === 200) {
+  //       setWeather(response.data);
+  //     }
+  //   } catch (err: any) {
+  //     setWeatherError(err.message);
+  //   }
+  // };
 
   useEffect(() => {
     checkAuth();
     fetchWaterIntake();
     fetchNotification();
-    fetchWeatherInfo();
-    fetchActivityInfo();
-    fetchCreatineItake();
+    // fetchWeatherInfo();
+    fetchUserInfo();
   }, []);
 
   return (
@@ -179,23 +167,42 @@ const Dashboard = (props: Props) => {
         )}
         <View className="w-full mt-3">
           <View className="mt-6 w-full mx-auto flex flex-row justify-evenly gap-3">
-            <View className="flex flex-col items-center">
-              <ShoeIcon height={80} width={80} fill="#635994" />
-              <View>
-                <Text className="text-[14px] font-bold text-[#AFAFC1]">
-                  Activity:
-                </Text>
-                {activityLevel.length > 0 && activityLevelError.length === 0 ? (
+            {activityLevel.length > 0 && userError.length === 0 ? (
+              <View className="flex flex-col items-center">
+                <ShoeIcon
+                  height={80}
+                  width={80}
+                  fill={
+                    activityLevel === "low"
+                      ? "#4B9CD3"
+                      : activityLevel === "moderate"
+                      ? "#FF9F1C"
+                      : "#E63946"
+                  }
+                />
+                <View>
                   <Text className="text-[14px] font-bold text-[#AFAFC1]">
-                    Moderate
+                    Activity:
                   </Text>
-                ) : (
+                  <Text className="text-[14px] font-bold text-[#AFAFC1]">
+                    {activityLevel}
+                  </Text>
+                </View>
+              </View>
+            ) : (
+              <View className="flex flex-col items-center">
+                <ShoeIcon height={80} width={80} fill="#635994" />
+                <View>
+                  <Text className="text-[14px] font-bold text-[#AFAFC1]">
+                    Activity:
+                  </Text>
                   <Text className="text-[14px] font-bold text-[#AFAFC1]">
                     N/D
                   </Text>
-                )}
+                </View>
               </View>
-            </View>
+            )}
+
             <View className="flex flex-col items-center gap-3">
               <Ionicons
                 name="partly-sunny-outline"
@@ -229,8 +236,7 @@ const Dashboard = (props: Props) => {
                   Creatine:
                 </Text>
                 <View className="flex flex-row gap-1">
-                  {creatineIntake.length > 0 &&
-                  creatineIntakeError.length === 0 ? (
+                  {creatineIntake.length > 0 && userError.length === 0 ? (
                     <Text className="text-[14px] font-bold text-[#AFAFC1]">
                       {Number(creatineIntake)}
                     </Text>
