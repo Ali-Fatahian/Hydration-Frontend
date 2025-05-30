@@ -6,7 +6,7 @@ import {
   ScrollView,
 } from "react-native";
 import React, { useState } from "react";
-import { Stack, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
 import axios from "axios";
 
@@ -42,8 +42,7 @@ const ActivityLevel = (props: Props) => {
   };
 
   return (
-    <ScrollView className="bg-[#1e1f3f] h-full w-full py-[60px] px-1">
-      <Stack.Screen options={{ headerShown: false }} />
+    <ScrollView className="bg-[#1e1f3f] h-full w-full py-[50px] px-1">
       <View className="w-full max-w-lg mx-auto">
         <View className="flex justify-center w-full flex-row gap-1">
           <WaterIcon />

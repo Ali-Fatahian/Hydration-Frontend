@@ -1,8 +1,12 @@
-import { View, Text, Pressable, TextInput, ScrollView } from "react-native";
-import React, { useState } from "react";
-import { Link, Stack, useRouter } from "expo-router";
+import { View, Text, Pressable, ScrollView, Platform } from "react-native";
+import React, { useCallback, useState } from "react";
+import { Link, useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Loader from "@/assets/Loader";
+import { useFocusEffect } from "@react-navigation/native";
+import FloatingLabelInput from "@/components/FloatingLabelInput";
 
 type Props = {};
 
@@ -10,8 +14,17 @@ const Login = (props: Props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   // const [message, setMessage] = useState("");
   const router = useRouter();
+
+  const checkAuth = async () => {
+    const token = await AsyncStorage.getItem("token");
+    if (token) {
+      router.navigate("/Dashboard");
+      return;
+    }
+  };
 
   const handleEmailChange = (value: string) => {
     setEmail(value);
@@ -26,31 +39,44 @@ const Login = (props: Props) => {
   };
 
   const sendData = async (email: string, password: string) => {
+    setLoading(true);
     try {
-      const response = await axios.post("url", {
+      const response = await axios.post("http://localhost:8000/api/login", {
+        // http://192.168.178.101:8000 for phone on the same network
         email,
         password,
       });
       if (response.status === 200) {
         // setMessage(response.data);
+        await AsyncStorage.setItem(
+          "token",
+          JSON.stringify(response.data["token"])
+        );
+        await AsyncStorage.setItem("id", JSON.stringify(response.data["id"]));
         router.push("/Dashboard");
       }
     } catch (err: any) {
       setError(err.message);
     }
+    setLoading(false);
   };
 
   const formSubmitHandler = () => {
     if (email.length > 0 && password.length > 0) {
-      sendData(email, password);
+      sendData(email.toLowerCase(), password);
     } else {
       setError("Please fill out all the fields.");
     }
   };
 
+  useFocusEffect(
+    useCallback(() => {
+      checkAuth();
+    }, [])
+  );
+
   return (
-    <ScrollView className="bg-[#1e1f3f] h-full w-full py-[80px]">
-      <Stack.Screen options={{ headerShown: false }} />
+    <ScrollView className="bg-[#1e1f3f] h-full w-full px-4 py-[50px]">
       <View className="w-full max-w-lg mx-auto">
         <View className="flex justify-center w-full flex-row gap-1">
           <WaterIcon />
@@ -62,29 +88,25 @@ const Login = (props: Props) => {
           <Text className="text-[18px] font-bold text-white text-center">
             Log In
           </Text>
-          <View className="flex flex-col mt-6 justify-center w-full max-w-lg gap-8 mx-auto">
+          <View className="flex flex-col mt-10 justify-center w-full max-w-lg gap-10 mx-auto">
             <View className="relative w-full">
-              <TextInput
+              <FloatingLabelInput
+                label="Email"
+                keyboardType="email-address"
                 onChangeText={handleEmailChange}
                 value={email}
-                className="peer transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light px-5 py-3 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964]"
-                placeholder=""
+                multiline={Platform.OS === "ios" || Platform.OS === "android"}
               />
-              <Text className="z-2 text-white text-sm font-light pointer-events-none absolute left-5 inset-y-0 h-fit flex items-center select-none transition-all peer-focus:text-gray-400 peer-placeholder-shown:text-sm px-1 peer-focus:px-1 peer-placeholder-shown:px-0 peer-placeholder-shown:bg-transparent m-0 peer-focus:m-0 peer-placeholder-shown:m-auto -translate-y-1/2 peer-focus:-translate-y-1/2 peer-placeholder-shown:translate-y-0">
-                Email
-              </Text>
             </View>
             <View className="relative w-full">
-              <TextInput
+              <FloatingLabelInput
                 value={password}
                 onChangeText={handlePasswordChange}
                 secureTextEntry={true}
-                className="peer transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light px-5 py-3 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964]"
-                placeholder=""
+                label="Password"
+                keyboardType="default"
+                classes="h-[48px]"
               />
-              <Text className="z-2 text-white text-sm font-light pointer-events-none absolute left-5 inset-y-0 h-fit flex items-center select-none transition-all peer-focus:text-gray-400 peer-placeholder-shown:text-sm px-1 peer-focus:px-1 peer-placeholder-shown:px-0 peer-placeholder-shown:bg-transparent m-0 peer-focus:m-0 peer-placeholder-shown:m-auto -translate-y-1/2 peer-focus:-translate-y-1/2 peer-placeholder-shown:translate-y-0">
-                Password
-              </Text>
             </View>
           </View>
           {error.length > 0 && (
@@ -97,6 +119,7 @@ const Login = (props: Props) => {
               <Text className="text-sm text-gray-200">{message}</Text>
             </View>
           )} */}
+          {loading && <Loader className="mt-2" />}
           <Pressable
             onPress={formSubmitHandler}
             className="bg-[#816BFF] mt-6 rounded-3xl py-3 px-20 w-fit mx-auto hover:bg-[#735cf5] active:bg-[#5943d6] transition-colors"
@@ -106,7 +129,7 @@ const Login = (props: Props) => {
             </Text>
           </Pressable>
           <View className="mt-4">
-            <Link href="/+not-found" className="w-full text-center">
+            <Link href="/PasswordResetRequest" className="w-full text-center">
               <Text className="text-[14px] mx-auto text-white ">
                 Forgot Password?
               </Text>

@@ -1,6 +1,6 @@
 import { View, Text, Pressable, ScrollView } from "react-native";
 import React from "react";
-import { Stack, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
 import { Ionicons } from "@expo/vector-icons";
 import BottleIcon from "@/assets/BottleIcon";
@@ -11,8 +11,7 @@ const AIInsights = (props: Props) => {
   const router = useRouter();
 
   return (
-    <ScrollView className="bg-[#1e1f3f] h-full w-full py-[60px] px-2">
-      <Stack.Screen options={{ headerShown: false }} />
+    <ScrollView className="bg-[#1e1f3f] h-full w-full py-[50px] px-2">
       <View className="w-full max-w-lg mx-auto">
         <View className="flex justify-center w-full flex-row gap-1">
           <WaterIcon />

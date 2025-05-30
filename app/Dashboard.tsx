@@ -1,19 +1,104 @@
 import { View, Text, Pressable, ScrollView } from "react-native";
-import React from "react";
-import { Stack, useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
 import { Ionicons } from "@expo/vector-icons";
 import ShoeIcon from "@/assets/ShoeIcon";
 import BottleIcon from "@/assets/BottleIcon";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axiosInstance from "@/axiosInstance";
+import axios from "axios";
 
 type Props = {};
 
 const Dashboard = (props: Props) => {
+  const [notification, setNotification] = useState<any>("");
+  const [waterIntake, setWaterIntake] = useState<any>(null);
+  const [creatineIntake, setCreatineIntake] = useState("");
+  const [weather, setWeather] = useState(""); // Comes directly from AI
+  const [activityLevel, setActivityLevel] = useState("");
+  const [notificationError, setNotificationError] = useState("");
+  const [creatineIntakeError, setCreatineIntakeError] = useState("");
+  const [waterIntakeError, setWaterIntakeError] = useState("");
+  const [weatherError, setWeatherError] = useState("");
+  const [activityLevelError, setActivityLevelError] = useState("");
   const router = useRouter();
 
+  const checkAuth = async () => {
+    const token = await AsyncStorage.getItem("token");
+    if (!token) {
+      router.navigate("/Login");
+      return;
+    }
+  };
+
+  const fetchNotification = async () => {
+    try {
+      const response = await axiosInstance.get("latest_notification");
+      if (response.status === 200) {
+        setNotification(response.data);
+      }
+    } catch (err: any) {
+      setNotificationError(err.message);
+    }
+  };
+
+  const fetchWaterIntake = async () => {
+    try {
+      const response = await axiosInstance.get("water_intake");
+      if (response.status === 200) {
+        setWaterIntake(response.data);
+      }
+    } catch (err: any) {
+      setWaterIntakeError(err.message);
+    }
+  };
+
+  const fetchCreatineItake = async () => {
+    try {
+      const userId = await AsyncStorage.getItem("id");
+      const response = await axiosInstance.get(`users/${userId}`);
+      if (response.status === 200) {
+        setCreatineIntake(response.data["creatine_intake"]);
+      }
+    } catch (err: any) {
+      setCreatineIntakeError(err.message);
+    }
+  };
+
+  const fetchWeatherInfo = async () => {
+    try {
+      const response = await axios.get("weather-api-url");
+      if (response.status === 200) {
+        setWeather(response.data);
+      }
+    } catch (err: any) {
+      setWeatherError(err.message);
+    }
+  };
+
+  const fetchActivityInfo = async () => {
+    try {
+      const response = await axios.get("activity-api-url");
+      if (response.status === 200) {
+        setActivityLevel(response.data);
+      }
+    } catch (err: any) {
+      setActivityLevelError(err.message);
+    }
+  };
+
+  useEffect(() => {
+    checkAuth();
+    fetchWaterIntake();
+    fetchNotification();
+    fetchWeatherInfo();
+    fetchActivityInfo();
+    fetchCreatineItake();
+  }, []);
+
   return (
-    <ScrollView className="bg-[#1e1f3f] h-full w-full py-[40px] px-2">
-      <Stack.Screen options={{ headerShown: false }} />
+    <ScrollView className="bg-[#1e1f3f] h-full w-full py-[50px] px-2">
       <View className="w-full max-w-lg mx-auto">
         <View className="flex justify-center w-full flex-row gap-1">
           <WaterIcon />
@@ -27,37 +112,71 @@ const Dashboard = (props: Props) => {
         <Text className="text-center mt-10 text-[#C9C9E3] text-[14px]">
           Monitor your water intake and stay on top of your hydration goals.
         </Text>
-        <View className="w-full bg-[#BBBBBB] rounded-full dark:bg-gray-700 mt-8">
-          <View className="bg-[#57A8FF] text-xs text-blue-100 text-center p-2 font-bold leading-none rounded-full w-[85%]">
-            85%
+        {waterIntakeError.length > 0 ? (
+          <View className="w-full bg-[#BBBBBB] text-xs text-blue-100 rounded-full dark:bg-gray-700 mt-8 text-center p-2 font-bold leading-none">
+            0<View className={`bg-[#57A8FF] rounded-full w-0`}></View>
           </View>
-        </View>
-        <Text className="text-center text-white font-bold mt-8 text-xl">
-          1200ml <Text className="text-[#AFAFC1] font-normal">of 3000ml</Text>
-        </Text>
-        {/* This shows the last notifications, for more click. */}
-        <Pressable
-          className="bg-[#565967] px-5 py-4 rounded-lg mt-8 flex flex-col gap-4 min-[366px]:flex-row min-[366px]:gap-0 justify-between hover:bg-[#4a4c58] transition-colors"
-          onPress={() => router.navigate("/NotificationsSummary")}
-        >
-          <View className="flex flex-row">
-            <Ionicons
-              name="bulb"
-              color={"#FBC02D"}
-              size={15}
-              className="mr-2"
-            />
-            <Text className="text-[#afafc1] font-light text-xs">
-              It's hot today — add 300ml to your daily goal.
+        ) : (
+          waterIntake && (
+            <View className="w-full bg-[#BBBBBB] rounded-full dark:bg-gray-700 mt-8">
+              <View
+                style={{
+                  width: `${Math.round(
+                    (Number(waterIntake.user_water_intake) /
+                      Number(waterIntake.max_water_intake)) *
+                      100
+                  )}%`,
+                }}
+                className={
+                  "bg-[#57A8FF] rounded-full text-center p-2 font-bold leading-none text-xs text-blue-100"
+                }
+              >
+                {Math.round(
+                  (Number(waterIntake.user_water_intake) /
+                    Number(waterIntake.max_water_intake)) *
+                    1000
+                ) / 10}
+                %
+              </View>
+            </View>
+          )
+        )}
+        {waterIntakeError.length === 0 && waterIntake && (
+          <Text className="text-center text-white font-bold mt-8 text-xl">
+            {(Math.round(waterIntake.user_water_intake) * 10) / 10}ml
+            <Text className="text-[#AFAFC1] font-normal ml-2">
+              of {waterIntake.max_water_intake}ml
             </Text>
+          </Text>
+        )}
+        {notificationError.length > 0 ? (
+          <View className="bg-[#B22222] mt-3 p-2 rounded-md">
+            <Text className="text-sm text-gray-200">{notificationError}</Text>
           </View>
-          <Ionicons
-            name="arrow-forward-outline"
-            size={15}
-            color={"#fff"}
-            className="text-right"
-          />
-        </Pressable>
+        ) : (
+          <Pressable
+            className="bg-[#565967] px-5 py-4 rounded-lg mt-8 flex flex-col gap-4 min-[366px]:flex-row min-[366px]:gap-0 justify-between hover:bg-[#4a4c58] transition-colors"
+            onPress={() => router.navigate("/NotificationsSummary")}
+          >
+            <View className="flex flex-row">
+              <Ionicons
+                name="bulb"
+                color={"#FBC02D"}
+                size={15}
+                className="mr-2"
+              />
+              <Text className="text-[#afafc1] font-light text-xs">
+                {notification.message}
+              </Text>
+            </View>
+            <Ionicons
+              name="arrow-forward-outline"
+              size={15}
+              color={"#fff"}
+              className="text-right"
+            />
+          </Pressable>
+        )}
         <View className="w-full mt-3">
           <View className="mt-6 w-full mx-auto flex flex-row justify-evenly gap-3">
             <View className="flex flex-col items-center">
@@ -66,9 +185,15 @@ const Dashboard = (props: Props) => {
                 <Text className="text-[14px] font-bold text-[#AFAFC1]">
                   Activity:
                 </Text>
-                <Text className="text-[14px] font-bold text-[#AFAFC1]">
-                  Moderate
-                </Text>
+                {activityLevel.length > 0 && activityLevelError.length === 0 ? (
+                  <Text className="text-[14px] font-bold text-[#AFAFC1]">
+                    Moderate
+                  </Text>
+                ) : (
+                  <Text className="text-[14px] font-bold text-[#AFAFC1]">
+                    N/D
+                  </Text>
+                )}
               </View>
             </View>
             <View className="flex flex-col items-center gap-3">
@@ -81,14 +206,20 @@ const Dashboard = (props: Props) => {
                 <Text className="text-[14px] font-bold text-[#AFAFC1]">
                   Weather:
                 </Text>
-                <View className="flex flex-row gap-1">
+                {weather.length > 0 && weatherError.length === 0 ? (
+                  <View className="flex flex-row gap-1">
+                    <Text className="text-[14px] font-bold text-[#AFAFC1]">
+                      {weather}
+                    </Text>
+                    <Text className="text-[14px] font-bold text-[#AFAFC1]">
+                      °C
+                    </Text>
+                  </View>
+                ) : (
                   <Text className="text-[14px] font-bold text-[#AFAFC1]">
-                    30
+                    N/D
                   </Text>
-                  <Text className="text-[14px] font-bold text-[#AFAFC1]">
-                    °C
-                  </Text>
-                </View>
+                )}
               </View>
             </View>
             <View className="flex flex-col items-center gap-3">
@@ -98,9 +229,16 @@ const Dashboard = (props: Props) => {
                   Creatine:
                 </Text>
                 <View className="flex flex-row gap-1">
-                  <Text className="text-[14px] font-bold text-[#AFAFC1]">
-                    5
-                  </Text>
+                  {creatineIntake.length > 0 &&
+                  creatineIntakeError.length === 0 ? (
+                    <Text className="text-[14px] font-bold text-[#AFAFC1]">
+                      {Number(creatineIntake)}
+                    </Text>
+                  ) : (
+                    <Text className="text-[14px] font-bold text-[#AFAFC1]">
+                      0
+                    </Text>
+                  )}
                   <Text className="text-[14px] font-bold text-[#AFAFC1]">
                     g/day
                   </Text>
