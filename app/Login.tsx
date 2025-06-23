@@ -7,6 +7,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Loader from "@/assets/Loader";
 import { useFocusEffect } from "@react-navigation/native";
 import FloatingLabelInput from "@/components/FloatingLabelInput";
+import { useContextState } from "./Context";
 
 type Props = {};
 
@@ -16,6 +17,7 @@ const Login = (props: Props) => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   // const [message, setMessage] = useState("");
+  const { setToken } = useContextState()
   const router = useRouter();
 
   const checkAuth = async () => {
@@ -48,9 +50,12 @@ const Login = (props: Props) => {
       });
       if (response.status === 200) {
         // setMessage(response.data);
+        const tokenFromResponse = response.data['token']
+        setToken(tokenFromResponse);
+
         await AsyncStorage.setItem(
           "token",
-          JSON.stringify(response.data["token"])
+          JSON.stringify(tokenFromResponse)
         );
         await AsyncStorage.setItem("id", JSON.stringify(response.data["id"]));
         router.push("/Dashboard");

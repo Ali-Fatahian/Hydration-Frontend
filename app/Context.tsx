@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 
 type ContextType = {
   token: string | null;
@@ -35,6 +36,13 @@ export const ContextProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUserState] = useState<UserDetails | null>(null);
   const [weather, setWeatherState] = useState<WeatherType | null>(null);
 
+  const loadToken = async () => {
+    const savedToken = await AsyncStorage.getItem('token');
+    if (savedToken) {
+      setToken(JSON.parse(savedToken));
+    }
+  };
+
   const setToken = (newToken: string) => {
     setTokenState(newToken);
   };
@@ -51,6 +59,10 @@ export const ContextProvider = ({ children }: { children: ReactNode }) => {
   const setWeather = (newWeather: WeatherType) => {
     setWeatherState(newWeather);
   };
+
+  useEffect(() => {
+    loadToken()
+  }, [])
 
   return (
     <Context.Provider
