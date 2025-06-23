@@ -1,3 +1,4 @@
+import { useContextState } from "@/app/Context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   DrawerContentScrollView,
@@ -10,9 +11,10 @@ import { View } from "react-native";
 const CustomDrawerContent = (props: any) => {
   const router = useRouter();
 
+  const { logout } = useContextState()
+
   const handleLogout = async () => {
-    await AsyncStorage.removeItem("token");
-    await AsyncStorage.removeItem("id");
+    await logout()
     router.replace("/Login");
   };
 

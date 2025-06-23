@@ -8,6 +8,7 @@ import BottleIcon from "@/assets/BottleIcon";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axiosInstance from "@/axiosInstance";
 import axios from "axios";
+import { useContextState } from "./Context";
 
 type Props = {};
 
@@ -23,13 +24,18 @@ const Dashboard = (props: Props) => {
   const [weatherError, setWeatherError] = useState("");
   const router = useRouter();
 
-  const checkAuth = async () => {
-    const token = await AsyncStorage.getItem("token");
-    if (!token) {
-      router.navigate("/Login");
-      return;
+  const { token, contextLoading } = useContextState();
+
+  const checkAuth = () => {
+    if (!contextLoading) {
+      if (!token) {
+        router.navigate("/Login");
+        return;
+      }
     }
   };
+
+  console.log('Token', token)
 
   const fetchNotification = async () => {
     try {
@@ -78,12 +84,18 @@ const Dashboard = (props: Props) => {
   // };
 
   useEffect(() => {
-    checkAuth();
+    if (!contextLoading) {
+      if (!token) {
+        router.navigate("/Login");
+        return;
+      }
+    } // Putting this code in checkAuth() makes it too slow to run, doesn't work
+
     fetchWaterIntake();
     fetchNotification();
     // fetchWeatherInfo();
     fetchUserInfo();
-  }, []);
+  }, [token, contextLoading]);
 
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[50px] px-2">

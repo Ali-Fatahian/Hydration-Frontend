@@ -1,13 +1,20 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
 
 type ContextType = {
   token: string | null;
   user: UserDetails | null;
   weather: WeatherType | null;
+  contextLoading: true | false;
   setToken: (token: string) => void;
   setUser: (user: UserDetails) => void;
-  clearAuth: () => void;
+  logout: () => Promise<void>;
   setWeather: (weather: WeatherType) => void;
 };
 
@@ -35,12 +42,21 @@ export const ContextProvider = ({ children }: { children: ReactNode }) => {
   const [token, setTokenState] = useState<string | null>(null);
   const [user, setUserState] = useState<UserDetails | null>(null);
   const [weather, setWeatherState] = useState<WeatherType | null>(null);
+  const [contextLoading, setContextLoading] = useState(true);
+
+  const logout = async () => {
+    await AsyncStorage.removeItem("token");
+    await AsyncStorage.removeItem("userDetails");
+    setTokenState(null);
+    setUserState(null);
+  };
 
   const loadToken = async () => {
-    const savedToken = await AsyncStorage.getItem('token');
+    const savedToken = await AsyncStorage.getItem("token");
     if (savedToken) {
       setToken(JSON.parse(savedToken));
     }
+    setContextLoading(false);
   };
 
   const setToken = (newToken: string) => {
@@ -51,22 +67,26 @@ export const ContextProvider = ({ children }: { children: ReactNode }) => {
     setUserState(newUser);
   };
 
-  const clearAuth = () => {
-    setTokenState(null);
-    setUserState(null);
-  };
-
   const setWeather = (newWeather: WeatherType) => {
     setWeatherState(newWeather);
   };
 
   useEffect(() => {
-    loadToken()
-  }, [])
+    loadToken();
+  }, []);
 
   return (
     <Context.Provider
-      value={{ token, user, weather, setToken, setUser, clearAuth, setWeather }}
+      value={{
+        token,
+        user,
+        weather,
+        contextLoading,
+        setToken,
+        setUser,
+        logout,
+        setWeather,
+      }}
     >
       {children}
     </Context.Provider>
