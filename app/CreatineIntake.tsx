@@ -15,6 +15,7 @@ import BottleIcon from "@/assets/BottleIcon";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axiosInstance from "@/axiosInstance";
 import Loader from "@/assets/Loader";
+import { useContextState } from "./Context";
 
 type Props = {};
 
@@ -41,13 +42,7 @@ const CreatineIntake = (props: Props) => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const checkAuth = async () => {
-    const token = await AsyncStorage.getItem("token");
-    if (!token) {
-      router.navigate("/Login");
-      return;
-    }
-  };
+  const { token, contextLoading } = useContextState();
 
   const sendData = async () => {
     setLoading(true);
@@ -104,9 +99,14 @@ const CreatineIntake = (props: Props) => {
   }
 
   useEffect(() => {
-    checkAuth();
+    if (!contextLoading) {
+      if (!token) {
+        router.navigate("/Login");
+        return;
+      }
+    }
     fetchCreatineList();
-  }, []);
+  }, [contextLoading, token]);
 
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[50px] px-2">

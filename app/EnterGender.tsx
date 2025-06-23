@@ -5,6 +5,7 @@ import { useRouter } from "expo-router";
 import axiosInstance from "@/axiosInstance";
 import Loader from "@/assets/Loader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useContextState } from "./Context";
 
 type Props = {};
 
@@ -15,13 +16,7 @@ const EnterGender = (props: Props) => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const checkAuth = async () => {
-    const token = await AsyncStorage.getItem("token");
-    if (!token) {
-      router.navigate("/Login");
-      return;
-    }
-  };
+  const { token, contextLoading } = useContextState();
 
   const fetchUserInfo = async () => {
     try {
@@ -59,9 +54,14 @@ const EnterGender = (props: Props) => {
   };
 
   useEffect(() => {
-    checkAuth();
+    if (!contextLoading) {
+      if (!token) {
+        router.navigate("/Login");
+        return;
+      }
+    }
     fetchUserInfo();
-  }, []);
+  }, [contextLoading, token]);
 
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[50px] px-2">

@@ -4,9 +4,9 @@ import { Link, useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
 import axios from "axios";
 import Loader from "@/assets/Loader";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import FloatingLabelInput from "@/components/FloatingLabelInput";
+import { useContextState } from "./Context";
 
 type Props = {};
 
@@ -19,13 +19,7 @@ const SignUp = (props: Props) => {
   // const [message, setMessage] = useState("");
   const router = useRouter();
 
-  const checkAuth = async () => {
-    const token = await AsyncStorage.getItem("token");
-    if (token) {
-      router.navigate("/Dashboard");
-      return;
-    }
-  };
+  const { token, contextLoading } = useContextState();
 
   const handleEmailChange = (value: string) => {
     setEmail(value);
@@ -77,8 +71,13 @@ const SignUp = (props: Props) => {
 
   useFocusEffect(
     useCallback(() => {
-      checkAuth();
-    }, [])
+      if (!contextLoading) {
+        if (token) {
+          router.navigate("/Dashboard");
+          return;
+        }
+      }
+    }, [contextLoading, token])
   );
 
   return (

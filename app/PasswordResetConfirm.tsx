@@ -3,9 +3,9 @@ import React, { useCallback, useState } from "react";
 import { useRouter, useLocalSearchParams, Link } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
 import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import Loader from "@/assets/Loader";
 import { useFocusEffect } from "@react-navigation/native";
+import { useContextState } from "./Context";
 
 type Props = {};
 
@@ -18,13 +18,7 @@ const PasswordResetConfirm = (props: Props) => {
   const [message, setMessage] = useState("");
   const router = useRouter();
 
-  const checkAuth = async () => {
-    const token = await AsyncStorage.getItem("token");
-    if (token) {
-      router.navigate("/Dashboard");
-      return;
-    }
-  };
+  const { token: contextToken, contextLoading } = useContextState();
 
   const handlePasswordChange = (value: string) => {
     setPassword(value);
@@ -70,8 +64,13 @@ const PasswordResetConfirm = (props: Props) => {
 
   useFocusEffect(
     useCallback(() => {
-      checkAuth();
-    }, [])
+      if (!contextLoading) {
+        if (contextToken) {
+          router.navigate("/Dashboard");
+          return;
+        }
+      }
+    }, [contextLoading, contextToken])
   );
 
   return (

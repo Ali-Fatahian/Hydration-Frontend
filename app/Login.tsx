@@ -17,16 +17,8 @@ const Login = (props: Props) => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   // const [message, setMessage] = useState("");
-  const { setToken } = useContextState()
+  const { token, setToken, contextLoading } = useContextState();
   const router = useRouter();
-
-  const checkAuth = async () => {
-    const token = await AsyncStorage.getItem("token");
-    if (token) {
-      router.navigate("/Dashboard");
-      return;
-    }
-  };
 
   const handleEmailChange = (value: string) => {
     setEmail(value);
@@ -50,13 +42,10 @@ const Login = (props: Props) => {
       });
       if (response.status === 200) {
         // setMessage(response.data);
-        const tokenFromResponse = response.data['token']
+        const tokenFromResponse = response.data["token"];
         setToken(tokenFromResponse);
 
-        await AsyncStorage.setItem(
-          "token",
-          JSON.stringify(tokenFromResponse)
-        );
+        await AsyncStorage.setItem("token", JSON.stringify(tokenFromResponse));
         await AsyncStorage.setItem("id", JSON.stringify(response.data["id"]));
         router.push("/Dashboard");
       }
@@ -76,8 +65,13 @@ const Login = (props: Props) => {
 
   useFocusEffect(
     useCallback(() => {
-      checkAuth();
-    }, [])
+      if (!contextLoading) {
+        if (token) {
+          router.navigate("/Dashboard");
+          return;
+        }
+      }
+    }, [contextLoading, token])
   );
 
   return (

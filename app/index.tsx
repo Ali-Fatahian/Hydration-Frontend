@@ -2,25 +2,24 @@ import { View, Text, Pressable, ScrollView } from "react-native";
 import React, { useCallback } from "react";
 import { useFocusEffect, useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useContextState } from "./Context";
 
 type Props = {};
 
 const Index = (props: Props) => {
   const router = useRouter();
 
-  const checkAuth = async () => {
-    const token = await AsyncStorage.getItem("token");
-    if (token) {
-      router.navigate("/Dashboard");
-      return;
-    }
-  };
+  const { token, contextLoading } = useContextState();
 
   useFocusEffect(
     useCallback(() => {
-      checkAuth();
-    }, [])
+      if (!contextLoading) {
+        if (token) {
+          router.navigate("/Dashboard");
+          return;
+        }
+      }
+    }, [contextLoading, token])
   );
 
   return (

@@ -3,8 +3,8 @@ import React, { useEffect, useState } from "react";
 import { Link, useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
 import axiosInstance from "@/axiosInstance";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import Loader from "@/assets/Loader";
+import { useContextState } from "./Context";
 
 type Props = {};
 
@@ -18,15 +18,9 @@ const DailyGoal = (props: Props) => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const router = useRouter();
+  const { token, contextLoading } = useContextState();
 
-  const checkAuth = async () => {
-    const token = await AsyncStorage.getItem("token");
-    if (!token) {
-      router.navigate("/Login");
-      return;
-    }
-  };
+  const router = useRouter();
 
   const handleInputChange = (value: string) => {
     setUserConsumption(value);
@@ -79,9 +73,14 @@ const DailyGoal = (props: Props) => {
   };
 
   useEffect(() => {
-    checkAuth();
+    if (!contextLoading) {
+      if (!token) {
+        router.navigate("/Login");
+        return;
+      }
+    }
     fetchDailyGoal();
-  }, []);
+  }, [contextLoading, token]);
 
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[50px]">

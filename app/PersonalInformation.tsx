@@ -15,6 +15,7 @@ import WaterIcon from "@/assets/WaterIcon";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axiosInstance from "@/axiosInstance";
 import Loader from "@/assets/Loader";
+import { useContextState } from "./Context";
 
 type Props = {};
 
@@ -33,6 +34,8 @@ const PersonalInformation = (props: Props) => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  const { token, contextLoading } = useContextState();
 
   const checkImageValidity = async (uri: string) => {
     try {
@@ -69,14 +72,6 @@ const PersonalInformation = (props: Props) => {
     }
   };
 
-  const checkAuth = async () => {
-    const token = await AsyncStorage.getItem("token");
-    if (!token) {
-      router.navigate("/Login");
-      return;
-    }
-  };
-
   const fetchUserInfo = async () => {
     try {
       const id = await AsyncStorage.getItem("id");
@@ -96,9 +91,14 @@ const PersonalInformation = (props: Props) => {
   };
 
   useEffect(() => {
-    checkAuth();
+    if (!contextLoading) {
+      if (!token) {
+        router.navigate("/Login");
+        return;
+      }
+    }
     fetchUserInfo();
-  }, []);
+  }, [contextLoading, token]);
 
   const sendData = async () => {
     setLoading(true);

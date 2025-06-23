@@ -7,6 +7,7 @@ import KGIcon from "@/assets/KGIcon";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axiosInstance from "@/axiosInstance";
 import Loader from "@/assets/Loader";
+import { useContextState } from "./Context";
 
 type Props = {};
 
@@ -17,13 +18,7 @@ const EnterWeight = (props: Props) => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const checkAuth = async () => {
-    const token = await AsyncStorage.getItem("token");
-    if (!token) {
-      router.navigate("/Login");
-      return;
-    }
-  };
+  const { token, contextLoading } = useContextState();
 
   const sendData = async () => {
     setLoading(true);
@@ -34,9 +29,7 @@ const EnterWeight = (props: Props) => {
       });
       if (response.status === 200) {
         setMessage(
-          `Successfully set to ${String(
-            Number(response.data["weight"])
-          )}`
+          `Successfully set to ${String(Number(response.data["weight"]))}`
         );
       }
     } catch (err: any) {
@@ -58,8 +51,13 @@ const EnterWeight = (props: Props) => {
   };
 
   useEffect(() => {
-    checkAuth();
-  }, []);
+    if (!contextLoading) {
+      if (!token) {
+        router.navigate("/Login");
+        return;
+      }
+    }
+  }, [contextLoading, token]);
 
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[50px] px-2">

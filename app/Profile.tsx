@@ -6,6 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axiosInstance from "@/axiosInstance";
 import { useFocusEffect } from "@react-navigation/native";
+import { useContextState } from "./Context";
 
 const Profile = () => {
   const [user, setUser] = useState<{
@@ -17,13 +18,7 @@ const Profile = () => {
   } | null>(null);
   const [error, setError] = useState("");
 
-  const checkAuth = async () => {
-    const token = await AsyncStorage.getItem("token");
-    if (!token) {
-      router.navigate("/Login");
-      return;
-    }
-  };
+  const { token, contextLoading } = useContextState();
 
   const fetchUserInfo = async () => {
     try {
@@ -39,9 +34,14 @@ const Profile = () => {
 
   useFocusEffect(
     useCallback(() => {
-      checkAuth();
+      if (!contextLoading) {
+        if (!token) {
+          router.navigate("/Login");
+          return;
+        }
+      }
       fetchUserInfo();
-    }, [])
+    }, [contextLoading, token])
   );
 
   return (

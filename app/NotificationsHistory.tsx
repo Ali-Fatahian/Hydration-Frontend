@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import WaterIcon from "@/assets/WaterIcon";
 import { Link, useRouter } from "expo-router";
 import axiosInstance from "@/axiosInstance";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useContextState } from "./Context";
 
 type NotificationType = {
   id: number;
@@ -26,13 +26,7 @@ const NotificationsHistory = (props: Props) => {
   const [error, setError] = useState("");
   const today = new Date();
 
-  const checkAuth = async () => {
-    const token = await AsyncStorage.getItem("token");
-    if (!token) {
-      router.navigate("/Login");
-      return;
-    }
-  };
+  const { token, contextLoading } = useContextState();
 
   const fetchData = async () => {
     try {
@@ -48,9 +42,14 @@ const NotificationsHistory = (props: Props) => {
   };
 
   useEffect(() => {
-    checkAuth();
+    if (!contextLoading) {
+      if (!token) {
+        router.navigate("/Login");
+        return;
+      }
+    }
     fetchData();
-  }, []);
+  }, [contextLoading, token]);
 
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[50px] px-2">

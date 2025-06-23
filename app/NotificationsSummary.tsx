@@ -4,8 +4,8 @@ import WaterIcon from "@/assets/WaterIcon";
 import { Link, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import axiosInstance from "@/axiosInstance";
+import { useContextState } from "./Context";
 
 const defaultAIMessage =
   "You are most likely to respond to reminders at 8-10 pm. Want to focus on reminders around this time?";
@@ -30,13 +30,7 @@ const NotificationsSummary = (props: Props) => {
   const animation = useRef(new Animated.Value(0)).current;
   const contentRef = useRef(null);
 
-  const checkAuth = async () => {
-    const token = await AsyncStorage.getItem("token");
-    if (!token) {
-      router.navigate("/Login");
-      return;
-    }
-  };
+  const { token, contextLoading } = useContextState();
 
   const toggleAccordion = () => {
     setExpanded((expanded) => !expanded);
@@ -88,7 +82,12 @@ const NotificationsSummary = (props: Props) => {
   };
 
   useEffect(() => {
-    checkAuth();
+    if (!contextLoading) {
+      if (!token) {
+        router.navigate("/Login");
+        return;
+      }
+    }
 
     Animated.timing(animation, {
       toValue: expanded ? contentHeight : 0,
@@ -99,7 +98,7 @@ const NotificationsSummary = (props: Props) => {
     fetchNotifications();
 
     fetchAISuggestion();
-  }, [expanded, contentHeight]);
+  }, [expanded, contentHeight, contextLoading, token]);
 
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[40px] px-2">

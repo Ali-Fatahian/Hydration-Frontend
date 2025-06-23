@@ -7,7 +7,6 @@ import ShoeIcon from "@/assets/ShoeIcon";
 import BottleIcon from "@/assets/BottleIcon";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axiosInstance from "@/axiosInstance";
-import axios from "axios";
 import { useContextState } from "./Context";
 
 type Props = {};
@@ -25,15 +24,6 @@ const Dashboard = (props: Props) => {
   const router = useRouter();
 
   const { token, contextLoading } = useContextState();
-
-  const checkAuth = () => {
-    if (!contextLoading) {
-      if (!token) {
-        router.navigate("/Login");
-        return;
-      }
-    }
-  };
 
   console.log('Token', token)
 
