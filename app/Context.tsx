@@ -47,6 +47,7 @@ export const ContextProvider = ({ children }: { children: ReactNode }) => {
   const logout = async () => {
     await AsyncStorage.removeItem("token");
     await AsyncStorage.removeItem("userDetails");
+    await AsyncStorage.removeItem("id");
     setTokenState(null);
     setUserState(null);
   };

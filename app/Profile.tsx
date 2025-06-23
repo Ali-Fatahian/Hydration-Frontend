@@ -9,16 +9,9 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useContextState } from "./Context";
 
 const Profile = () => {
-  const [user, setUser] = useState<{
-    picture: string;
-    email: string;
-    gender: string;
-    weight: string;
-    creatine_intake: string;
-  } | null>(null);
   const [error, setError] = useState("");
 
-  const { token, contextLoading } = useContextState();
+  const { token, contextLoading, setUser, user } = useContextState();
 
   const fetchUserInfo = async () => {
     try {
