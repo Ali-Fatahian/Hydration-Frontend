@@ -11,7 +11,7 @@ import { View } from "react-native";
 const CustomDrawerContent = (props: any) => {
   const router = useRouter();
 
-  const { logout } = useContextState()
+  const { logout, token } = useContextState()
 
   const handleLogout = async () => {
     await logout()
@@ -23,11 +23,11 @@ const CustomDrawerContent = (props: any) => {
       <View style={{ flex: 1 }}>
         <DrawerItemList {...props} />
       </View>
-      <DrawerItem
+      {token && <DrawerItem
         label="Log Out"
         onPress={handleLogout}
-        labelStyle={{ color: "red", marginBottom: 20 }}
-      />
+        labelStyle={{ color: "red", marginBottom: 5 }}
+      />}
     </DrawerContentScrollView>
   );
 };
