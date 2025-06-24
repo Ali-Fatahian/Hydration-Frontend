@@ -8,6 +8,7 @@ import BottleIcon from "@/assets/BottleIcon";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axiosInstance from "@/axiosInstance";
 import { useContextState } from "./Context";
+import WeatherFetcher from "@/components/WeatherFetcher";
 
 type Props = {};
 
@@ -15,17 +16,15 @@ const Dashboard = (props: Props) => {
   const [notification, setNotification] = useState<any>("");
   const [waterIntake, setWaterIntake] = useState<any>(null);
   const [creatineIntake, setCreatineIntake] = useState("");
-  const [weather, setWeather] = useState(""); // Comes directly from AI
   const [activityLevel, setActivityLevel] = useState("");
   const [notificationError, setNotificationError] = useState("");
   const [userError, setUserError] = useState("");
   const [waterIntakeError, setWaterIntakeError] = useState("");
-  const [weatherError, setWeatherError] = useState("");
   const router = useRouter();
 
-  const { token, contextLoading } = useContextState();
+  const { token, contextLoading, weather, weatherError } = useContextState();
 
-  console.log('Token', token)
+  console.log("Token", token);
 
   const fetchNotification = async () => {
     try {
@@ -62,17 +61,6 @@ const Dashboard = (props: Props) => {
     }
   };
 
-  // const fetchWeatherInfo = async () => {
-  //   try {
-  //     const response = await axios.get("weather-api-url");
-  //     if (response.status === 200) {
-  //       setWeather(response.data);
-  //     }
-  //   } catch (err: any) {
-  //     setWeatherError(err.message);
-  //   }
-  // };
-
   useEffect(() => {
     if (!contextLoading) {
       if (!token) {
@@ -90,6 +78,7 @@ const Dashboard = (props: Props) => {
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[50px] px-2">
       <View className="w-full max-w-lg mx-auto">
+        {!weather && <WeatherFetcher />}
         <View className="flex justify-center w-full flex-row gap-1">
           <WaterIcon />
           <Text className="text-[20px] font-bold text-white text-center flex flex-row">
@@ -215,13 +204,19 @@ const Dashboard = (props: Props) => {
                 <Text className="text-[14px] font-bold text-[#AFAFC1]">
                   Weather:
                 </Text>
-                {weather.length > 0 && weatherError.length === 0 ? (
+                {!!weather ? (
                   <View className="flex flex-row gap-1">
                     <Text className="text-[14px] font-bold text-[#AFAFC1]">
-                      {weather}
+                      {weather.temperature_celsius}
                     </Text>
                     <Text className="text-[14px] font-bold text-[#AFAFC1]">
                       °C
+                    </Text>
+                  </View>
+                ) : weatherError ? (
+                  <View className="bg-[#B22222] mt-3 p-2 rounded-md">
+                    <Text className="text-sm text-gray-200">
+                      {weatherError}
                     </Text>
                   </View>
                 ) : (

@@ -11,11 +11,13 @@ type ContextType = {
   token: string | null;
   user: UserDetails | null;
   weather: WeatherType | null;
+  weatherError: string | null;
   contextLoading: true | false;
   setToken: (token: string) => void;
   setUser: (user: UserDetails) => void;
   logout: () => Promise<void>;
   setWeather: (weather: WeatherType) => void;
+  setWeatherError: (weatherError: string | null) => void;
 };
 
 type UserDetails = {
@@ -42,6 +44,7 @@ export const ContextProvider = ({ children }: { children: ReactNode }) => {
   const [token, setTokenState] = useState<string | null>(null);
   const [user, setUserState] = useState<UserDetails | null>(null);
   const [weather, setWeatherState] = useState<WeatherType | null>(null);
+  const [weatherError, setWeatherErrorState] = useState<string | null>(null);
   const [contextLoading, setContextLoading] = useState(true);
 
   const logout = async () => {
@@ -72,6 +75,10 @@ export const ContextProvider = ({ children }: { children: ReactNode }) => {
     setWeatherState(newWeather);
   };
 
+  const setWeatherError = (err: string | null) => {
+    setWeatherErrorState(err)
+  }
+
   useEffect(() => {
     loadToken();
   }, []);
@@ -82,11 +89,13 @@ export const ContextProvider = ({ children }: { children: ReactNode }) => {
         token,
         user,
         weather,
+        weatherError,
         contextLoading,
         setToken,
         setUser,
         logout,
         setWeather,
+        setWeatherError
       }}
     >
       {children}
