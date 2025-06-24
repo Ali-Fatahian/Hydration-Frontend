@@ -105,6 +105,13 @@ export default function DrawerLayout() {
         }}
       />
       <Drawer.Screen
+        name="EnterActivityLevel"
+        options={{
+          headerShown: false,
+          drawerItemStyle: { display: "none" },
+        }}
+      />
+      <Drawer.Screen
         name="ActivityLevel"
         options={{
           headerShown: false,

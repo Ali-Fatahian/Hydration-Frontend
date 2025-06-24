@@ -22,7 +22,7 @@ const Dashboard = (props: Props) => {
   const [waterIntakeError, setWaterIntakeError] = useState("");
   const router = useRouter();
 
-  const { token, contextLoading, weather, weatherError } = useContextState();
+  const { token, contextLoading, weather, weatherError, shouldRefreshDashboard } = useContextState();
 
   console.log("Token", token);
 
@@ -71,9 +71,8 @@ const Dashboard = (props: Props) => {
 
     fetchWaterIntake();
     fetchNotification();
-    // fetchWeatherInfo();
     fetchUserInfo();
-  }, [token, contextLoading]);
+  }, [token, contextLoading, shouldRefreshDashboard]);
 
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[50px] px-2">

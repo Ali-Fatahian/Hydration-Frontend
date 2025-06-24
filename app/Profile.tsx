@@ -127,6 +127,21 @@ const Profile = () => {
               />
             </Pressable>
             <Pressable
+              onPress={() => router.navigate("/EnterActivityLevel")}
+              className="bg-[#2E2E4D] p-3 flex flex-row justify-between items-center w-full rounded-md cursor-pointer transition-colors hover:bg-[#36366c]"
+            >
+              <View>
+                <Text className="text-white text-[14px] font-bold">
+                  Activity Level
+                </Text>
+              </View>
+              <Ionicons
+                name="arrow-forward"
+                size={18}
+                className="text-[#E6E6E6]"
+              />
+            </Pressable>
+            <Pressable
               onPress={() => router.navigate("/CreatineIntake")}
               className="bg-[#2E2E4D] p-3 flex flex-row justify-between items-center w-full rounded-md cursor-pointer transition-colors hover:bg-[#36366c]"
             >

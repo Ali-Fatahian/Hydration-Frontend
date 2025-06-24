@@ -13,11 +13,13 @@ type ContextType = {
   weather: WeatherType | null;
   weatherError: string | null;
   contextLoading: true | false;
+  shouldRefreshDashboard: string;
   setToken: (token: string) => void;
   setUser: (user: UserDetails) => void;
   logout: () => Promise<void>;
   setWeather: (weather: WeatherType) => void;
   setWeatherError: (weatherError: string | null) => void;
+  setShouldRefreshDashboard: (refresh:string) => void;
 };
 
 type UserDetails = {
@@ -46,6 +48,7 @@ export const ContextProvider = ({ children }: { children: ReactNode }) => {
   const [weather, setWeatherState] = useState<WeatherType | null>(null);
   const [weatherError, setWeatherErrorState] = useState<string | null>(null);
   const [contextLoading, setContextLoading] = useState(true);
+  const [shouldRefreshDashboard, setShouldRefreshDashboard] = useState('');
 
   const logout = async () => {
     await AsyncStorage.removeItem("token");
@@ -91,11 +94,13 @@ export const ContextProvider = ({ children }: { children: ReactNode }) => {
         weather,
         weatherError,
         contextLoading,
+        shouldRefreshDashboard,
         setToken,
         setUser,
         logout,
         setWeather,
-        setWeatherError
+        setWeatherError,
+        setShouldRefreshDashboard
       }}
     >
       {children}
