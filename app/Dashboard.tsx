@@ -78,7 +78,7 @@ const Dashboard = (props: Props) => {
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[50px] px-2">
       <View className="w-full max-w-lg mx-auto">
-        {!weather && <WeatherFetcher />}
+      <WeatherFetcher />
         <View className="flex justify-center w-full flex-row gap-1">
           <WaterIcon />
           <Text className="text-[20px] font-bold text-white text-center flex flex-row">

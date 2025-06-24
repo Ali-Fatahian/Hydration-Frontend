@@ -10,7 +10,10 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.frontend"
+      "bundleIdentifier": "com.anonymous.frontend",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "We need your location to fetch local weather"
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -25,16 +28,9 @@
             "host": "*"
           },
           "category": ["BROWSABLE", "DEFAULT"]
-        },
-        {
-          "action": "VIEW",
-          "data": {
-            "scheme": "myapp",
-            "host": "*"
-          },
-          "category": ["BROWSABLE", "DEFAULT"]
         }
       ],
+      "permissions": ["ACCESS_FINE_LOCATION"],
       "package": "com.anonymous.frontend"
     },
     "web": {
