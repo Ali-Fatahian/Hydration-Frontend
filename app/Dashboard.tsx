@@ -1,5 +1,5 @@
 import { View, Text, Pressable, ScrollView } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
 import { Ionicons } from "@expo/vector-icons";
@@ -9,22 +9,36 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axiosInstance from "@/axiosInstance";
 import { useContextState } from "./Context";
 import WeatherFetcher from "@/components/WeatherFetcher";
+import WaterIntakeLoader from "@/components/WaterIntakeLoader";
+import Loader from "@/assets/Loader";
 
 type Props = {};
 
 const Dashboard = (props: Props) => {
   const [notification, setNotification] = useState<any>("");
-  const [waterIntake, setWaterIntake] = useState<any>(null);
+  // const [waterIntake, setWaterIntake] = useState<any>(null);
   const [creatineIntake, setCreatineIntake] = useState("");
   const [activityLevel, setActivityLevel] = useState("");
   const [notificationError, setNotificationError] = useState("");
   const [userError, setUserError] = useState("");
-  const [waterIntakeError, setWaterIntakeError] = useState("");
+  // const [waterIntakeError, setWaterIntakeError] = useState("");
+  // const [createWaterIntakeError, setCreateWaterIntakeError] = useState("");
+  // const [loadWaterIntakeError, setLoadWaterIntakeError] = useState("");
+  const [fetchWaterIntake, setFetchWaterIntake] = useState<any>(null);
+  const [createWaterIntake, setCreateWaterIntake] = useState("");
+  const [createWaterIntakeError, setCreateWaterIntakeError] = useState("");
+  const [fetchWaterIntakeError, setFetchWaterIntakeError] = useState("");
+  const [waterIntakeLoader, setWaterIntakeLoader] = useState(null);
   const router = useRouter();
+  const didRun = useRef(false);
 
-  const { token, contextLoading, weather, weatherError, shouldRefreshDashboard } = useContextState();
-
-  console.log("Token", token);
+  const {
+    token,
+    contextLoading,
+    weather,
+    weatherError,
+    shouldRefreshDashboard,
+  } = useContextState();
 
   const fetchNotification = async () => {
     try {
@@ -37,16 +51,31 @@ const Dashboard = (props: Props) => {
     }
   };
 
-  const fetchWaterIntake = async () => {
-    try {
-      const response = await axiosInstance.get("water_intake");
-      if (response.status === 200) {
-        setWaterIntake(response.data);
-      }
-    } catch (err: any) {
-      setWaterIntakeError(err.message);
-    }
-  };
+  // const fetchWaterIntake = async () => {
+  //   console.log("fetch");
+  //   try {
+  //     const response = await axiosInstance.get("water_intake");
+  //     if (response.status === 200) {
+  //       setWaterIntake(response.data);
+  //     }
+  //   } catch (err: any) {
+  //     setWaterIntakeError(err.message);
+  //   }
+  // };
+
+  // const createWaterIntake = async () => {
+  //   try {
+  //     const response = await axiosInstance.post("water_intake", {
+  //       temperature_celsius: weather?.temperature_celsius,
+  //       humidity_percent: weather?.humidity_percent,
+  //     });
+  //     if (response.status === 201) {
+  //       setWaterIntake(response.data);
+  //     }
+  //   } catch (err: any) {
+  //     setCreateWaterIntakeError(err.message);
+  //   }
+  // };
 
   const fetchUserInfo = async () => {
     try {
@@ -62,14 +91,10 @@ const Dashboard = (props: Props) => {
   };
 
   useEffect(() => {
-    if (!contextLoading) {
-      if (!token) {
-        router.navigate("/Login");
-        return;
-      }
+    if (!contextLoading && !token) {
+      router.navigate("/Login");
     } // Putting this code in checkAuth() makes it too slow to run, doesn't work
 
-    fetchWaterIntake();
     fetchNotification();
     fetchUserInfo();
   }, [token, contextLoading, shouldRefreshDashboard]);
@@ -77,7 +102,16 @@ const Dashboard = (props: Props) => {
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[50px] px-2">
       <View className="w-full max-w-lg mx-auto">
-      <WeatherFetcher />
+        <WeatherFetcher />
+        {weather && (
+          <WaterIntakeLoader
+            setFetchWaterIntake={setFetchWaterIntake}
+            setCreateWaterIntake={setCreateWaterIntake}
+            setCreateWaterIntakeError={setCreateWaterIntakeError}
+            setFetchWaterIntakeError={setFetchWaterIntakeError}
+            setWaterIntakeLoader={setWaterIntakeLoader}
+          />
+        )}
         <View className="flex justify-center w-full flex-row gap-1">
           <WaterIcon />
           <Text className="text-[20px] font-bold text-white text-center flex flex-row">
@@ -90,18 +124,21 @@ const Dashboard = (props: Props) => {
         <Text className="text-center mt-10 text-[#C9C9E3] text-[14px]">
           Monitor your water intake and stay on top of your hydration goals.
         </Text>
-        {waterIntakeError.length > 0 ? (
+        {fetchWaterIntakeError.length > 0 ? (
           <View className="w-full bg-[#BBBBBB] text-xs text-blue-100 rounded-full dark:bg-gray-700 mt-8 text-center p-2 font-bold leading-none">
             0<View className={`bg-[#57A8FF] rounded-full w-0`}></View>
           </View>
+        ) : waterIntakeLoader === true ? (
+          <Loader className="mt-3" />
         ) : (
-          waterIntake && (
+          waterIntakeLoader === false &&
+          fetchWaterIntake && (
             <View className="w-full bg-[#BBBBBB] rounded-full dark:bg-gray-700 mt-8">
               <View
                 style={{
                   width: `${Math.round(
-                    (Number(waterIntake.user_water_intake) /
-                      Number(waterIntake.max_water_intake)) *
+                    (Number(fetchWaterIntake.user_water_intake) /
+                      Number(fetchWaterIntake.max_water_intake)) *
                       100
                   )}%`,
                 }}
@@ -110,8 +147,8 @@ const Dashboard = (props: Props) => {
                 }
               >
                 {Math.round(
-                  (Number(waterIntake.user_water_intake) /
-                    Number(waterIntake.max_water_intake)) *
+                  (Number(fetchWaterIntake.user_water_intake) /
+                    Number(fetchWaterIntake.max_water_intake)) *
                     1000
                 ) / 10}
                 %
@@ -119,11 +156,11 @@ const Dashboard = (props: Props) => {
             </View>
           )
         )}
-        {waterIntakeError.length === 0 && waterIntake && (
+        {fetchWaterIntakeError.length === 0 && fetchWaterIntake && (
           <Text className="text-center text-white font-bold mt-8 text-xl">
-            {(Math.round(waterIntake.user_water_intake) * 10) / 10}ml
+            {(Math.round(fetchWaterIntake.user_water_intake) * 10) / 10}ml
             <Text className="text-[#AFAFC1] font-normal ml-2">
-              of {waterIntake.max_water_intake}ml
+              of {fetchWaterIntake.max_water_intake}ml
             </Text>
           </Text>
         )}
@@ -136,7 +173,7 @@ const Dashboard = (props: Props) => {
             className="bg-[#565967] px-5 py-4 rounded-lg mt-8 flex flex-col gap-4 min-[366px]:flex-row min-[366px]:gap-0 justify-between hover:bg-[#4a4c58] transition-colors"
             onPress={() => router.navigate("/NotificationsSummary")}
           >
-            <View className="flex flex-row">
+            <View className="flex flex-row w-full">
               <Ionicons
                 name="bulb"
                 color={"#FBC02D"}
