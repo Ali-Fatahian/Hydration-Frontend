@@ -4,28 +4,21 @@ import { router } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import axiosInstance from "@/axiosInstance";
 import { useFocusEffect } from "@react-navigation/native";
-import { useContextState } from "./Context";
+import { useContextState } from "../Context";
+
 
 const Profile = () => {
   const [error, setError] = useState("");
+  const [userSafe, setUserSafe] = useState<any>(null);
+  const defaultImage = require("../../assets/images/default-profile.png");
+  const IMAGE_BASE = 'http://localhost:8000'
 
-  const { token, contextLoading, setUser, user } = useContextState();
+  const { token, contextLoading, user, shouldRefreshDashboard } =
+    useContextState();
 
-  const fetchUserInfo = async () => {
-    try {
-      const userId = await AsyncStorage.getItem("id");
-      const response = await axiosInstance.get(`users/${userId}`);
-      if (response.status === 200) {
-        setUser(response.data);
-        AsyncStorage.setItem("user", JSON.stringify(response.data));
-      }
-    } catch (err: any) {
-      setError(err.message);
-    }
-  };
-
+  const hasRemoteImage =
+    !!userSafe?.picture && userSafe.picture.trim().length > 0;
   useFocusEffect(
     useCallback(() => {
       if (!contextLoading) {
@@ -34,13 +27,30 @@ const Profile = () => {
           return;
         }
       }
-      fetchUserInfo();
-    }, [contextLoading, token])
+      const loadUserFromStorage = async () => {
+        try {
+          if (!user) {
+            const storedUser = await AsyncStorage.getItem("user");
+            if (storedUser) {
+              const parsed = JSON.parse(storedUser);
+              setUserSafe(parsed);
+            }
+          } else {
+            setUserSafe(user);
+          }
+        } catch (err) {
+          console.error(setError("Failed to load user."));
+        }
+      };
+
+      loadUserFromStorage();
+      console.log(`${IMAGE_BASE}${userSafe?.picture}`)
+    }, [contextLoading, token, shouldRefreshDashboard])
   );
 
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[40px] px-2">
-      {user && error.length === 0 ? (
+      {userSafe && error.length === 0 ? (
         <View className="w-full max-w-lg mx-auto">
           <View className="flex justify-center w-full flex-row gap-1">
             <WaterIcon />
@@ -61,19 +71,15 @@ const Profile = () => {
                 borderColor: "white",
                 backgroundColor: "#b5b3b3",
               }}
-              source={
-                user.picture
-                  ? { uri: user.picture }
-                  : require("../assets/default-profile.png") // fallback image
-              }
+              source={hasRemoteImage ? { uri: `${IMAGE_BASE}${userSafe?.picture}` } : defaultImage}
             />
             <Text className="text-[14px] font-bold text-gray-400">
-              {user.email}
+              {userSafe.email}
             </Text>
           </View>
           <View className="flex flex-col gap-2 items-center mt-3">
             <Pressable
-              onPress={() => router.navigate("/PersonalInformation")}
+              onPress={() => router.navigate("/Profile/PersonalInformation")}
               className="bg-[#2E2E4D] p-3 flex flex-row justify-between items-center w-full rounded-md cursor-pointer transition-colors hover:bg-[#36366c]"
             >
               <View>
@@ -88,7 +94,7 @@ const Profile = () => {
               />
             </Pressable>
             <Pressable
-              onPress={() => router.navigate("/EnterGender")}
+              onPress={() => router.navigate("/Profile/EnterGender")}
               className="bg-[#2E2E4D] p-3 flex flex-row justify-between items-center w-full rounded-md cursor-pointer transition-colors hover:bg-[#36366c]"
             >
               <View className="flex flex-row gap-1">
@@ -96,10 +102,10 @@ const Profile = () => {
                   Gender:
                 </Text>
                 <Text className="text-white text-[14px] font-bold">
-                  {user.gender
-                    ? `${user.gender
+                  {userSafe.gender
+                    ? `${userSafe.gender
                         .slice(0, 1)
-                        .toUpperCase()}${user.gender.slice(1)}`
+                        .toUpperCase()}${userSafe.gender.slice(1)}`
                     : "Not Set"}
                 </Text>
               </View>
@@ -110,7 +116,7 @@ const Profile = () => {
               />
             </Pressable>
             <Pressable
-              onPress={() => router.navigate("/EnterWeight")}
+              onPress={() => router.push("/Profile/EnterWeight")}
               className="bg-[#2E2E4D] p-3 flex flex-row justify-between items-center w-full rounded-md cursor-pointer transition-colors hover:bg-[#36366c]"
             >
               <View className="flex flex-row gap-1">
@@ -118,7 +124,7 @@ const Profile = () => {
                   Weight (kg):
                 </Text>
                 <Text className="text-white text-[14px] font-bold">
-                  {user.weight ? Number(user.weight) : "Not Set"}
+                  {userSafe.weight ? Number(userSafe.weight) : "Not Set"}
                 </Text>
               </View>
               <Ionicons
@@ -128,12 +134,15 @@ const Profile = () => {
               />
             </Pressable>
             <Pressable
-              onPress={() => router.navigate("/EnterActivityLevel")}
+              onPress={() => router.navigate("/Profile/EnterActivityLevel")}
               className="bg-[#2E2E4D] p-3 flex flex-row justify-between items-center w-full rounded-md cursor-pointer transition-colors hover:bg-[#36366c]"
             >
-              <View>
+              <View className="flex flex-row gap-1">
                 <Text className="text-white text-[14px] font-bold">
-                  Activity Level
+                  Activity Level:
+                </Text>
+                <Text className="text-white text-[14px] font-bold">
+                  {userSafe.activity ? userSafe.activity : "Not Set"}
                 </Text>
               </View>
               <Ionicons
@@ -143,16 +152,16 @@ const Profile = () => {
               />
             </Pressable>
             <Pressable
-              onPress={() => router.navigate("/CreatineIntake")}
+              onPress={() => router.navigate("/Profile/CreatineIntake")}
               className="bg-[#2E2E4D] p-3 flex flex-row justify-between items-center w-full rounded-md cursor-pointer transition-colors hover:bg-[#36366c]"
             >
               <View className="flex flex-row gap-1">
                 <Text className="text-white text-[14px] font-bold">
                   Creatine:
                 </Text>
-                {user.creatine_intake ? (
+                {userSafe.creatine_intake ? (
                   <Text className="text-white text-[14px] font-bold">
-                    {Number(user.creatine_intake)}g/day
+                    {Number(userSafe.creatine_intake)}g/day
                   </Text>
                 ) : (
                   <Text className="text-white text-[14px] font-bold">

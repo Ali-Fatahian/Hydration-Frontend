@@ -15,17 +15,26 @@ import WaterIcon from "@/assets/WaterIcon";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axiosInstance from "@/axiosInstance";
 import Loader from "@/assets/Loader";
-import { useContextState } from "./Context";
+import { useContextState } from "../Context";
 
 type Props = {};
 
+type UserDetails = {
+  id: number;
+  email: string;
+  fullname: string;
+  picture: string | null;
+  weight: number | null;
+  activity: string | null;
+  gender: string | null;
+  creatine_intake: string | null;
+  date_joined: string;
+  bottle: { id: number; name: string } | null;
+};
+
 const PersonalInformation = (props: Props) => {
   const [image, setImage] = useState<string | null>(null);
-  const [user, setUser] = useState<{
-    picture: string;
-    email: string;
-    fullname: string;
-  } | null>(null);
+  const [user, setUser] = useState<UserDetails | null>(null);
   const [fullname, setFullname] = useState("");
   const [userId, setUserId] = useState<string | null>("");
   const [email, setEmail] = useState("");
@@ -35,7 +44,13 @@ const PersonalInformation = (props: Props) => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const { token, contextLoading, updateUser } = useContextState();
+  const {
+    token,
+    contextLoading,
+    updateUserInContext,
+    updateUserInStorage,
+    setShouldRefreshDashboard,
+  } = useContextState();
 
   const checkImageValidity = async (uri: string) => {
     try {
@@ -133,7 +148,18 @@ const PersonalInformation = (props: Props) => {
       });
       if (response.status === 200) {
         setMessage("Successful");
-        updateUser({ email: email, fullname: fullname, picture: image });
+        if (!user?.id) {
+          return; // Typescript bug
+        }
+        const updatedUser = {
+          ...user,
+          email: email,
+          fullname: fullname,
+          picture: image,
+        };
+        updateUserInContext(updatedUser);
+        await updateUserInStorage(updatedUser);
+        setShouldRefreshDashboard(new Date().toString());
       }
     } catch (err: any) {
       setError(err.message);
@@ -200,7 +226,7 @@ const PersonalInformation = (props: Props) => {
                 source={
                   image
                     ? { uri: image }
-                    : require("../assets/default-profile.png") // fallback image
+                    : require("../../assets/images/default-profile.png") // fallback image
                 }
               />
             </Pressable>

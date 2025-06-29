@@ -172,7 +172,7 @@ const Dashboard = (props: Props) => {
             />
           </Pressable>
         ) : null}
-        {(!userSafe?.activity) ||
+        {!userSafe?.activity ||
           userSafe?.activity.length === 0 ||
           userSafe?.creatine_intake === null ||
           (userSafe?.creatine_intake === 0 && (

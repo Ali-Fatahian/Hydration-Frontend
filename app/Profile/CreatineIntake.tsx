@@ -15,7 +15,7 @@ import BottleIcon from "@/assets/BottleIcon";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axiosInstance from "@/axiosInstance";
 import Loader from "@/assets/Loader";
-import { useContextState } from "./Context";
+import { useContextState } from "../Context";
 
 type Props = {};
 
@@ -36,14 +36,21 @@ const CreatineIntake = (props: Props) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [creatineIntake, setCreatineIntake] = useState("");
   const [creatineList, setCreatineList] = useState<creatineType[] | []>([]);
+  const [userSafe, setUserSafe] = useState<any>(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [fetchError, setFetchError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const { token, contextLoading, updateUser, setShouldRefreshDashboard } =
-    useContextState();
+  const {
+    token,
+    contextLoading,
+    updateUserInContext,
+    updateUserInStorage,
+    setShouldRefreshDashboard,
+    user,
+  } = useContextState();
 
   const sendData = async () => {
     setLoading(true);
@@ -52,7 +59,12 @@ const CreatineIntake = (props: Props) => {
       const response = await axiosInstance.patch(`users/${userId}`, {
         creatine_intake: creatineIntake,
       });
-      updateUser({ creatine_intake: creatineIntake });
+      const updatedUser = {
+        ...userSafe,
+        creatine_intake: creatineIntake,
+      };
+      updateUserInContext(updatedUser);
+      await updateUserInStorage(updatedUser);
       setShouldRefreshDashboard(new Date().toString());
       if (response.status === 200) {
         setMessage(
@@ -109,6 +121,23 @@ const CreatineIntake = (props: Props) => {
       }
     }
     fetchCreatineList();
+    const loadUserFromStorage = async () => {
+      try {
+        if (!user) {
+          const storedUser = await AsyncStorage.getItem("user");
+          if (storedUser) {
+            const parsed = JSON.parse(storedUser);
+            setUserSafe(parsed);
+          }
+        } else {
+          setUserSafe(user);
+        }
+      } catch (err) {
+        console.error("Failed to load user:", err);
+      }
+    };
+
+    loadUserFromStorage();
   }, [contextLoading, token]);
 
   return (

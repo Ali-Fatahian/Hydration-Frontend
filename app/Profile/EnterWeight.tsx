@@ -7,26 +7,42 @@ import KGIcon from "@/assets/KGIcon";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axiosInstance from "@/axiosInstance";
 import Loader from "@/assets/Loader";
-import { useContextState } from "./Context";
+import { useContextState } from "../Context";
 
 type Props = {};
 
 const EnterWeight = (props: Props) => {
   const router = useRouter();
   const [weight, setWeight] = useState("");
+  const [userSafe, setUserSafe] = useState<any>(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { token, contextLoading } = useContextState();
+  const {
+    token,
+    contextLoading,
+    user,
+    setShouldRefreshDashboard,
+    updateUserInContext,
+    updateUserInStorage,
+  } = useContextState();
 
   const sendData = async () => {
     setLoading(true);
     try {
-      const userId = await AsyncStorage.getItem("id");
+      const userId = userSafe?.id ?? (await AsyncStorage.getItem("id"))
       const response = await axiosInstance.patch(`users/${userId}`, {
         weight,
       });
+      const updatedUser = {
+        ...userSafe,
+        weight: weight,
+      };
+      updateUserInContext(updatedUser);
+      await updateUserInStorage(updatedUser);
+      setShouldRefreshDashboard(new Date().toString());
+
       if (response.status === 200) {
         setMessage(
           `Successfully set to ${String(Number(response.data["weight"]))}`
@@ -57,6 +73,24 @@ const EnterWeight = (props: Props) => {
         return;
       }
     }
+
+    const loadUserFromStorage = async () => {
+      try {
+        if (!user) {
+          const storedUser = await AsyncStorage.getItem("user");
+          if (storedUser) {
+            const parsed = JSON.parse(storedUser);
+            setUserSafe(parsed);
+          }
+        } else {
+          setUserSafe(user);
+        }
+      } catch (err) {
+        console.error("Failed to load user:", err);
+      }
+    };
+
+    loadUserFromStorage();
   }, [contextLoading, token]);
 
   return (
@@ -87,8 +121,8 @@ const EnterWeight = (props: Props) => {
             keyboardType="numeric"
             placeholderTextColor={"#B0B0C3"}
             value={weight}
-            onChange={(e: any) => {
-              setWeight(e.target.value);
+            onChangeText={(text: string) => {
+              setWeight(text);
               setError("");
               setMessage("");
             }}
@@ -114,7 +148,7 @@ const EnterWeight = (props: Props) => {
           </Text>
         </Pressable>
         <Pressable
-          onPress={() => router.push("/Profile")}
+          onPress={() => router.navigate("/Profile")}
           className="text-white text-[14px] mt-3 font-light text-center hover:underline active:underline"
         >
           Back

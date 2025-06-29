@@ -1,43 +1,68 @@
-import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
+import { View, Text, Pressable, ScrollView } from "react-native";
 import React, { useEffect, useState } from "react";
 import WaterIcon from "@/assets/WaterIcon";
 import { useRouter } from "expo-router";
 import axiosInstance from "@/axiosInstance";
 import Loader from "@/assets/Loader";
+import { useContextState } from "../Context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useContextState } from "./Context";
 
 type Props = {};
 
-const EnterGender = (props: Props) => {
-  const [selectedGender, setSelectedGender] = useState("");
-  const [userSafe, setUserSafe] = useState<any>(null);
+const EnterActivityLevel = (props: Props) => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const {
+    token,
+    contextLoading,
+    setShouldRefreshDashboard,
+    updateUserInContext,
+    updateUserInStorage,
+    user,
+  } = useContextState();
+  const [userSafe, setUserSafe] = useState<any>(user ?? null);
 
-  const { token, contextLoading, user, updateUser, setShouldRefreshDashboard } =
-    useContextState();
+  const [selectedActivityLevel, setSelectedActivityLevel] = useState(() => {
+    if (
+      typeof userSafe?.activity === "string" &&
+      userSafe.activity.length > 0
+    ) {
+      return userSafe.activity;
+    }
+    return "moderate";
+  });
 
   const sendData = async () => {
-    if (!userSafe?.id) return setError("No user ID found.");
+    if (!userSafe?.id) {
+      setError("User not loaded yet.");
+      return;
+    }
+
     setLoading(true);
     try {
       await axiosInstance.patch(`users/${userSafe.id}`, {
-        gender: selectedGender.toLowerCase(),
+        activity: selectedActivityLevel.toLowerCase(),
       });
-      updateUser({ gender: selectedGender.toLowerCase() });
+      const updatedUser = {
+        ...userSafe,
+        activity: selectedActivityLevel.toLowerCase(),
+      };
+      updateUserInContext(updatedUser);
+      await updateUserInStorage(updatedUser);
       setShouldRefreshDashboard(new Date().toString());
     } catch (err: any) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const formSubmitHandler = () => {
     if (
-      selectedGender === "male" ||
-      (selectedGender === "female" && userSafe !== null)
+      selectedActivityLevel === "low" ||
+      selectedActivityLevel === "moderate" ||
+      (selectedActivityLevel === "high" && userSafe?.id !== null)
     ) {
       sendData();
     } else {
@@ -54,20 +79,23 @@ const EnterGender = (props: Props) => {
     }
 
     const loadUserFromStorage = async () => {
-      try {
-        if (!user) {
+      if (!user) {
+        try {
           const storedUser = await AsyncStorage.getItem("user");
           if (storedUser) {
-            const parsed = JSON.parse(storedUser);
-            setUserSafe(parsed);
-            setSelectedGender(parsed.gender || "");
+            const parsedUser = JSON.parse(storedUser);
+            setUserSafe(parsedUser);
+
+            if (
+              typeof parsedUser?.activity === "string" &&
+              parsedUser.activity.length > 0
+            ) {
+              setSelectedActivityLevel(parsedUser.activity);
+            }
           }
-        } else {
-          setUserSafe(user);
-          setSelectedGender(user.gender || "");
+        } catch (err) {
+          console.error("Failed to load user from storage:", err);
         }
-      } catch (err) {
-        console.error("Failed to load user:", err);
       }
     };
 
@@ -84,33 +112,32 @@ const EnterGender = (props: Props) => {
           </Text>
         </View>
         <Text className="block mt-[60px] text-center text-white font-bold text-[16px]">
-          Gender
+          Activity Level
         </Text>
         <Text className="text-center mt-10 text-[#C9C9E3] text-[14px]">
           Please choose and click continue
         </Text>
-        <View className="flex flex-col min-[270px]:flex-row gap-4 mt-10 max-w-sm mx-auto">
-          {["male", "female"].map((gender) => (
-            <Pressable
-              key={gender}
-              onPress={() => {
-                setError("");
-                setSelectedGender(gender);
-              }}
-            >
-              <Text
-                className={`cursor-pointer ${
-                  selectedGender &&
-                  selectedGender.length > 0 &&
-                  selectedGender === gender
-                    ? "bg-[#448AFF]"
-                    : "bg-[#2D2F4E]"
-                } text-white rounded-lg py-3 px-10 w-fit mx-auto hover:bg-[#2979FF] active:bg-[#5943d6] transition-colors`}
+        <View className="flex flex-col min-[270px]:flex-row flex-wrap gap-4 mt-10 max-w-[25rem] justify-center mx-auto">
+          {selectedActivityLevel.length > 0 &&
+            ["low", "moderate", "high"].map((activity) => (
+              <Pressable
+                key={activity}
+                onPress={() => {
+                  setError("");
+                  setSelectedActivityLevel(activity);
+                }}
               >
-                {`${gender.slice(0, 1).toUpperCase()}${gender.slice(1)}`}
-              </Text>
-            </Pressable>
-          ))}
+                <Text
+                  className={`cursor-pointer ${
+                    selectedActivityLevel === activity
+                      ? "bg-[#448AFF]"
+                      : "bg-[#2D2F4E]"
+                  } text-white rounded-lg py-3 px-10 w-fit mx-auto hover:bg-[#2979FF] active:bg-[#5943d6] transition-colors`}
+                >
+                  {`${activity.slice(0, 1).toUpperCase()}${activity.slice(1)}`}
+                </Text>
+              </Pressable>
+            ))}
         </View>
         {error.length > 0 && (
           <View className="bg-[#B22222] p-2 rounded-md mt-6">
@@ -137,4 +164,4 @@ const EnterGender = (props: Props) => {
   );
 };
 
-export default EnterGender;
+export default EnterActivityLevel;

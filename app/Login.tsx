@@ -17,7 +17,13 @@ const Login = (props: Props) => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   // const [message, setMessage] = useState("");
-  const { token, setToken, contextLoading } = useContextState();
+  const {
+    token,
+    setToken,
+    setUser,
+    contextLoading,
+    setShouldRefreshDashboard,
+  } = useContextState();
   const router = useRouter();
 
   const handleEmailChange = (value: string) => {
@@ -47,6 +53,9 @@ const Login = (props: Props) => {
 
         await AsyncStorage.setItem("token", JSON.stringify(tokenFromResponse));
         await AsyncStorage.setItem("id", JSON.stringify(response.data["id"]));
+        await AsyncStorage.setItem("user", JSON.stringify(response.data['user']));
+        setUser(response.data['user']);
+        setShouldRefreshDashboard(new Date().toString());
         router.push("/Dashboard");
       }
     } catch (err: any) {

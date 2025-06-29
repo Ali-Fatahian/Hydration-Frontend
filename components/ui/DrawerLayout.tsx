@@ -63,7 +63,7 @@ export default function DrawerLayout() {
         }}
       />
       <Drawer.Screen
-        name="Profile"
+        name="Profile/index"
         options={{
           title: "Profile",
           drawerItemStyle: {
@@ -98,35 +98,35 @@ export default function DrawerLayout() {
         }}
       />
       <Drawer.Screen
-        name="EnterGender"
+        name="Profile/EnterGender"
         options={{
           headerShown: false,
           drawerItemStyle: { display: "none" },
         }}
       />
       <Drawer.Screen
-        name="EnterActivityLevel"
+        name="Profile/EnterActivityLevel"
         options={{
           headerShown: false,
           drawerItemStyle: { display: "none" },
         }}
       />
-      <Drawer.Screen
+      {/* <Drawer.Screen
         name="ActivityLevel"
         options={{
           headerShown: false,
           drawerItemStyle: { display: "none" },
         }}
-      />
+      /> */}
       <Drawer.Screen
-        name="CreatineIntake"
+        name="Profile/CreatineIntake"
         options={{
           headerShown: false,
           drawerItemStyle: { display: "none" },
         }}
       />
       <Drawer.Screen
-        name="EnterWeight"
+        name="Profile/EnterWeight"
         options={{
           headerShown: false,
           drawerItemStyle: { display: "none" },
@@ -154,7 +154,7 @@ export default function DrawerLayout() {
         }}
       />
       <Drawer.Screen
-        name="PersonalInformation"
+        name="Profile/PersonalInformation"
         options={{
           headerShown: false,
           drawerItemStyle: { display: "none" },
