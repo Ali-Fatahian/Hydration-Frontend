@@ -5,10 +5,11 @@ import {
   Pressable,
   ScrollView,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
-import axios from "axios";
+import axiosInstance from "@/axiosInstance";
+import { useContextState } from "./Context";
 
 type Props = {};
 
@@ -16,6 +17,8 @@ const ActivityLevel = (props: Props) => {
   const [choice, setChoice] = useState(99);
   const [error, setError] = useState("");
   const router = useRouter();
+
+  const { contextLoading, token, user } = useContextState()
 
   const options = [
     "Low (sedentary)",
@@ -25,7 +28,7 @@ const ActivityLevel = (props: Props) => {
 
   const sendData = async (choice: number) => {
     try {
-      await axios.post("url", {
+      await axiosInstance.patch(`users/${user?.id}`, {
         choice,
       });
     } catch (err: any) {
@@ -40,6 +43,15 @@ const ActivityLevel = (props: Props) => {
       sendData(choice);
     }
   };
+
+  useEffect(() => {
+    if (!contextLoading) {
+      if (!token) {
+        router.navigate("/Login");
+        return;
+      }
+    }
+  }, [contextLoading, token]);
 
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[50px] px-1">

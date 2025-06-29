@@ -10,6 +10,8 @@ import { useContextState } from "./Context";
 
 type Props = {};
 
+const baseURL = 'http://localhost:8000/api/'
+
 const SignUp = (props: Props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -46,12 +48,12 @@ const SignUp = (props: Props) => {
   ) => {
     setLoading(true);
     try {
-      const response = await axios.post("url", {
+      const response = await axios.post(`${baseURL}register`, {
         fullname,
         email,
         password,
       });
-      if (response.status === 200) {
+      if (response.status === 201) {
         // setMessage(response.data);
         router.push("/Dashboard");
       }

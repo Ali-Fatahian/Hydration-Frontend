@@ -16,10 +16,11 @@ type ContextType = {
   shouldRefreshDashboard: string;
   setToken: (token: string) => void;
   setUser: (user: UserDetails) => void;
+  updateUser: (fields: Partial<UserDetails>) => void;
   logout: () => Promise<void>;
   setWeather: (weather: WeatherType) => void;
   setWeatherError: (weatherError: string | null) => void;
-  setShouldRefreshDashboard: (refresh:string) => void;
+  setShouldRefreshDashboard: (refresh: string) => void;
 };
 
 type UserDetails = {
@@ -30,7 +31,7 @@ type UserDetails = {
   weight: number | null;
   activity: string | null;
   gender: string | null;
-  creatine_intake: number | null;
+  creatine_intake: string | null;
   date_joined: string;
   bottle: { id: number; name: string } | null;
 };
@@ -48,11 +49,11 @@ export const ContextProvider = ({ children }: { children: ReactNode }) => {
   const [weather, setWeatherState] = useState<WeatherType | null>(null);
   const [weatherError, setWeatherErrorState] = useState<string | null>(null);
   const [contextLoading, setContextLoading] = useState(true);
-  const [shouldRefreshDashboard, setShouldRefreshDashboard] = useState('');
+  const [shouldRefreshDashboard, setShouldRefreshDashboard] = useState("");
 
   const logout = async () => {
     await AsyncStorage.removeItem("token");
-    await AsyncStorage.removeItem("userDetails");
+    await AsyncStorage.removeItem("user");
     await AsyncStorage.removeItem("id");
     setTokenState(null);
     setUserState(null);
@@ -74,13 +75,24 @@ export const ContextProvider = ({ children }: { children: ReactNode }) => {
     setUserState(newUser);
   };
 
+  const updateUser = async (fields: Partial<UserDetails>) => {
+    setUserState((prev) => {
+      if (!prev) return prev;
+
+      const updatedUser = { ...prev, ...fields };
+      AsyncStorage.setItem("user", JSON.stringify(updatedUser));
+
+      return updatedUser;
+    });
+  };
+
   const setWeather = (newWeather: WeatherType) => {
     setWeatherState(newWeather);
   };
 
   const setWeatherError = (err: string | null) => {
-    setWeatherErrorState(err)
-  }
+    setWeatherErrorState(err);
+  };
 
   useEffect(() => {
     loadToken();
@@ -100,7 +112,8 @@ export const ContextProvider = ({ children }: { children: ReactNode }) => {
         logout,
         setWeather,
         setWeatherError,
-        setShouldRefreshDashboard
+        setShouldRefreshDashboard,
+        updateUser,
       }}
     >
       {children}

@@ -35,7 +35,7 @@ const PersonalInformation = (props: Props) => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const { token, contextLoading } = useContextState();
+  const { token, contextLoading, updateUser } = useContextState();
 
   const checkImageValidity = async (uri: string) => {
     try {
@@ -133,6 +133,7 @@ const PersonalInformation = (props: Props) => {
       });
       if (response.status === 200) {
         setMessage("Successful");
+        updateUser({ email: email, fullname: fullname, picture: image });
       }
     } catch (err: any) {
       setError(err.message);

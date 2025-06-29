@@ -42,7 +42,8 @@ const CreatineIntake = (props: Props) => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const { token, contextLoading } = useContextState();
+  const { token, contextLoading, updateUser, setShouldRefreshDashboard } =
+    useContextState();
 
   const sendData = async () => {
     setLoading(true);
@@ -51,6 +52,8 @@ const CreatineIntake = (props: Props) => {
       const response = await axiosInstance.patch(`users/${userId}`, {
         creatine_intake: creatineIntake,
       });
+      updateUser({ creatine_intake: creatineIntake });
+      setShouldRefreshDashboard(new Date().toString());
       if (response.status === 200) {
         setMessage(
           `Successfully set to ${String(

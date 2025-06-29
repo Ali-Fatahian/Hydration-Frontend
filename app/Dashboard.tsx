@@ -1,5 +1,5 @@
 import { View, Text, Pressable, ScrollView } from "react-native";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
 import { Ionicons } from "@expo/vector-icons";
@@ -16,21 +16,15 @@ type Props = {};
 
 const Dashboard = (props: Props) => {
   const [notification, setNotification] = useState<any>("");
-  // const [waterIntake, setWaterIntake] = useState<any>(null);
-  const [creatineIntake, setCreatineIntake] = useState("");
-  const [activityLevel, setActivityLevel] = useState("");
+  const [userSafe, setUserSafe] = useState<any>(null);
   const [notificationError, setNotificationError] = useState("");
   const [userError, setUserError] = useState("");
-  // const [waterIntakeError, setWaterIntakeError] = useState("");
-  // const [createWaterIntakeError, setCreateWaterIntakeError] = useState("");
-  // const [loadWaterIntakeError, setLoadWaterIntakeError] = useState("");
   const [fetchWaterIntake, setFetchWaterIntake] = useState<any>(null);
   const [createWaterIntake, setCreateWaterIntake] = useState("");
   const [createWaterIntakeError, setCreateWaterIntakeError] = useState("");
   const [fetchWaterIntakeError, setFetchWaterIntakeError] = useState("");
   const [waterIntakeLoader, setWaterIntakeLoader] = useState(null);
   const router = useRouter();
-  const didRun = useRef(false);
 
   const {
     token,
@@ -38,6 +32,7 @@ const Dashboard = (props: Props) => {
     weather,
     weatherError,
     shouldRefreshDashboard,
+    user,
   } = useContextState();
 
   const fetchNotification = async () => {
@@ -51,44 +46,11 @@ const Dashboard = (props: Props) => {
     }
   };
 
-  // const fetchWaterIntake = async () => {
-  //   console.log("fetch");
-  //   try {
-  //     const response = await axiosInstance.get("water_intake");
-  //     if (response.status === 200) {
-  //       setWaterIntake(response.data);
-  //     }
-  //   } catch (err: any) {
-  //     setWaterIntakeError(err.message);
-  //   }
-  // };
-
-  // const createWaterIntake = async () => {
-  //   try {
-  //     const response = await axiosInstance.post("water_intake", {
-  //       temperature_celsius: weather?.temperature_celsius,
-  //       humidity_percent: weather?.humidity_percent,
-  //     });
-  //     if (response.status === 201) {
-  //       setWaterIntake(response.data);
-  //     }
-  //   } catch (err: any) {
-  //     setCreateWaterIntakeError(err.message);
-  //   }
-  // };
-
-  const fetchUserInfo = async () => {
-    try {
-      const userId = await AsyncStorage.getItem("id");
-      const response = await axiosInstance.get(`users/${userId}`);
-      if (response.status === 200) {
-        setCreatineIntake(response.data["creatine_intake"]);
-        setActivityLevel(response.data["activity"]);
-      }
-    } catch (err: any) {
-      setUserError(err.message);
-    }
-  };
+  const isProfileIncomplete =
+    !userSafe?.activity ||
+    userSafe?.activity.length === 0 ||
+    userSafe?.creatine_intake === null ||
+    userSafe?.creatine_intake === 0;
 
   useEffect(() => {
     if (!contextLoading && !token) {
@@ -96,7 +58,24 @@ const Dashboard = (props: Props) => {
     } // Putting this code in checkAuth() makes it too slow to run, doesn't work
 
     fetchNotification();
-    fetchUserInfo();
+
+    const loadUserFromStorage = async () => {
+      try {
+        if (!user) {
+          const storedUser = await AsyncStorage.getItem("user");
+          if (storedUser) {
+            const parsed = JSON.parse(storedUser);
+            setUserSafe(parsed);
+          }
+        } else {
+          setUserSafe(user);
+        }
+      } catch (err: any) {
+        setUserError(err.message);
+      }
+    };
+
+    loadUserFromStorage();
   }, [token, contextLoading, shouldRefreshDashboard]);
 
   return (
@@ -165,10 +144,11 @@ const Dashboard = (props: Props) => {
           </Text>
         )}
         {notificationError.length > 0 ? (
+          // 1. Show error message if there's a notification error
           <View className="bg-[#B22222] mt-3 p-2 rounded-md">
             <Text className="text-sm text-gray-200">{notificationError}</Text>
           </View>
-        ) : (
+        ) : notification.message?.length > 0 ? (
           <Pressable
             className="bg-[#565967] px-5 py-4 rounded-lg mt-8 flex flex-col gap-4 min-[366px]:flex-row min-[366px]:gap-0 justify-between hover:bg-[#4a4c58] transition-colors"
             onPress={() => router.navigate("/NotificationsSummary")}
@@ -191,18 +171,32 @@ const Dashboard = (props: Props) => {
               className="text-right"
             />
           </Pressable>
-        )}
+        ) : null}
+        {(!userSafe?.activity) ||
+          userSafe?.activity.length === 0 ||
+          userSafe?.creatine_intake === null ||
+          (userSafe?.creatine_intake === 0 && (
+            <Text
+              className="text-light text-gray-300 text-xs mt-2"
+              ellipsizeMode="tail"
+            >
+              Please complete your profile to receive water intake suggestions!
+            </Text>
+          ))}
+
         <View className="w-full mt-3">
           <View className="mt-6 w-full mx-auto flex flex-row justify-evenly gap-3">
-            {activityLevel.length > 0 && userError.length === 0 ? (
+            {userSafe?.activity &&
+            userSafe.activity?.length > 0 &&
+            userError.length === 0 ? (
               <View className="flex flex-col items-center">
                 <ShoeIcon
                   height={80}
                   width={80}
                   fill={
-                    activityLevel === "low"
+                    userSafe.activity === "low"
                       ? "#4B9CD3"
-                      : activityLevel === "moderate"
+                      : userSafe.activity === "moderate"
                       ? "#FF9F1C"
                       : "#E63946"
                   }
@@ -212,7 +206,7 @@ const Dashboard = (props: Props) => {
                     Activity:
                   </Text>
                   <Text className="text-[14px] font-bold text-[#AFAFC1]">
-                    {activityLevel}
+                    {userSafe.activity}
                   </Text>
                 </View>
               </View>
@@ -269,9 +263,11 @@ const Dashboard = (props: Props) => {
                   Creatine:
                 </Text>
                 <View className="flex flex-row gap-1">
-                  {creatineIntake.length > 0 && userError.length === 0 ? (
+                  {userSafe?.creatine_intake &&
+                  userSafe.creatine_intake?.length > 0 &&
+                  userError.length === 0 ? (
                     <Text className="text-[14px] font-bold text-[#AFAFC1]">
-                      {Number(creatineIntake)}
+                      {Number(userSafe.creatine_intake)}
                     </Text>
                   ) : (
                     <Text className="text-[14px] font-bold text-[#AFAFC1]">

@@ -1,57 +1,57 @@
-import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
+import { View, Text, Pressable, ScrollView } from "react-native";
 import React, { useEffect, useState } from "react";
 import WaterIcon from "@/assets/WaterIcon";
 import { useRouter } from "expo-router";
 import axiosInstance from "@/axiosInstance";
 import Loader from "@/assets/Loader";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useContextState } from "./Context";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type Props = {};
 
 const EnterActivityLevel = (props: Props) => {
-  const [selectedActivityLevel, setSelectedActivityLevel] = useState("");
-  const [userId, setUserId] = useState<null | string>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { token, contextLoading, setShouldRefreshDashboard, updateUser, user } =
+    useContextState();
+  const [userSafe, setUserSafe] = useState<any>(user ?? null);
 
-  const { token, contextLoading, setShouldRefreshDashboard } = useContextState();
-
-  const fetchUserInfo = async () => {
-    try {
-      const userId = await AsyncStorage.getItem("id");
-      setUserId(userId);
-      const response = await axiosInstance.get(`users/${userId}`);
-      if (response.status === 200) {
-        setSelectedActivityLevel(
-          response.data["activity"].length === 0
-            ? "moderate"
-            : response.data["activity"]
-        );
-      }
-    } catch (err: any) {
-      setError(err.message);
+  const [selectedActivityLevel, setSelectedActivityLevel] = useState(() => {
+    if (
+      typeof userSafe?.activity === "string" &&
+      userSafe.activity.length > 0
+    ) {
+      return userSafe.activity;
     }
-  };
+    return "moderate";
+  });
+
   const sendData = async () => {
+    if (!userSafe?.id) {
+      setError("User not loaded yet.");
+      return;
+    }
+
     setLoading(true);
     try {
-      await axiosInstance.patch(`users/${userId}`, {
+      await axiosInstance.patch(`users/${userSafe.id}`, {
         activity: selectedActivityLevel.toLowerCase(),
       });
+      updateUser({ activity: selectedActivityLevel.toLowerCase() });
+      setShouldRefreshDashboard(new Date().toString());
     } catch (err: any) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-    setShouldRefreshDashboard(new Date().toString())
   };
 
   const formSubmitHandler = () => {
     if (
       selectedActivityLevel === "low" ||
       selectedActivityLevel === "moderate" ||
-      (selectedActivityLevel === "high" && userId !== null)
+      (selectedActivityLevel === "high" && userSafe?.id !== null)
     ) {
       sendData();
     } else {
@@ -66,7 +66,29 @@ const EnterActivityLevel = (props: Props) => {
         return;
       }
     }
-    fetchUserInfo();
+
+    const loadUserFromStorage = async () => {
+      if (!user) {
+        try {
+          const storedUser = await AsyncStorage.getItem("user");
+          if (storedUser) {
+            const parsedUser = JSON.parse(storedUser);
+            setUserSafe(parsedUser);
+
+            if (
+              typeof parsedUser?.activity === "string" &&
+              parsedUser.activity.length > 0
+            ) {
+              setSelectedActivityLevel(parsedUser.activity);
+            }
+          }
+        } catch (err) {
+          console.error("Failed to load user from storage:", err);
+        }
+      }
+    };
+
+    loadUserFromStorage();
   }, [contextLoading, token]);
 
   return (

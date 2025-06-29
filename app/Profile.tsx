@@ -19,6 +19,7 @@ const Profile = () => {
       const response = await axiosInstance.get(`users/${userId}`);
       if (response.status === 200) {
         setUser(response.data);
+        AsyncStorage.setItem("user", JSON.stringify(response.data));
       }
     } catch (err: any) {
       setError(err.message);

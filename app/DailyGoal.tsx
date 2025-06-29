@@ -18,7 +18,8 @@ const DailyGoal = (props: Props) => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { token, contextLoading } = useContextState();
+  const { token, contextLoading, setShouldRefreshDashboard } =
+    useContextState();
 
   const router = useRouter();
 
@@ -37,6 +38,7 @@ const DailyGoal = (props: Props) => {
           user_water_intake: userConsumption,
         }
       );
+      setShouldRefreshDashboard(new Date().toString());
       if (response.status === 200) {
         setMessage(response.data.message);
       }
@@ -152,12 +154,12 @@ const DailyGoal = (props: Props) => {
               Submit
             </Text>
           </Pressable>
-          <Link
-            href="/Dashboard"
+          <Pressable
+            onPress={() => router.push("/Dashboard")}
             className="text-white text-[14px] mt-3 font-light text-center hover:underline active:underline"
           >
             Back
-          </Link>
+          </Pressable>
         </View>
       </View>
     </ScrollView>
