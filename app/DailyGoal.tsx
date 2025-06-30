@@ -18,8 +18,12 @@ const DailyGoal = (props: Props) => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { token, contextLoading, setShouldRefreshDashboard } =
-    useContextState();
+  const {
+    token,
+    contextLoading,
+    setShouldRefreshDashboard,
+    setShouldRefreshWaterIntake,
+  } = useContextState();
 
   const router = useRouter();
 
@@ -39,6 +43,7 @@ const DailyGoal = (props: Props) => {
         }
       );
       setShouldRefreshDashboard(new Date().toString());
+      setShouldRefreshWaterIntake(new Date().toString());
       if (response.status === 200) {
         setMessage(response.data.message);
       }
