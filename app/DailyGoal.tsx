@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Pressable, TextInput } from "react-native";
 import React, { useEffect, useState } from "react";
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
 import axiosInstance from "@/axiosInstance";
 import Loader from "@/assets/Loader";
