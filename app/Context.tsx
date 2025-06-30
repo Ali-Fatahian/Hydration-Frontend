@@ -14,6 +14,7 @@ type ContextType = {
   weatherError: string | null;
   contextLoading: true | false;
   shouldRefreshDashboard: string;
+  shouldRefreshWaterIntake: string;
   setToken: (token: string) => void;
   setUser: (user: UserDetails) => void;
   // updateUser: (fields: Partial<UserDetails>) => void;
@@ -23,6 +24,7 @@ type ContextType = {
   setWeather: (weather: WeatherType) => void;
   setWeatherError: (weatherError: string | null) => void;
   setShouldRefreshDashboard: (refresh: string) => void;
+  setShouldRefreshWaterIntake: (refresh: string) => void;
 };
 
 type UserDetails = {
@@ -52,12 +54,14 @@ export const ContextProvider = ({ children }: { children: ReactNode }) => {
   const [weatherError, setWeatherErrorState] = useState<string | null>(null);
   const [contextLoading, setContextLoading] = useState(true);
   const [shouldRefreshDashboard, setShouldRefreshDashboard] = useState("");
+  const [shouldRefreshWaterIntake, setShouldRefreshWaterIntake] = useState("");
 
   const logout = async () => {
     await AsyncStorage.removeItem("token");
     await AsyncStorage.removeItem("user");
     await AsyncStorage.removeItem("id");
     setShouldRefreshDashboard(new Date().toString());
+    // setShouldRefreshWaterIntake(new Date().toString());
     setTokenState(null);
     setUserState(null);
   };
@@ -77,38 +81,6 @@ export const ContextProvider = ({ children }: { children: ReactNode }) => {
   const setUser = (newUser: UserDetails) => {
     setUserState(newUser);
   };
-
-  // const updateUser = async (fields: Partial<UserDetails>): Promise<void> => {
-  //   if (!user) return;
-
-  //   const updatedUser = { ...user, ...fields };
-
-  //   setUserState(updatedUser);
-
-  //   await AsyncStorage.setItem("user", JSON.stringify(updatedUser));
-  // };
-
-  // const updateUser = async (fields: Partial<UserDetails>) => {
-  //   setUserState((prev) => {
-  //     if (!prev) return prev;
-
-  //     const updatedUser = { ...prev, ...fields };
-  //     AsyncStorage.setItem("user", JSON.stringify(updatedUser));
-
-  //     return updatedUser;
-  //   });
-  // };
-
-  // const updateUser = async (fields: Partial<UserDetails>): Promise<void> => {
-  //   // Ensure we’re working with the latest user state
-  //   setUserState((prevUser) => {
-  //     if (!prevUser) return prevUser;
-
-  //     const updatedUser = { ...prevUser, ...fields };
-  //     AsyncStorage.setItem("user", JSON.stringify(updatedUser)); // no await here, fire-and-forget
-  //     return updatedUser;
-  //   });
-  // };
 
   const updateUserInContext = (newUser: UserDetails) => {
     setUserState(newUser);
@@ -145,6 +117,8 @@ export const ContextProvider = ({ children }: { children: ReactNode }) => {
         setWeather,
         setWeatherError,
         setShouldRefreshDashboard,
+        setShouldRefreshWaterIntake,
+        shouldRefreshWaterIntake,
         updateUserInContext,
         updateUserInStorage,
       }}

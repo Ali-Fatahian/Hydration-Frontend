@@ -1,5 +1,5 @@
 import { useContextState } from "@/app/Context";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+// import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   DrawerContentScrollView,
   DrawerItem,
@@ -11,10 +11,17 @@ import { View } from "react-native";
 const CustomDrawerContent = (props: any) => {
   const router = useRouter();
 
-  const { logout, token } = useContextState()
+  const {
+    logout,
+    token,
+    setShouldRefreshDashboard,
+    setShouldRefreshWaterIntake,
+  } = useContextState();
 
   const handleLogout = async () => {
-    await logout()
+    setShouldRefreshDashboard(new Date().toString());
+    setShouldRefreshWaterIntake(new Date().toString());
+    await logout();
     router.replace("/Login");
   };
 
@@ -23,11 +30,13 @@ const CustomDrawerContent = (props: any) => {
       <View style={{ flex: 1 }}>
         <DrawerItemList {...props} />
       </View>
-      {token && <DrawerItem
-        label="Log Out"
-        onPress={handleLogout}
-        labelStyle={{ color: "red", marginBottom: 5 }}
-      />}
+      {token && (
+        <DrawerItem
+          label="Log Out"
+          onPress={handleLogout}
+          labelStyle={{ color: "red", marginBottom: 5 }}
+        />
+      )}
     </DrawerContentScrollView>
   );
 };

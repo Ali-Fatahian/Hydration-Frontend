@@ -8,26 +8,37 @@ type Props = {
   setCreateWaterIntakeError: (err: string) => void;
   setFetchWaterIntakeError: (err: string) => void;
   setWaterIntakeLoader: (data: any) => void;
+  refreshToken: string;
+  token: string | null;
 };
 
 const WaterIntakeLoader = (props: Props) => {
-  const { weather } = useContextState();
+  const { weather, shouldRefreshWaterIntake, token } = useContextState();
 
   useEffect(() => {
     if (
       !weather ||
       weather.temperature_celsius == null ||
-      weather.humidity_percent == null
+      weather.humidity_percent == null ||
+      !token
     ) {
+      props.setFetchWaterIntake(null);
+      props.setCreateWaterIntake(null);
       return;
     }
 
     const createWaterIntake = async () => {
       try {
-        const response = await axiosInstance.post("water_intake", {
-          temperature_celsius: weather?.temperature_celsius,
-          humidity_percent: weather?.humidity_percent,
-        });
+        const response = await axiosInstance.post(
+          "water_intake",
+          {
+            temperature_celsius: weather?.temperature_celsius,
+            humidity_percent: weather?.humidity_percent,
+          },
+          {
+            headers: { Authorization: `Token ${token}` },
+          }
+        );
         if (response.status === 201) {
           props.setCreateWaterIntake(response.data);
         }
@@ -38,7 +49,9 @@ const WaterIntakeLoader = (props: Props) => {
 
     const fetchWaterIntake = async () => {
       try {
-        const response = await axiosInstance.get("water_intake");
+        const response = await axiosInstance.get("water_intake", {
+          headers: { Authorization: `Token ${token}` },
+        });
         if (response.status === 200) {
           props.setFetchWaterIntake(response.data);
         }
@@ -53,7 +66,8 @@ const WaterIntakeLoader = (props: Props) => {
       props.setWaterIntakeLoader(false);
     };
     orderEnforcer();
-  }, []);
+    console.log(shouldRefreshWaterIntake);
+  }, [shouldRefreshWaterIntake, props.refreshToken, token]);
 
   return null;
 };

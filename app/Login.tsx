@@ -23,6 +23,7 @@ const Login = (props: Props) => {
     setUser,
     contextLoading,
     setShouldRefreshDashboard,
+    // setShouldRefreshWaterIntake,
   } = useContextState();
   const router = useRouter();
 
@@ -53,10 +54,14 @@ const Login = (props: Props) => {
 
         await AsyncStorage.setItem("token", JSON.stringify(tokenFromResponse));
         await AsyncStorage.setItem("id", JSON.stringify(response.data["id"]));
-        await AsyncStorage.setItem("user", JSON.stringify(response.data['user']));
-        setUser(response.data['user']);
+        await AsyncStorage.setItem(
+          "user",
+          JSON.stringify(response.data["user"])
+        );
+        setUser(response.data["user"]);
         setShouldRefreshDashboard(new Date().toString());
-        router.push("/Dashboard");
+        // setShouldRefreshWaterIntake(new Date().toString());
+        router.replace("/Dashboard");
       }
     } catch (err: any) {
       setError(err.message);
@@ -76,7 +81,7 @@ const Login = (props: Props) => {
     useCallback(() => {
       if (!contextLoading) {
         if (token) {
-          router.navigate("/Dashboard");
+          router.replace("/Dashboard");
           return;
         }
       }

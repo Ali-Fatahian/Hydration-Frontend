@@ -32,12 +32,15 @@ const Dashboard = (props: Props) => {
     weather,
     weatherError,
     shouldRefreshDashboard,
+    shouldRefreshWaterIntake,
     user,
   } = useContextState();
 
   const fetchNotification = async () => {
     try {
-      const response = await axiosInstance.get("latest_notification");
+      const response = await axiosInstance.get("latest_notification", {
+        headers: { Authorization: `Token ${token}` },
+      });
       if (response.status === 200) {
         setNotification(response.data);
       }
@@ -46,18 +49,14 @@ const Dashboard = (props: Props) => {
     }
   };
 
-  const isProfileIncomplete =
-    !userSafe?.activity ||
-    userSafe?.activity.length === 0 ||
-    userSafe?.creatine_intake === null ||
-    userSafe?.creatine_intake === 0;
-
   useEffect(() => {
     if (!contextLoading && !token) {
       router.navigate("/Login");
     } // Putting this code in checkAuth() makes it too slow to run, doesn't work
 
-    fetchNotification();
+    if (token){
+      fetchNotification();
+    }
 
     const loadUserFromStorage = async () => {
       try {
@@ -84,6 +83,8 @@ const Dashboard = (props: Props) => {
         <WeatherFetcher />
         {weather && (
           <WaterIntakeLoader
+            token={token}
+            refreshToken={shouldRefreshWaterIntake}
             setFetchWaterIntake={setFetchWaterIntake}
             setCreateWaterIntake={setCreateWaterIntake}
             setCreateWaterIntakeError={setCreateWaterIntakeError}
@@ -148,7 +149,7 @@ const Dashboard = (props: Props) => {
           <View className="bg-[#B22222] mt-3 p-2 rounded-md">
             <Text className="text-sm text-gray-200">{notificationError}</Text>
           </View>
-        ) : notification.message?.length > 0 ? (
+        ) : notification?.message?.length > 0 ? (
           <Pressable
             className="bg-[#565967] px-5 py-4 rounded-lg mt-8 flex flex-col gap-4 min-[366px]:flex-row min-[366px]:gap-0 justify-between hover:bg-[#4a4c58] transition-colors"
             onPress={() => router.navigate("/NotificationsSummary")}
