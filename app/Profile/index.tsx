@@ -1,21 +1,68 @@
-import { View, Text, Pressable, ScrollView, Image } from "react-native";
+import {
+  View,
+  Text,
+  Pressable,
+  ScrollView,
+  Image,
+  Platform,
+} from "react-native";
+import * as Sharing from "expo-sharing";
 import React, { useCallback, useState } from "react";
+import * as FileSystem from "expo-file-system";
 import { router } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import { useContextState } from "../Context";
-
+import axiosInstance from "@/axiosInstance";
 
 const Profile = () => {
   const [error, setError] = useState("");
+  const [downloadError, setDownloadError] = useState<string>("");
   const [userSafe, setUserSafe] = useState<any>(null);
   const defaultImage = require("../../assets/images/default-profile.png");
-  const IMAGE_BASE = 'http://localhost:8000'
+  const IMAGE_BASE = "http://localhost:8000";
 
   const { token, contextLoading, user, shouldRefreshDashboard } =
     useContextState();
+
+  const downloadCSV = async () => {
+    setDownloadError('')
+    try {
+      const response = await axiosInstance.get(
+        "user_details_csv"
+      );
+
+      if (response.status !== 200) {
+        setDownloadError("Something went wrong, please try again!");
+      }
+
+      if (Platform.OS === "web") {
+        // On web, get CSV as text and create downloadable link
+        const csv = response.data;
+        const blob = new Blob([csv], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = "user_info.csv";
+        anchor.click();
+
+        URL.revokeObjectURL(url);
+      } else {
+        // On mobile, save to local file system and share
+        const csv = response.data;
+        const uri = FileSystem.documentDirectory + "user_info.csv";
+        await FileSystem.writeAsStringAsync(uri, csv, {
+          encoding: FileSystem.EncodingType.UTF8,
+        });
+        await Sharing.shareAsync(uri);
+      }
+    } catch (error:any) {
+      setDownloadError('Error downloading the CSV file!');
+    }
+  };
 
   const hasRemoteImage =
     !!userSafe?.picture && userSafe.picture.trim().length > 0;
@@ -44,7 +91,6 @@ const Profile = () => {
       };
 
       loadUserFromStorage();
-      console.log(`${IMAGE_BASE}${userSafe?.picture}`)
     }, [contextLoading, token, shouldRefreshDashboard])
   );
 
@@ -71,7 +117,11 @@ const Profile = () => {
                 borderColor: "white",
                 backgroundColor: "#b5b3b3",
               }}
-              source={hasRemoteImage ? { uri: `${IMAGE_BASE}${userSafe?.picture}` } : defaultImage}
+              source={
+                hasRemoteImage
+                  ? { uri: `${IMAGE_BASE}${userSafe?.picture}` }
+                  : defaultImage
+              }
             />
             <Text className="text-[14px] font-bold text-gray-400">
               {userSafe.email}
@@ -208,6 +258,24 @@ const Profile = () => {
                 className="text-[#E6E6E6]"
               />
             </Pressable>
+            <Pressable
+              onPress={() => downloadCSV()}
+              className="bg-[#2E2E4D] p-3 flex flex-row justify-between items-center w-full rounded-md cursor-pointer transition-colors hover:bg-[#36366c]"
+            >
+              <Text className="text-white text-[14px] font-bold">
+                Download CSV
+              </Text>
+              <Ionicons
+                name="arrow-forward"
+                size={18}
+                className="text-[#E6E6E6]"
+              />
+            </Pressable>
+            {downloadError && downloadError.length > 0 && (
+              <View className="bg-[#B22222] mt-3 p-2 rounded-md">
+                <Text className="text-sm text-gray-200">{downloadError}</Text>
+              </View>
+            )}
           </View>
           <Pressable
             onPress={() => {
