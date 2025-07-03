@@ -28,11 +28,9 @@ const Profile = () => {
     useContextState();
 
   const downloadCSV = async () => {
-    setDownloadError('')
+    setDownloadError("");
     try {
-      const response = await axiosInstance.get(
-        "user_details_csv"
-      );
+      const response = await axiosInstance.get("user_details_csv");
 
       if (response.status !== 200) {
         setDownloadError("Something went wrong, please try again!");
@@ -59,8 +57,8 @@ const Profile = () => {
         });
         await Sharing.shareAsync(uri);
       }
-    } catch (error:any) {
-      setDownloadError('Error downloading the CSV file!');
+    } catch (error: any) {
+      setDownloadError("Error downloading the CSV file!");
     }
   };
 
@@ -225,7 +223,7 @@ const Profile = () => {
                 className="text-[#E6E6E6]"
               />
             </Pressable>
-            <Pressable
+            {/* <Pressable
               onPress={() => router.navigate("/ConnectSmartBottle")}
               className="bg-[#2E2E4D] p-3 flex flex-row justify-between items-center w-full rounded-md cursor-pointer transition-colors hover:bg-[#36366c]"
             >
@@ -239,8 +237,8 @@ const Profile = () => {
                 size={18}
                 className="text-[#E6E6E6]"
               />
-            </Pressable>
-            <Pressable
+            </Pressable> */}
+            {/* <Pressable
               onPress={() => router.navigate("/EnableNotification")}
               className="bg-[#2E2E4D] p-3 flex flex-row justify-between items-center w-full rounded-md cursor-pointer transition-colors hover:bg-[#36366c]"
             >
@@ -257,13 +255,26 @@ const Profile = () => {
                 size={18}
                 className="text-[#E6E6E6]"
               />
-            </Pressable>
+            </Pressable> */}
             <Pressable
               onPress={() => downloadCSV()}
               className="bg-[#2E2E4D] p-3 flex flex-row justify-between items-center w-full rounded-md cursor-pointer transition-colors hover:bg-[#36366c]"
             >
               <Text className="text-white text-[14px] font-bold">
                 Download CSV
+              </Text>
+              <Ionicons
+                name="arrow-forward"
+                size={18}
+                className="text-[#E6E6E6]"
+              />
+            </Pressable>
+            <Pressable
+              onPress={() => router.navigate("/EnableNotification")}
+              className="bg-[#2E2E4D] p-3 flex flex-row justify-between items-center w-full rounded-md cursor-pointer transition-colors hover:bg-[#36366c]"
+            >
+              <Text className="text-white text-[14px] font-bold">
+                Delete Account
               </Text>
               <Ionicons
                 name="arrow-forward"

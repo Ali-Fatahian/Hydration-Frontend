@@ -85,7 +85,7 @@ export default function DrawerLayout() {
         options={{
           title: "Connect Bottle",
           drawerItemStyle: {
-            display: authenticated ? "flex" : "none",
+            display: "none",
           },
         }}
       />
