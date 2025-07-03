@@ -10,7 +10,7 @@ import { useContextState } from "./Context";
 
 type Props = {};
 
-const baseURL = 'http://localhost:8000/api/'
+const baseURL = "http://localhost:8000/api/";
 
 const SignUp = (props: Props) => {
   const [email, setEmail] = useState("");
@@ -55,7 +55,7 @@ const SignUp = (props: Props) => {
       });
       if (response.status === 201) {
         // setMessage(response.data);
-        router.push("/Dashboard");
+        router.push("/Login");
       }
     } catch (err: any) {
       setError(err.message);

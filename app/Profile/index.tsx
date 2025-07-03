@@ -5,6 +5,7 @@ import {
   ScrollView,
   Image,
   Platform,
+  Modal,
 } from "react-native";
 import * as Sharing from "expo-sharing";
 import React, { useCallback, useState } from "react";
@@ -21,10 +22,12 @@ const Profile = () => {
   const [error, setError] = useState("");
   const [downloadError, setDownloadError] = useState<string>("");
   const [userSafe, setUserSafe] = useState<any>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [deleteUserError, setDeleteUserError] = useState("");
   const defaultImage = require("../../assets/images/default-profile.png");
   const IMAGE_BASE = "http://localhost:8000";
 
-  const { token, contextLoading, user, shouldRefreshDashboard } =
+  const { token, contextLoading, user, shouldRefreshDashboard, logout } =
     useContextState();
 
   const downloadCSV = async () => {
@@ -59,6 +62,22 @@ const Profile = () => {
       }
     } catch (error: any) {
       setDownloadError("Error downloading the CSV file!");
+    }
+  };
+
+  const deleteUser = async () => {
+    try {
+      setDeleteUserError("");
+      setModalVisible(false);
+      const response = await axiosInstance.delete("delete_user");
+      if (response.status === 204) {
+        logout();
+        router.navigate("/Login");
+      } else {
+        setDeleteUserError("Something went wrong, please try again!");
+      }
+    } catch (err: any) {
+      setDeleteUserError(err.message);
     }
   };
 
@@ -126,6 +145,42 @@ const Profile = () => {
             </Text>
           </View>
           <View className="flex flex-col gap-2 items-center mt-3">
+            {modalVisible && (
+              <View className="z-10 absolute left-0 top-0 w-full h-full bg-[#00000061]"></View>
+            )}
+            <Modal
+              animationType="slide"
+              transparent={true}
+              visible={modalVisible}
+              onRequestClose={() => {}}
+              className="z-20"
+            >
+              <View className="w-full max-w-md m-auto py-4 px-6 bg-white rounded-sm">
+                <View>
+                  <ScrollView className="max-h-[400px]">
+                    <Text className="leading-8 text-justify mt-3">
+                      Are you sure? After clicking on "Delete", you will lose
+                      all your data.
+                    </Text>
+                  </ScrollView>
+                  <Pressable
+                    onPress={() => deleteUser()}
+                    className="bg-[#ff2626] mt-6 rounded-3xl py-2 px-4 w-fit mx-auto hover:bg-[#e01616] transition-colors"
+                  >
+                    <Text className="text-white text-center">Accept</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => {
+                      setModalVisible(false);
+                      setDeleteUserError("");
+                    }}
+                    className="bg-white mt-2 rounded-3xl py-2 px-4 w-fit mx-auto border-[1px] border-white hover:border-[#333] transition-colors"
+                  >
+                    <Text className="text-center">Cancel</Text>
+                  </Pressable>
+                </View>
+              </View>
+            </Modal>
             <Pressable
               onPress={() => router.navigate("/Profile/PersonalInformation")}
               className="bg-[#2E2E4D] p-3 flex flex-row justify-between items-center w-full rounded-md cursor-pointer transition-colors hover:bg-[#36366c]"
@@ -270,7 +325,7 @@ const Profile = () => {
               />
             </Pressable>
             <Pressable
-              onPress={() => router.navigate("/EnableNotification")}
+              onPress={() => setModalVisible(true)}
               className="bg-[#2E2E4D] p-3 flex flex-row justify-between items-center w-full rounded-md cursor-pointer transition-colors hover:bg-[#36366c]"
             >
               <Text className="text-white text-[14px] font-bold">
@@ -306,6 +361,11 @@ const Profile = () => {
             <Text className="text-sm text-gray-200">{error}</Text>
           </View>
         )
+      )}
+      {deleteUserError && deleteUserError.length > 0 && (
+        <View className="bg-[#B22222] mt-3 p-2 rounded-md">
+          <Text className="text-sm text-gray-200">{deleteUserError}</Text>
+        </View>
       )}
     </ScrollView>
   );
