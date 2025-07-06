@@ -16,14 +16,12 @@ const WaterIntakeLoader = (props: Props) => {
   const { weather, shouldRefreshWaterIntake, token } = useContextState();
 
   useEffect(() => {
+    if (!weather || token == null) return;
+
     if (
-      !weather ||
       weather.temperature_celsius == null ||
-      weather.humidity_percent == null ||
-      !token
+      weather.humidity_percent == null
     ) {
-      props.setFetchWaterIntake(null);
-      props.setCreateWaterIntake(null);
       return;
     }
 
@@ -32,8 +30,8 @@ const WaterIntakeLoader = (props: Props) => {
         const response = await axiosInstance.post(
           "water_intake",
           {
-            temperature_celsius: weather?.temperature_celsius,
-            humidity_percent: weather?.humidity_percent,
+            temperature_celsius: weather.temperature_celsius,
+            humidity_percent: weather.humidity_percent,
           },
           {
             headers: { Authorization: `Token ${token}` },
@@ -59,15 +57,16 @@ const WaterIntakeLoader = (props: Props) => {
         props.setFetchWaterIntakeError(err.message);
       }
     };
+
     const orderEnforcer = async () => {
       props.setWaterIntakeLoader(true);
       await createWaterIntake();
       await fetchWaterIntake();
       props.setWaterIntakeLoader(false);
     };
+
     orderEnforcer();
-    console.log(shouldRefreshWaterIntake);
-  }, [shouldRefreshWaterIntake, props.refreshToken, token]);
+  }, [shouldRefreshWaterIntake, props.refreshToken, weather, token]);
 
   return null;
 };

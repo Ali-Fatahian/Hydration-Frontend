@@ -21,7 +21,7 @@ export default function Layout() {
     },
   };
 
-  LogBox.ignoreAllLogs(true)
+  // LogBox.ignoreAllLogs(true)
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

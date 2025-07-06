@@ -69,7 +69,7 @@ const SignUp = (props: Props) => {
 
   const formSubmitHandler = () => {
     if (email.length > 0 && password.length > 0 && fullname.length > 0) {
-      sendData(fullname, email, password);
+      sendData(fullname, email.toLowerCase(), password);
     } else {
       setError("Please fill out all the fields.");
     }

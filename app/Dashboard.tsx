@@ -129,32 +129,39 @@ const Dashboard = (props: Props) => {
             <View className="w-full bg-[#BBBBBB] rounded-full dark:bg-gray-700 mt-8">
               <View
                 style={{
-                  width: `${progress}%`,
+                  width: `${Math.round(
+                    (Number(fetchWaterIntake.user_water_intake) /
+                      Number(fetchWaterIntake.max_water_intake)) *
+                      100
+                  )}%`,
                 }}
                 className={
-                  "bg-[#57A8FF] rounded-full text-center p-2 font-bold leading-none text-xs gap-1 text-blue-100 flex flex-row items-center"
+                  "bg-[#57A8FF] rounded-full text-center p-2 font-bold leading-none text-xs text-blue-100"
                 }
               >
-                <Text className="text-blue-100 rounded-xl">
+                <View className="flex flex-row items-center justify-end gap-1">
+                <Text className="text-white font-bold">
                   {Math.round(
                     (Number(fetchWaterIntake.user_water_intake) /
                       Number(fetchWaterIntake.max_water_intake)) *
                       1000
                   ) / 10}
                 </Text>
-
-                <Text className="text-blue-100 rounded-xl">%</Text>
+                <Text className="text-blue-100 rounded-xl font-bold">%</Text>
+                </View>
               </View>
             </View>
           )
         )}
         {fetchWaterIntakeError.length === 0 && fetchWaterIntake && (
-          <Text className="text-center text-white font-bold mt-8 text-xl">
-            {(Math.round(fetchWaterIntake.user_water_intake) * 10) / 10}ml
-            <Text className="text-[#AFAFC1] font-normal ml-2">
+          <View className="flex flex-row justify-center items-center mt-8 gap-2">
+            <Text className="text-center text-white font-bold text-xl">
+              {(Math.round(fetchWaterIntake.user_water_intake) * 10) / 10} ml
+            </Text>
+            <Text className="text-[#AFAFC1] font-normal text-lg">
               of {fetchWaterIntake.max_water_intake}ml
             </Text>
-          </Text>
+          </View>
         )}
         {notificationError.length > 0 ? (
           // 1. Show error message if there's a notification error
