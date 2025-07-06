@@ -54,8 +54,8 @@ const DailyGoal = (props: Props) => {
   };
 
   const formSubmitHandler = () => {
-    if (userConsumption && userConsumption.length > 0) {
-      if (!isNaN(Number(userConsumption))) {
+    if (userConsumption && userConsumption.trim().length > 0) {
+      if (!isNaN(Number(userConsumption.trim()))) {
         // typeof Number('asdf') does not work
         sendData();
       } else {
@@ -112,7 +112,7 @@ const DailyGoal = (props: Props) => {
             }
             placeholderTextColor={"#9CA3AF"}
             value={userConsumption}
-            onChange={(e: any) => handleInputChange(e.target.value)}
+            onChangeText={(v: any) => handleInputChange(v)}
           />
           {error && error.length > 0 && (
             <View className="w-full mt-3">
@@ -163,7 +163,9 @@ const DailyGoal = (props: Props) => {
             onPress={() => router.push("/Dashboard")}
             className="text-white text-[14px] mt-3 font-light text-center hover:underline active:underline"
           >
-            Back
+            <Text className="text-sm font-bold text-white text-center">
+              Back
+            </Text>
           </Pressable>
         </View>
       </View>

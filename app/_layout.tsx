@@ -1,5 +1,6 @@
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import React from "react";
+import { LogBox } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import * as Linking from "expo-linking";
 import "../global.css";
@@ -19,6 +20,8 @@ export default function Layout() {
       },
     },
   };
+
+  LogBox.ignoreAllLogs(true)
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

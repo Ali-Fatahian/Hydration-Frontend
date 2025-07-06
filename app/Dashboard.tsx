@@ -36,6 +36,18 @@ const Dashboard = (props: Props) => {
     user,
   } = useContextState();
 
+  const progress =
+    fetchWaterIntake?.user_water_intake && fetchWaterIntake?.max_water_intake
+      ? Math.min(
+          Math.round(
+            (Number(fetchWaterIntake.user_water_intake) /
+              Number(fetchWaterIntake.max_water_intake)) *
+              100
+          ),
+          100
+        )
+      : 0;
+
   const fetchNotification = async () => {
     try {
       const response = await axiosInstance.get("latest_notification", {
@@ -54,7 +66,7 @@ const Dashboard = (props: Props) => {
       router.navigate("/Login");
     } // Putting this code in checkAuth() makes it too slow to run, doesn't work
 
-    if (token){
+    if (token) {
       fetchNotification();
     }
 
@@ -106,7 +118,8 @@ const Dashboard = (props: Props) => {
         </Text>
         {fetchWaterIntakeError.length > 0 ? (
           <View className="w-full bg-[#BBBBBB] text-xs text-blue-100 rounded-full dark:bg-gray-700 mt-8 text-center p-2 font-bold leading-none">
-            0<View className={`bg-[#57A8FF] rounded-full w-0`}></View>
+            <Text className="text-white">0</Text>
+            <View className={`bg-[#57A8FF] rounded-full w-0`}></View>
           </View>
         ) : waterIntakeLoader === true ? (
           <Loader className="mt-3" />
@@ -116,22 +129,21 @@ const Dashboard = (props: Props) => {
             <View className="w-full bg-[#BBBBBB] rounded-full dark:bg-gray-700 mt-8">
               <View
                 style={{
-                  width: `${Math.round(
-                    (Number(fetchWaterIntake.user_water_intake) /
-                      Number(fetchWaterIntake.max_water_intake)) *
-                      100
-                  )}%`,
+                  width: `${progress}%`,
                 }}
                 className={
-                  "bg-[#57A8FF] rounded-full text-center p-2 font-bold leading-none text-xs text-blue-100"
+                  "bg-[#57A8FF] rounded-full text-center p-2 font-bold leading-none text-xs gap-1 text-blue-100 flex flex-row items-center"
                 }
               >
-                {Math.round(
-                  (Number(fetchWaterIntake.user_water_intake) /
-                    Number(fetchWaterIntake.max_water_intake)) *
-                    1000
-                ) / 10}
-                %
+                <Text className="text-blue-100 rounded-xl">
+                  {Math.round(
+                    (Number(fetchWaterIntake.user_water_intake) /
+                      Number(fetchWaterIntake.max_water_intake)) *
+                      1000
+                  ) / 10}
+                </Text>
+
+                <Text className="text-blue-100 rounded-xl">%</Text>
               </View>
             </View>
           )

@@ -25,7 +25,10 @@ const Profile = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [deleteUserError, setDeleteUserError] = useState("");
   const defaultImage = require("../../assets/images/default-profile.png");
-  const IMAGE_BASE = "http://localhost:8000";
+  const IMAGE_BASE =
+    Platform.OS === "web" || Platform.OS === 'ios'
+      ? "http://localhost:8000"
+      : "http://192.168.178.101:8000";
 
   const { token, contextLoading, user, shouldRefreshDashboard, logout } =
     useContextState();

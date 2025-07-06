@@ -1,4 +1,11 @@
-import { View, Text, Pressable, TextInput, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  Pressable,
+  TextInput,
+  ScrollView,
+  Platform,
+} from "react-native";
 import React, { useCallback, useState } from "react";
 import { useRouter, useLocalSearchParams, Link } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
@@ -34,7 +41,11 @@ const PasswordResetConfirm = (props: Props) => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/password_reset_confirm",
+        `${
+          Platform.OS === "web" || Platform.OS === 'ios'
+            ? "http://localhost:8000/api/password_reset_confirm"
+            : "http://192.168.178.101:8000/api/password_reset_confirm"
+        }`,
         {
           uid,
           token,

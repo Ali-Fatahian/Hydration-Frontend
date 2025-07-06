@@ -42,11 +42,18 @@ const Login = (props: Props) => {
   const sendData = async (email: string, password: string) => {
     setLoading(true);
     try {
-      const response = await axios.post("http://localhost:8000/api/login", {
-        // http://192.168.178.101:8000 for phone on the same network
-        email,
-        password,
-      });
+      const response = await axios.post(
+        `${
+          Platform.OS === "web" || Platform.OS === 'ios'
+            ? "http://localhost:8000/api/login"
+            : "http://192.168.178.101:8000/api/login"
+        }`,
+        {
+          // http://192.168.178.101:8000 for phone on the same network
+          email,
+          password,
+        }
+      );
       if (response.status === 200) {
         // setMessage(response.data);
         const tokenFromResponse = response.data["token"];

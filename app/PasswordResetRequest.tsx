@@ -1,4 +1,11 @@
-import { View, Text, Pressable, TextInput, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  Pressable,
+  TextInput,
+  ScrollView,
+  Platform,
+} from "react-native";
 import React, { useCallback, useState } from "react";
 import { useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
@@ -27,9 +34,16 @@ const PasswordResetRequest = (props: Props) => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://192.168.178.101:8000/api/password_reset", { // This works on phones using the same network, on web, use http://localhost:8000
-          email
-        })
+        `${
+          Platform.OS === "web" || Platform.OS === 'ios'
+            ? "http://localhost:8000/api/password_reset"
+            : "http://192.168.178.101:8000/api/password_reset"
+        }`,
+        {
+          // This works on phones using the same network, on web, use http://localhost:8000
+          email,
+        }
+      );
       if (response.status === 200) {
         setMessage(response.data["message"]);
       }

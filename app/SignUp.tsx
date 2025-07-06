@@ -10,7 +10,11 @@ import { useContextState } from "./Context";
 
 type Props = {};
 
-const baseURL = "http://localhost:8000/api/";
+const baseURL = `${
+  Platform.OS === "web" || Platform.OS === 'ios'
+    ? "http://localhost:8000/api/"
+    : "http://192.168.178.101:8000/api/"
+}`;
 
 const SignUp = (props: Props) => {
   const [email, setEmail] = useState("");
