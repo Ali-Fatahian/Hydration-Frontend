@@ -35,7 +35,7 @@ const PasswordResetRequest = (props: Props) => {
     try {
       const response = await axios.post(
         `${
-          Platform.OS === "web" || Platform.OS === 'ios'
+          Platform.OS === "web" || Platform.OS === "ios"
             ? "http://localhost:8000/api/password_reset"
             : "http://192.168.178.101:8000/api/password_reset"
         }`,
@@ -85,7 +85,7 @@ const PasswordResetRequest = (props: Props) => {
           <Text className="text-[18px] font-bold text-white text-center">
             Reset Your Password
           </Text>
-          <View className="flex flex-col mt-6 justify-center w-full max-w-lg gap-8 mx-auto">
+          <View className="flex flex-col mt-6 justify-center w-full max-w-lg gap-8 mx-auto px-4">
             <View className="relative w-full">
               <TextInput
                 onChangeText={handleEmailChange}
@@ -99,24 +99,38 @@ const PasswordResetRequest = (props: Props) => {
             </View>
           </View>
           {error.length > 0 && (
-            <View className="bg-[#B22222] p-2 rounded-md">
-              <Text className="text-sm text-gray-200">{error}</Text>
+            <View className="px-4">
+              <Text className="text-sm text-gray-200 bg-[#B22222] p-2 rounded-md">
+                {error}
+              </Text>
             </View>
           )}
           {message.length > 0 && (
-            <View className="bg-[#3CB371] p-2 rounded-md">
-              <Text className="text-sm text-gray-200">{message}</Text>
+            <View className="px-4">
+              <Text className="text-sm text-gray-200 bg-[#3CB371] p-2 rounded-md">
+                {message}
+              </Text>
             </View>
           )}
           {loading && <Loader className="mt-2" />}
-          <Pressable
-            onPress={formSubmitHandler}
-            className="bg-[#816BFF] mt-6 rounded-3xl py-3 px-20 w-fit mx-auto hover:bg-[#735cf5] active:bg-[#5943d6] transition-colors"
-          >
-            <Text className="text-sm font-bold text-white text-center">
-              Submit
-            </Text>
-          </Pressable>
+          <View className="mt-3 flex gap-4">
+            <Pressable
+              onPress={formSubmitHandler}
+              className="bg-[#816BFF] rounded-3xl py-3 px-20 w-fit mx-auto hover:bg-[#735cf5] active:bg-[#5943d6] transition-colors"
+            >
+              <Text className="text-sm font-bold text-white text-center">
+                Submit
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => router.navigate("/Login")}
+              className="text-white text-[14px] font-light text-center hover:underline active:underline"
+            >
+              <Text className="text-[14px] font-bold text-white text-center">
+                Back
+              </Text>
+            </Pressable>
+          </View>
         </View>
       </View>
     </ScrollView>

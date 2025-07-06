@@ -289,7 +289,7 @@ const PersonalInformation = (props: Props) => {
         </Pressable>
         <Link
           href="/Profile"
-          className="text-white text-[14px] mt-3 font-light text-center hover:underline active:underline"
+          className="mt-3 text-white text-[14px] font-light text-center hover:underline active:underline"
         >
           Back
         </Link>

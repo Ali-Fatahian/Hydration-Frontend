@@ -120,19 +120,17 @@ const EnterActivityLevel = (props: Props) => {
         <View className="flex flex-col min-[270px]:flex-row flex-wrap gap-4 mt-10 max-w-[25rem] justify-center mx-auto">
           {selectedActivityLevel.length > 0 &&
             ["low", "moderate", "high"].map((activity) => (
-              <Pressable
-                key={activity}
-                onPress={() => {
-                  setError("");
-                  setSelectedActivityLevel(activity);
-                }}
-              >
+              <Pressable key={activity}>
                 <Text
+                  onPress={() => {
+                    setError("");
+                    setSelectedActivityLevel(activity);
+                  }}
                   className={`cursor-pointer ${
                     selectedActivityLevel === activity
                       ? "bg-[#448AFF]"
                       : "bg-[#2D2F4E]"
-                  } text-white rounded-lg py-3 px-10 w-fit mx-auto hover:bg-[#2979FF] active:bg-[#5943d6] transition-colors`}
+                  } text-white rounded-lg py-3 px-10 w-fit mx-auto hover:bg-[#2979FF] transition-colors`}
                 >
                   {`${activity.slice(0, 1).toUpperCase()}${activity.slice(1)}`}
                 </Text>
@@ -157,7 +155,9 @@ const EnterActivityLevel = (props: Props) => {
           onPress={() => router.replace("/Profile")}
           className="text-white text-[14px] mt-3 font-light text-center hover:underline active:underline"
         >
-          Back
+          <Text className="text-[14px] font-bold text-white text-center">
+            Back
+          </Text>
         </Pressable>
       </View>
     </ScrollView>

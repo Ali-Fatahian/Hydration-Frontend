@@ -44,7 +44,7 @@ const Login = (props: Props) => {
     try {
       const response = await axios.post(
         `${
-          Platform.OS === "web" || Platform.OS === 'ios'
+          Platform.OS === "web" || Platform.OS === "ios"
             ? "http://localhost:8000/api/login"
             : "http://192.168.178.101:8000/api/login"
         }`,
@@ -149,10 +149,11 @@ const Login = (props: Props) => {
             </Text>
           </Pressable>
           <View className="mt-4">
-            <Link href="/PasswordResetRequest" className="w-full text-center">
-              <Text className="text-[14px] mx-auto text-white ">
-                Forgot Password?
-              </Text>
+            <Link
+              href="/PasswordResetRequest"
+              className="w-full text-center text-[14px] mx-auto text-white"
+            >
+              Forgot Password?
             </Link>
             <View className="flex w-full mx-auto justify-center gap-1 flex-row mt-4">
               <Text className="text-[14px] text-white">

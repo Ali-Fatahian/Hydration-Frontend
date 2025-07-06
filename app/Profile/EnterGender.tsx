@@ -1,4 +1,4 @@
-import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
+import { View, Text, Pressable, ScrollView } from "react-native";
 import React, { useEffect, useState } from "react";
 import WaterIcon from "@/assets/WaterIcon";
 import { useRouter } from "expo-router";
@@ -102,23 +102,21 @@ const EnterGender = (props: Props) => {
         </Text>
         <View className="flex flex-col min-[270px]:flex-row gap-4 mt-10 max-w-sm mx-auto">
           {["male", "female"].map((gender) => (
-            <Pressable
-              key={gender}
-              onPress={() => {
-                setError("");
-                setSelectedGender(gender);
-              }}
-            >
+            <Pressable key={gender}>
               <Text
+                onPress={() => {
+                  setError("");
+                  setSelectedGender(gender);
+                }}
                 className={`cursor-pointer ${
                   selectedGender &&
                   selectedGender.length > 0 &&
                   selectedGender === gender
                     ? "bg-[#448AFF]"
                     : "bg-[#2D2F4E]"
-                } text-white rounded-lg py-3 px-10 w-fit mx-auto hover:bg-[#2979FF] active:bg-[#5943d6] transition-colors`}
+                } text-white rounded-lg py-3 px-10 w-fit mx-auto hover:bg-[#2979FF] transition-colors`}
               >
-                {`${gender.slice(0, 1).toUpperCase()}${gender.slice(1)}`}
+                {`${gender.charAt(0).toUpperCase() + gender.slice(1)}`}
               </Text>
             </Pressable>
           ))}
@@ -141,7 +139,9 @@ const EnterGender = (props: Props) => {
           onPress={() => router.replace("/Profile")}
           className="text-white text-[14px] mt-3 font-light text-center hover:underline active:underline"
         >
-          Back
+          <Text className="text-[14px] font-bold text-white text-center">
+            Back
+          </Text>
         </Pressable>
       </View>
     </ScrollView>

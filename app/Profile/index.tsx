@@ -196,7 +196,7 @@ const Profile = () => {
               <Ionicons
                 name="arrow-forward"
                 size={18}
-                className="text-[#E6E6E6]"
+                color="#E6E6E6"
               />
             </Pressable>
             <Pressable
@@ -218,7 +218,7 @@ const Profile = () => {
               <Ionicons
                 name="arrow-forward"
                 size={18}
-                className="text-[#E6E6E6]"
+                color="#E6E6E6" 
               />
             </Pressable>
             <Pressable
@@ -236,7 +236,7 @@ const Profile = () => {
               <Ionicons
                 name="arrow-forward"
                 size={18}
-                className="text-[#E6E6E6]"
+                color="#E6E6E6" 
               />
             </Pressable>
             <Pressable
@@ -254,7 +254,7 @@ const Profile = () => {
               <Ionicons
                 name="arrow-forward"
                 size={18}
-                className="text-[#E6E6E6]"
+                color="#E6E6E6" 
               />
             </Pressable>
             <Pressable
@@ -278,7 +278,7 @@ const Profile = () => {
               <Ionicons
                 name="arrow-forward"
                 size={18}
-                className="text-[#E6E6E6]"
+                color="#E6E6E6" 
               />
             </Pressable>
             {/* <Pressable
@@ -293,7 +293,7 @@ const Profile = () => {
               <Ionicons
                 name="arrow-forward"
                 size={18}
-                className="text-[#E6E6E6]"
+                color="#E6E6E6" 
               />
             </Pressable> */}
             {/* <Pressable
@@ -311,7 +311,7 @@ const Profile = () => {
               <Ionicons
                 name="arrow-forward"
                 size={18}
-                className="text-[#E6E6E6]"
+                color="#E6E6E6" 
               />
             </Pressable> */}
             <Pressable
@@ -324,7 +324,7 @@ const Profile = () => {
               <Ionicons
                 name="arrow-forward"
                 size={18}
-                className="text-[#E6E6E6]"
+                color="#E6E6E6" 
               />
             </Pressable>
             <Pressable
@@ -337,7 +337,7 @@ const Profile = () => {
               <Ionicons
                 name="arrow-forward"
                 size={18}
-                className="text-[#E6E6E6]"
+                color="#E6E6E6" 
               />
             </Pressable>
             {downloadError && downloadError.length > 0 && (

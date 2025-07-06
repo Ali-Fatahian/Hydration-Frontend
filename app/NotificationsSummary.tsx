@@ -154,7 +154,55 @@ const NotificationsSummary = (props: Props) => {
             size={18}
           />
         </Pressable>
-        {/* Start of notifications */}
+
+        {/* Offscreen hidden view to measure content height */}
+        <View
+          style={{ position: "absolute", top: 10000, opacity: 0, zIndex: -1 }}
+          onLayout={(event) => {
+            const height = event.nativeEvent.layout.height;
+            setContentHeight(height);
+          }}
+        >
+          <View className="flex flex-col rounded-md mt-1 gap-1">
+            {data && Object.keys(data).length > 0
+              ? data.map((n) => (
+                  <Pressable
+                    onPress={() => postData(n)}
+                    key={n.id}
+                    className="p-3 hover:bg-[#51518A] bg-[#3F3F6B] rounded-md transition-colors flex flex-row justify-between"
+                  >
+                    <Text className="text-[#afafc1] font-light text-xs">
+                      {n.message}
+                    </Text>
+                    {n.seen === false ? (
+                      <Ionicons
+                        color={"#afafc1"}
+                        size={16}
+                        name="square-outline"
+                      />
+                    ) : (
+                      <Ionicons
+                        color={"#afafc1"}
+                        size={14}
+                        name="checkbox-outline"
+                      />
+                    )}
+                  </Pressable>
+                ))
+              : error.length > 0 && (
+                  <View className="bg-[#B22222] p-2 rounded-md">
+                    <Text className="text-sm text-gray-200">{error}</Text>
+                  </View>
+                )}
+          </View>
+          {updateErr.length > 0 && (
+            <View className="bg-[#B22222] p-2 rounded-md">
+              <Text className="text-sm text-gray-200">{updateErr}</Text>
+            </View>
+          )}
+        </View>
+
+        {/* Animated accordion content */}
         <Animated.View
           style={[
             {
@@ -163,52 +211,45 @@ const NotificationsSummary = (props: Props) => {
             },
           ]}
         >
-          <View
-            ref={contentRef}
-            onLayout={(event) => {
-              const height = event.nativeEvent.layout.height;
-              setContentHeight(height);
-            }}
-          >
-            <View className="flex flex-col rounded-md mt-1 gap-1">
-              {data && Object.keys(data).length > 0
-                ? data.map((n) => (
-                    <Pressable
-                      onPress={() => postData(n)}
-                      key={n.id}
-                      className="p-3 hover:bg-[#51518A] bg-[#3F3F6B] rounded-md transition-colors flex flex-row justify-between"
-                    >
-                      <Text className="text-[#afafc1] font-light text-xs">
-                        {n.message}
-                      </Text>
-                      {n.seen === false ? (
-                        <Ionicons
-                          color={"#afafc1"}
-                          size={16}
-                          name="square-outline"
-                        />
-                      ) : (
-                        <Ionicons
-                          color={"#afafc1"}
-                          size={14}
-                          name="checkbox-outline"
-                        />
-                      )}
-                    </Pressable>
-                  ))
-                : error.length > 0 && (
-                    <View className="bg-[#B22222] p-2 rounded-md">
-                      <Text className="text-sm text-gray-200">{error}</Text>
-                    </View>
-                  )}
-            </View>
-            {updateErr.length > 0 && (
-              <View className="bg-[#B22222] p-2 rounded-md">
-                <Text className="text-sm text-gray-200">{updateErr}</Text>
-              </View>
-            )}
+          <View className="flex flex-col rounded-md mt-1 gap-1">
+            {data && Object.keys(data).length > 0
+              ? data.map((n) => (
+                  <Pressable
+                    onPress={() => postData(n)}
+                    key={n.id}
+                    className="p-3 hover:bg-[#51518A] bg-[#3F3F6B] rounded-md transition-colors flex flex-row justify-between"
+                  >
+                    <Text className="text-[#afafc1] font-light text-xs">
+                      {n.message}
+                    </Text>
+                    {n.seen === false ? (
+                      <Ionicons
+                        color={"#afafc1"}
+                        size={16}
+                        name="square-outline"
+                      />
+                    ) : (
+                      <Ionicons
+                        color={"#afafc1"}
+                        size={14}
+                        name="checkbox-outline"
+                      />
+                    )}
+                  </Pressable>
+                ))
+              : error.length > 0 && (
+                  <View className="bg-[#B22222] p-2 rounded-md">
+                    <Text className="text-sm text-gray-200">{error}</Text>
+                  </View>
+                )}
           </View>
+          {updateErr.length > 0 && (
+            <View className="bg-[#B22222] p-2 rounded-md">
+              <Text className="text-sm text-gray-200">{updateErr}</Text>
+            </View>
+          )}
         </Animated.View>
+
         <View className="bg-[#2E2E4D] p-3 w-full rounded-md mt-4">
           <Text className="text-white font-bold">AI Suggestions</Text>
           {suggestion && suggestion.length > 0 ? (
@@ -231,7 +272,7 @@ const NotificationsSummary = (props: Props) => {
         </Pressable>
         <Link
           href="/Dashboard"
-          className="text-white text-[14px] mt-3 font-light text-center hover:underline active:underline"
+          className="mt-3 text-white text-[14px] font-light text-center hover:underline active:underline"
         >
           Dashboard
         </Link>

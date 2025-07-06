@@ -286,7 +286,9 @@ const CreatineIntake = (props: Props) => {
           onPress={() => router.push("/Profile")}
           className="text-white font-bold mt-6 text-center hover:underline active:underline"
         >
-          Back
+          <Text className="text-[14px] font-bold text-white text-center">
+            Back
+          </Text>
         </Pressable>
       </View>
     </ScrollView>

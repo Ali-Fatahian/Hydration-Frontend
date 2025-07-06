@@ -1,9 +1,8 @@
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView, Pressable } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
-import { Pressable, TextInput } from "react-native-gesture-handler";
-import KGIcon from "@/assets/KGIcon";
+import { TextInput } from "react-native-gesture-handler";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axiosInstance from "@/axiosInstance";
 import Loader from "@/assets/Loader";
@@ -31,7 +30,7 @@ const EnterWeight = (props: Props) => {
   const sendData = async () => {
     setLoading(true);
     try {
-      const userId = userSafe?.id ?? (await AsyncStorage.getItem("id"))
+      const userId = userSafe?.id ?? (await AsyncStorage.getItem("id"));
       const response = await axiosInstance.patch(`users/${userId}`, {
         weight,
       });
@@ -109,12 +108,6 @@ const EnterWeight = (props: Props) => {
           Please enter your weight in kg and click submit
         </Text>
         <View className="mt-10 w-full max-w-sm mx-auto relative">
-          <KGIcon
-            fill="#52525F"
-            height={30}
-            width={30}
-            classes="absolute left-[3px] top-[5px]"
-          />
           <TextInput
             className="transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light pr-5 pl-9 py-3 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964]"
             placeholder="Weight..."
@@ -151,7 +144,9 @@ const EnterWeight = (props: Props) => {
           onPress={() => router.navigate("/Profile")}
           className="text-white text-[14px] mt-3 font-light text-center hover:underline active:underline"
         >
-          Back
+          <Text className="text-[14px] font-bold text-white text-center">
+            Back
+          </Text>
         </Pressable>
       </View>
     </ScrollView>
