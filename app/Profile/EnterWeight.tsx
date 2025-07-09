@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
 import { TextInput } from "react-native-gesture-handler";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage"; // Still needed for initial load fallback
 import axiosInstance from "@/axiosInstance";
 import Loader from "@/assets/Loader";
 import { useContextState } from "../Context";
@@ -13,7 +13,7 @@ type Props = {};
 const EnterWeight = (props: Props) => {
   const router = useRouter();
   const [weight, setWeight] = useState("");
-  const [userSafe, setUserSafe] = useState<any>(null);
+  // Removed userSafe local state as we'll rely on `user` from context
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,50 +21,14 @@ const EnterWeight = (props: Props) => {
   const {
     token,
     contextLoading,
-    user,
+    user, // Use 'user' directly from context
     setShouldRefreshDashboard,
+    setShouldRefreshWaterIntake, // **IMPORTANT: Add this**
     updateUserInContext,
     updateUserInStorage,
   } = useContextState();
 
-  const sendData = async () => {
-    setLoading(true);
-    try {
-      const userId = userSafe?.id ?? (await AsyncStorage.getItem("id"));
-      const response = await axiosInstance.patch(`users/${userId}`, {
-        weight,
-      });
-      const updatedUser = {
-        ...userSafe,
-        weight: weight,
-      };
-      updateUserInContext(updatedUser);
-      await updateUserInStorage(updatedUser);
-      setShouldRefreshDashboard(new Date().toString());
-
-      if (response.status === 200) {
-        setMessage(
-          `Successfully set to ${String(Number(response.data["weight"]))}`
-        );
-      }
-    } catch (err: any) {
-      setError(err.message);
-    }
-    setLoading(false);
-  };
-
-  const formSubmitHandler = () => {
-    if (weight && weight.length > 0) {
-      if (!isNaN(Number(weight))) {
-        sendData();
-      } else {
-        setError("You must type in numbers.");
-      }
-    } else {
-      setError("The field must not be empty.");
-    }
-  };
-
+  // Load initial weight from context's user state or AsyncStorage fallback
   useEffect(() => {
     if (!contextLoading) {
       if (!token) {
@@ -73,24 +37,98 @@ const EnterWeight = (props: Props) => {
       }
     }
 
-    const loadUserFromStorage = async () => {
+    const loadInitialWeight = async () => {
       try {
-        if (!user) {
+        if (user) {
+          setWeight(user.weight ? String(user.weight) : "");
+        } else {
+          // Fallback to AsyncStorage if context user is not yet loaded
           const storedUser = await AsyncStorage.getItem("user");
           if (storedUser) {
             const parsed = JSON.parse(storedUser);
-            setUserSafe(parsed);
+            setWeight(parsed.weight ? String(parsed.weight) : "");
           }
-        } else {
-          setUserSafe(user);
         }
       } catch (err) {
-        console.error("Failed to load user:", err);
+        console.error("Failed to load initial weight:", err);
       }
     };
+    loadInitialWeight();
+  }, [contextLoading, token, user]); // Add user to dependencies to react to context user changes
 
-    loadUserFromStorage();
-  }, [contextLoading, token]);
+  const sendData = async () => {
+    // Rely on `user` from context for user ID
+    if (!user?.id) {
+      setError("User information missing. Please log in again.");
+      setLoading(false); // Ensure loading is off if there's an early exit
+      return;
+    }
+    if (!weight || isNaN(Number(weight))) {
+      setError("Please enter a valid number for weight.");
+      setLoading(false); // Ensure loading is off
+      return;
+    }
+    if (Number(weight) <= 0) {
+      // Add validation for positive weight
+      setError("Weight must be a positive number.");
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError(""); // Clear previous errors
+    setMessage(""); // Clear previous messages
+
+    try {
+      const response = await axiosInstance.patch(
+        `users/${user.id}`,
+        {
+          // Use user.id from context, no trailing slash
+          weight: Number(weight), // Ensure weight is sent as a number if your API expects it
+        },
+        {
+          headers: { Authorization: `Token ${token}` },
+        }
+      );
+
+      if (response.status === 200) {
+        // Create an updated user object based on current context user
+        const updatedUser = {
+          ...user,
+          weight: Number(weight), // Store as number for consistency
+        };
+
+        // 1. Update user in global context
+        updateUserInContext(updatedUser);
+        // 2. Update user in AsyncStorage
+        await updateUserInStorage(updatedUser);
+
+        // 3. Trigger refreshes for Dashboard and WaterIntakeLoader
+        setShouldRefreshDashboard((prev: number) => prev + 1); // Increment the number
+        setShouldRefreshWaterIntake((prev: number) => prev + 1); // **IMPORTANT: Increment this too**
+
+        setMessage(`Successfully set to ${weight} kg`);
+        // Optional: Navigate back to profile or dashboard here
+        // router.replace("/Profile");
+      } else {
+        setError("Failed to update weight. Please try again.");
+      }
+    } catch (err: any) {
+      console.error("Error updating weight:", err);
+      setError(
+        err.response?.data?.detail ||
+          err.message ||
+          "An unexpected error occurred."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formSubmitHandler = () => {
+    // Validation is now part of sendData for cleaner flow
+    sendData();
+  };
 
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[50px] px-2">
@@ -116,8 +154,8 @@ const EnterWeight = (props: Props) => {
             value={weight}
             onChangeText={(text: string) => {
               setWeight(text);
-              setError("");
-              setMessage("");
+              setError(""); // Clear error on change
+              setMessage(""); // Clear message on change
             }}
           />
           {error.length > 0 && (
@@ -133,11 +171,12 @@ const EnterWeight = (props: Props) => {
           {loading && <Loader className="mt-4 mb-[-20px]" />}
         </View>
         <Pressable
-          onPress={() => formSubmitHandler()}
+          onPress={formSubmitHandler} // Simplified onPress
           className="bg-[#816BFF] cursor-pointer rounded-3xl py-3 px-20 mt-10 w-fit mx-auto hover:bg-[#735cf5] active:bg-[#5943d6] transition-colors"
+          disabled={loading} // Disable button while loading
         >
           <Text className="text-[14px] font-bold text-white text-center">
-            Submit
+            {loading ? "Submitting..." : "Submit"}
           </Text>
         </Pressable>
         <Pressable

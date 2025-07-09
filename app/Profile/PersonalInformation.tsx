@@ -6,105 +6,49 @@ import {
   ScrollView,
   Alert,
   Image,
+  Platform, // Import Platform for image base URL
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Link, useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
 import WaterIcon from "@/assets/WaterIcon";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage"; // Still needed for initial user loading if context not ready
 import axiosInstance from "@/axiosInstance";
 import Loader from "@/assets/Loader";
 import { useContextState } from "../Context";
 
 type Props = {};
 
-type UserDetails = {
-  id: number;
-  email: string;
-  fullname: string;
-  picture: string | null;
-  weight: number | null;
-  activity: string | null;
-  gender: string | null;
-  creatine_intake: string | null;
-  date_joined: string;
-  bottle: { id: number; name: string } | null;
-};
-
 const PersonalInformation = (props: Props) => {
-  const [image, setImage] = useState<string | null>(null);
-  const [user, setUser] = useState<UserDetails | null>(null);
+  // Use a different name for local image state to distinguish from user.picture
+  const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
   const [fullname, setFullname] = useState("");
-  const [userId, setUserId] = useState<string | null>("");
   const [email, setEmail] = useState("");
-  const [error, setError] = useState("");
-  const [formError, setFormError] = useState("");
-  const [message, setMessage] = useState("");
+  const [error, setError] = useState(""); // General API error
+  const [formError, setFormError] = useState(""); // Validation errors for form fields
+  const [message, setMessage] = useState(""); // Success messages
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  // Define IMAGE_BASE for displaying remote images
+  const IMAGE_BASE =
+    Platform.OS === "web" || Platform.OS === "ios"
+      ? "http://localhost:8000"
+      : "http://192.168.178.101:8000";
 
   const {
     token,
     contextLoading,
+    user, // The user object from global context (primary source of truth)
     updateUserInContext,
     updateUserInStorage,
     setShouldRefreshDashboard,
+    setShouldRefreshWaterIntake, // **IMPORTANT: Add this**
   } = useContextState();
 
-  const checkImageValidity = async (uri: string) => {
-    try {
-      // Check the image file info
-      const fileInfo = await FileSystem.getInfoAsync(uri);
-
-      // Verify file exists
-      if (!fileInfo.exists) {
-        Alert.alert("Invalid Image", "The file does not exist.");
-        return;
-      }
-
-      const validExtensions = [
-        ".jpg",
-        ".jpeg",
-        ".png",
-        ".gif",
-        ".bmp",
-        ".webp",
-      ];
-      const fileExtension = uri.slice(((uri.lastIndexOf(".") - 1) >>> 0) + 2);
-      if (!validExtensions.includes(`.${fileExtension.toLowerCase()}`)) {
-        Alert.alert("Invalid File Type", "The selected file is not an image.");
-        return;
-      }
-
-      // Check if image size is reasonable (e.g., under 5MB)
-      if (fileInfo.size > 5 * 1024 * 1024) {
-        Alert.alert("Image Too Large", "Please select an image under 5MB.");
-        return;
-      }
-    } catch (error) {
-      console.error("Error checking image validity:", error);
-    }
-  };
-
-  const fetchUserInfo = async () => {
-    try {
-      const id = await AsyncStorage.getItem("id");
-      setUserId(id);
-      const response = await axiosInstance.get(`users/${id}`);
-      if (response.status === 200) {
-        setUser(response.data);
-        setEmail(response.data["email"]);
-        setFullname(response.data["fullname"]);
-        setImage(response.data["picture"]);
-      } else {
-        setError("Something went wrong, please try again.");
-      }
-    } catch (err: any) {
-      setError(err.message);
-    }
-  };
-
+  // This useEffect will load user data either from context or AsyncStorage as a fallback
+  // and initialize the local form states (fullname, email, selectedImageUri)
   useEffect(() => {
     if (!contextLoading) {
       if (!token) {
@@ -112,59 +56,177 @@ const PersonalInformation = (props: Props) => {
         return;
       }
     }
-    fetchUserInfo();
-  }, [contextLoading, token]);
+
+    const loadUserData = async () => {
+      let currentUser = user;
+      if (!currentUser) {
+        // Fallback to AsyncStorage if context user isn't immediately available
+        try {
+          const storedUser = await AsyncStorage.getItem("user");
+          if (storedUser) {
+            currentUser = JSON.parse(storedUser);
+          }
+        } catch (err) {
+          console.error("Failed to load user from storage:", err);
+          setError("Failed to load profile data.");
+        }
+      }
+
+      if (currentUser) {
+        setEmail(currentUser.email);
+        setFullname(currentUser.fullname);
+        // Set the image URI from the user's picture, if available
+        if (currentUser.picture) {
+          setSelectedImageUri(`${IMAGE_BASE}${currentUser.picture}`); // Prepend base URL for display
+        }
+      }
+    };
+
+    loadUserData();
+  }, [contextLoading, token, user]); // Dependencies: react to changes in context loading, token, or context user
+
+  const checkImageValidity = async (uri: string) => {
+    setError(""); // Clear general API errors for image check
+    setFormError(""); // Clear form validation errors
+    try {
+      const fileInfo = await FileSystem.getInfoAsync(uri);
+
+      if (!fileInfo.exists) {
+        setFormError("The selected image file does not exist.");
+        return false;
+      }
+
+      const validExtensions = ["jpg", "jpeg", "png", "gif", "bmp", "webp"];
+      const fileExtension = uri.split(".").pop()?.toLowerCase(); // Get extension safely
+      if (!fileExtension || !validExtensions.includes(fileExtension)) {
+        setFormError(
+          "The selected file is not a valid image type (JPG, PNG, GIF, BMP, WEBP)."
+        );
+        return false;
+      }
+
+      if (fileInfo.size > 5 * 1024 * 1024) {
+        // 5MB limit
+        setFormError("Image is too large. Please select an image under 5MB.");
+        return false;
+      }
+      return true; // Image is valid
+    } catch (err: any) {
+      console.error("Error checking image validity:", err);
+      setFormError("Failed to validate image. Please try again.");
+      return false;
+    }
+  };
 
   const sendData = async () => {
+    // Rely on `user` from context for user ID
+    if (!user?.id) {
+      setError("User information missing. Please log in again.");
+      setLoading(false);
+      return;
+    }
+
+    // Basic form validation
+    if (!fullname.trim()) {
+      setFormError("Full name cannot be empty.");
+      return;
+    }
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setFormError("Please enter a valid email address.");
+      return;
+    }
+
     setLoading(true);
+    setError(""); // Clear previous errors
+    setFormError(""); // Clear previous form validation errors
+    setMessage(""); // Clear previous success messages
+
     try {
       const formData = new FormData();
       formData.append("fullname", fullname);
       formData.append("email", email);
-      if (image) {
-        // Convert the image URI to a Blob
-        const fileInfo = await FileSystem.getInfoAsync(image);
+
+      if (selectedImageUri && !selectedImageUri.startsWith(IMAGE_BASE)) {
+        // Only append if a new image was picked (not already a remote URL)
+        const isValidImage = await checkImageValidity(selectedImageUri);
+        if (!isValidImage) {
+          setLoading(false);
+          return; // Stop if image is invalid
+        }
+
+        const fileInfo = await FileSystem.getInfoAsync(selectedImageUri);
         if (fileInfo.exists) {
           const fileUri = fileInfo.uri;
           const fileExtension = fileUri.split(".").pop();
           const mimeType = `image/${fileExtension}`;
 
-          const file: any = {
+          // Append image file as 'picture'
+          formData.append("picture", {
             uri: fileUri,
-            name: `${user?.fullname}'s picture.${fileExtension}`,
+            name: `profile_${user.id}.${fileExtension}`, // More specific filename
             type: mimeType,
-          };
-
-          formData.append("picture", file);
+          } as any); // Type assertion for FormData.append for files
         } else {
-          throw new Error("Image file does not exist.");
+          setFormError("Selected image file does not exist locally.");
+          setLoading(false);
+          return;
         }
+      } else if (selectedImageUri === null && user.picture) {
+        // If user had a picture but then cleared it (logic not present for clearing, but good to handle)
+        // Or if the user implicitly removes it by not selecting a new one, and you want to explicitly clear it on the backend.
+        // This might require a specific backend endpoint or value like `null` for 'picture'
+        // formData.append("picture", ""); // Example: send empty string to clear image
       }
 
-      const response = await axiosInstance.patch(`users/${userId}`, formData, {
+      const response = await axiosInstance.patch(`users/${user.id}`, formData, {
+        // Use user.id from context
         headers: {
-          "Content-Type": "multipart/form-data",
+          "Content-Type": "multipart/form-data", // Important for file uploads
+          Authorization: `Token ${token}`, // Ensure token is passed
         },
       });
+
       if (response.status === 200) {
-        setMessage("Successful");
-        if (!user?.id) {
-          return; // Typescript bug
-        }
+        setMessage("Profile updated successfully!");
+
+        // Construct the updated user object using the current context user
         const updatedUser = {
           ...user,
           email: email,
           fullname: fullname,
-          picture: image,
+          // If a new image was uploaded, response.data should contain the new picture path
+          picture: response.data.picture || null, // Update with the new picture URL from backend or null
         };
+
+        // 1. Update user in global context
         updateUserInContext(updatedUser);
+        // 2. Update user in AsyncStorage
         await updateUserInStorage(updatedUser);
-        setShouldRefreshDashboard(new Date().toString());
+
+        // 3. Trigger refreshes for Dashboard (and Profile if needed) and WaterIntakeLoader
+        setShouldRefreshDashboard((prev: number) => prev + 1);
+        setShouldRefreshWaterIntake((prev: number) => prev + 1);
+
+        // Update local image state to reflect the new remote URL from the backend
+        if (response.data.picture) {
+          setSelectedImageUri(`${IMAGE_BASE}${response.data.picture}`);
+        } else {
+          setSelectedImageUri(null); // Clear if picture was removed
+        }
+      } else {
+        setError("Failed to save changes. Please try again.");
       }
     } catch (err: any) {
-      setError(err.message);
+      console.error("Error sending data:", err);
+      // More specific error messages from backend if available
+      setError(
+        err.response?.data?.detail ||
+          err.message ||
+          "An unexpected error occurred."
+      );
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const pickImage = async () => {
@@ -173,7 +235,7 @@ const PersonalInformation = (props: Props) => {
     if (status !== "granted") {
       Alert.alert(
         "Permission required",
-        "We need permission to access your gallery."
+        "We need permission to access your gallery to set a profile picture."
       );
       return;
     }
@@ -185,19 +247,23 @@ const PersonalInformation = (props: Props) => {
       quality: 1,
     });
 
-    // If the user selects an image
-    if (!result.canceled) {
-      checkImageValidity(result.assets[0].uri);
-      setImage(result.assets[0].uri);
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const selectedUri = result.assets[0].uri;
+      const isValid = await checkImageValidity(selectedUri);
+      if (isValid) {
+        setSelectedImageUri(selectedUri); // Set the local URI
+        setError(""); // Clear any previous general errors
+        setFormError(""); // Clear any previous form validation errors
+      }
+    } else if (result.canceled) {
+      // User cancelled, do nothing or show a passive message
     } else {
-      Alert.alert("No image selected", "You must select an image!");
-      return;
+      Alert.alert(
+        "Image Selection Error",
+        "No image was selected or an error occurred."
+      );
     }
   };
-
-  useEffect(() => {
-    fetchUserInfo();
-  }, []);
 
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[40px] px-2">
@@ -224,8 +290,8 @@ const PersonalInformation = (props: Props) => {
                   backgroundColor: "gray",
                 }}
                 source={
-                  image
-                    ? { uri: image }
+                  selectedImageUri
+                    ? { uri: selectedImageUri }
                     : require("../../assets/images/default-profile.png") // fallback image
                 }
               />
@@ -239,7 +305,8 @@ const PersonalInformation = (props: Props) => {
               placeholder={user ? user.fullname : "Full Name"}
               placeholderTextColor={"#9CA3AF"}
               value={fullname}
-              onChangeText={(v:any) => {
+              onChangeText={(v: string) => {
+                // Type as string
                 setFullname(v);
                 setError("");
                 setFormError("");
@@ -254,7 +321,8 @@ const PersonalInformation = (props: Props) => {
               placeholder={user ? user.email : "Email"}
               placeholderTextColor={"#9CA3AF"}
               value={email}
-              onChangeText={(v: any) => {
+              onChangeText={(v: string) => {
+                // Type as string
                 setEmail(v);
                 setError("");
                 setFormError("");
@@ -280,16 +348,17 @@ const PersonalInformation = (props: Props) => {
         )}
         {loading && <Loader className="mt-4 mb-[-20px]" />}
         <Pressable
-          onPress={() => sendData()}
-          className="bg-[#816BFF] mt-[40px] rounded-3xl py-3 px-20 w-fit mx-auto hover:bg-[#735cf5] active:bg-[#5943d6] transition-colors"
+          onPress={sendData} // Simplified onPress
+          className="bg-[#816BFF] mt-[40px] rounded-3xl py-3 px-20 w-fit mx-auto active:bg-[#735cf5] transition-colors" // Added active state
+          disabled={loading} // Disable button while loading
         >
           <Text className="text-sm font-bold text-white text-center">
-            Save Changes
+            {loading ? "Saving..." : "Save Changes"}
           </Text>
         </Pressable>
         <Link
           href="/Profile"
-          className="mt-3 text-white text-[14px] font-light text-center hover:underline active:underline"
+          className="mt-3 text-white text-[14px] font-light text-center active:underline" // Added active state
         >
           Back
         </Link>

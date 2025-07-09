@@ -5,7 +5,7 @@ import { useRouter } from "expo-router";
 import axiosInstance from "@/axiosInstance";
 import Loader from "@/assets/Loader";
 import { useContextState } from "../Context";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage"; // Keep for initial user loading if context not ready
 
 type Props = {};
 
@@ -13,62 +13,21 @@ const EnterActivityLevel = (props: Props) => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
   const {
     token,
     contextLoading,
     setShouldRefreshDashboard,
+    setShouldRefreshWaterIntake, // **IMPORTANT: Add this**
     updateUserInContext,
     updateUserInStorage,
-    user,
+    user, // Rely on user from context as the primary source
   } = useContextState();
-  const [userSafe, setUserSafe] = useState<any>(user ?? null);
 
-  const [selectedActivityLevel, setSelectedActivityLevel] = useState(() => {
-    if (
-      typeof userSafe?.activity === "string" &&
-      userSafe.activity.length > 0
-    ) {
-      return userSafe.activity;
-    }
-    return "moderate";
-  });
-
-  const sendData = async () => {
-    if (!userSafe?.id) {
-      setError("User not loaded yet.");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await axiosInstance.patch(`users/${userSafe.id}`, {
-        activity: selectedActivityLevel.toLowerCase(),
-      });
-      const updatedUser = {
-        ...userSafe,
-        activity: selectedActivityLevel.toLowerCase(),
-      };
-      updateUserInContext(updatedUser);
-      await updateUserInStorage(updatedUser);
-      setShouldRefreshDashboard(new Date().toString());
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const formSubmitHandler = () => {
-    if (
-      selectedActivityLevel === "low" ||
-      selectedActivityLevel === "moderate" ||
-      (selectedActivityLevel === "high" && userSafe?.id !== null)
-    ) {
-      sendData();
-    } else {
-      setError("Invalid data!");
-    }
-  };
+  // Initialize selectedActivityLevel based on the user from context
+  // Use a separate useEffect or set it directly based on 'user' once it's available.
+  const [selectedActivityLevel, setSelectedActivityLevel] =
+    useState("moderate"); // Default initial state
 
   useEffect(() => {
     if (!contextLoading) {
@@ -78,29 +37,106 @@ const EnterActivityLevel = (props: Props) => {
       }
     }
 
-    const loadUserFromStorage = async () => {
-      if (!user) {
+    // This effect runs when `user` from context changes or becomes available
+    const initializeActivityLevel = async () => {
+      let currentUser = user;
+      if (!currentUser) {
+        // Fallback: If context user is not yet available, try AsyncStorage
         try {
           const storedUser = await AsyncStorage.getItem("user");
           if (storedUser) {
-            const parsedUser = JSON.parse(storedUser);
-            setUserSafe(parsedUser);
-
-            if (
-              typeof parsedUser?.activity === "string" &&
-              parsedUser.activity.length > 0
-            ) {
-              setSelectedActivityLevel(parsedUser.activity);
-            }
+            currentUser = JSON.parse(storedUser);
           }
         } catch (err) {
-          console.error("Failed to load user from storage:", err);
+          console.error(
+            "Failed to load user from storage for initialization:",
+            err
+          );
         }
+      }
+
+      if (
+        currentUser?.activity &&
+        typeof currentUser.activity === "string" &&
+        currentUser.activity.length > 0
+      ) {
+        setSelectedActivityLevel(currentUser.activity);
+      } else {
+        setSelectedActivityLevel("moderate"); // Set default if no activity found
       }
     };
 
-    loadUserFromStorage();
-  }, [contextLoading, token]);
+    initializeActivityLevel();
+  }, [contextLoading, token, user]); // Depend on user from context
+
+  const sendData = async () => {
+    // Rely on `user` from context for user ID
+    if (!user?.id) {
+      setError("User information missing. Please log in again.");
+      setLoading(false); // Ensure loading is off if there's an early exit
+      return;
+    }
+    if (!selectedActivityLevel) {
+      setError("Please select an activity level.");
+      setLoading(false); // Ensure loading is off
+      return;
+    }
+
+    setLoading(true);
+    setError(""); // Clear previous errors
+
+    try {
+      const response = await axiosInstance.patch(
+        `users/${user.id}`,
+        {
+          // Use user.id from context, no trailing slash
+          activity: selectedActivityLevel.toLowerCase(),
+        },
+        {
+          headers: { Authorization: `Token ${token}` },
+        }
+      );
+
+      if (response.status === 200) {
+        // Create an updated user object based on current context user
+        const updatedUser = {
+          ...user,
+          activity: selectedActivityLevel.toLowerCase(),
+        };
+
+        // 1. Update user in global context
+        updateUserInContext(updatedUser);
+        // 2. Update user in AsyncStorage
+        await updateUserInStorage(updatedUser);
+
+        // 3. Trigger refreshes for Dashboard and WaterIntakeLoader
+        setShouldRefreshDashboard((prev: number) => prev + 1); // Increment the number
+        setShouldRefreshWaterIntake((prev: number) => prev + 1); // **IMPORTANT: Increment this too**
+
+        router.replace("/Profile"); // Navigate back to profile or wherever appropriate
+      } else {
+        setError("Failed to update activity level. Please try again.");
+      }
+    } catch (err: any) {
+      console.error("Error updating activity level:", err);
+      setError(
+        err.response?.data?.detail ||
+          err.message ||
+          "An unexpected error occurred."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formSubmitHandler = () => {
+    // Simplified validation: check if a valid activity level is selected
+    if (["low", "moderate", "high"].includes(selectedActivityLevel)) {
+      sendData();
+    } else {
+      setError("Please select a valid activity level before submitting.");
+    }
+  };
 
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[50px] px-2">
@@ -118,24 +154,29 @@ const EnterActivityLevel = (props: Props) => {
           Please choose and click continue
         </Text>
         <View className="flex flex-col min-[270px]:flex-row flex-wrap gap-4 mt-10 max-w-[25rem] justify-center mx-auto">
-          {selectedActivityLevel.length > 0 &&
-            ["low", "moderate", "high"].map((activity) => (
-              <Pressable key={activity}>
-                <Text
-                  onPress={() => {
-                    setError("");
-                    setSelectedActivityLevel(activity);
-                  }}
-                  className={`cursor-pointer ${
-                    selectedActivityLevel === activity
-                      ? "bg-[#448AFF]"
-                      : "bg-[#2D2F4E]"
-                  } text-white rounded-lg py-3 px-10 w-fit mx-auto hover:bg-[#2979FF] transition-colors`}
-                >
+          {["low", "moderate", "high"].map(
+            (
+              activity // Removed selectedActivityLevel.length > 0 check here
+            ) => (
+              <Pressable
+                key={activity}
+                onPress={() => {
+                  // Move onPress to Pressable
+                  setError("");
+                  setSelectedActivityLevel(activity);
+                }}
+                className={`cursor-pointer ${
+                  selectedActivityLevel === activity
+                    ? "bg-[#448AFF]"
+                    : "bg-[#2D2F4E]"
+                } text-white rounded-lg py-3 px-10 w-fit mx-auto hover:bg-[#2979FF] transition-colors`}
+              >
+                <Text className="text-white text-center">
                   {`${activity.slice(0, 1).toUpperCase()}${activity.slice(1)}`}
                 </Text>
               </Pressable>
-            ))}
+            )
+          )}
         </View>
         {error.length > 0 && (
           <View className="bg-[#B22222] p-2 rounded-md mt-6">
@@ -144,11 +185,12 @@ const EnterActivityLevel = (props: Props) => {
         )}
         {loading && <Loader className="mt-6" />}
         <Pressable
-          onPress={() => formSubmitHandler()}
+          onPress={formSubmitHandler} // Simplified onPress
           className="bg-[#816BFF] cursor-pointer rounded-3xl py-3 px-20 mt-10 w-fit mx-auto hover:bg-[#735cf5] active:bg-[#5943d6] transition-colors"
+          disabled={loading} // Disable button while loading
         >
           <Text className="text-[14px] font-bold text-white text-center">
-            Submit
+            {loading ? "Submitting..." : "Submit"}
           </Text>
         </Pressable>
         <Pressable
