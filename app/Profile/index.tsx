@@ -346,17 +346,6 @@ const Profile = () => {
               </View>
             )}
           </View>
-          <Pressable
-            onPress={() => {
-              AsyncStorage.clear();
-              router.navigate("/Login");
-            }}
-            className="bg-[#816BFF] mt-[40px] rounded-3xl py-3 px-20 w-fit mx-auto hover:bg-[#735cf5] active:bg-[#5943d6] transition-colors"
-          >
-            <Text className="text-sm font-bold text-white text-center">
-              Log Out
-            </Text>
-          </Pressable>
         </View>
       ) : (
         error.length > 0 && (

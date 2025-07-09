@@ -153,7 +153,7 @@ const EnterActivityLevel = (props: Props) => {
         <Text className="text-center mt-10 text-[#C9C9E3] text-[14px]">
           Please choose and click continue
         </Text>
-        <View className="flex flex-col min-[270px]:flex-row flex-wrap gap-4 mt-10 max-w-[25rem] justify-center mx-auto">
+        <View className="flex flex-col min-[270px]:flex-row flex-wrap gap-4 mt-10 justify-center mx-auto">
           {["low", "moderate", "high"].map(
             (
               activity // Removed selectedActivityLevel.length > 0 check here
