@@ -226,7 +226,7 @@ const CreatineIntake = (props: Props) => {
           supplement tips
         </Text>
         <TextInput
-          className="transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light px-5 py-3 mt-4 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964]"
+          className="transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light px-5 justify-center h-12 mt-4 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964]"
           placeholder="e.g. 3"
           placeholderTextColor="#C9C9E3"
           keyboardType="numeric"

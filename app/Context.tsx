@@ -23,8 +23,8 @@ type ContextType = {
   logout: () => Promise<void>;
   setWeather: (weather: WeatherType) => void;
   setWeatherError: (weatherError: string | null) => void;
-  setShouldRefreshDashboard: (refresh: string) => void;
-  setShouldRefreshWaterIntake: (refresh: string) => void;
+  setShouldRefreshDashboard: (refresh: any) => void;
+  setShouldRefreshWaterIntake: (refresh: any) => void;
 };
 
 type UserDetails = {

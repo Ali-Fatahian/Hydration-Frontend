@@ -235,12 +235,12 @@ const PersonalInformation = (props: Props) => {
           <View className="mt-6">
             <Text className="text-white mb-2">Full Name</Text>
             <TextInput
-              className="peer transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light px-5 py-3 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964]"
+              className="peer transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light px-5 h-12 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964] justify-center"
               placeholder={user ? user.fullname : "Full Name"}
               placeholderTextColor={"#9CA3AF"}
               value={fullname}
-              onChange={(e: any) => {
-                setFullname(e.target.value);
+              onChangeText={(v:any) => {
+                setFullname(v);
                 setError("");
                 setFormError("");
                 setMessage("");
@@ -250,12 +250,12 @@ const PersonalInformation = (props: Props) => {
           <View className="mt-4">
             <Text className="text-white mb-2">Email</Text>
             <TextInput
-              className="peer transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light px-5 py-3 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964]"
+              className="peer transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light px-5 h-12 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964] justify-center"
               placeholder={user ? user.email : "Email"}
               placeholderTextColor={"#9CA3AF"}
               value={email}
-              onChange={(e: any) => {
-                setEmail(e.target.value);
+              onChangeText={(v: any) => {
+                setEmail(v);
                 setError("");
                 setFormError("");
                 setMessage("");

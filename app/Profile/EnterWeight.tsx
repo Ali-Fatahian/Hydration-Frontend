@@ -109,7 +109,7 @@ const EnterWeight = (props: Props) => {
         </Text>
         <View className="mt-10 w-full max-w-sm mx-auto relative">
           <TextInput
-            className="transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light pr-5 pl-9 py-3 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964]"
+            className="transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light pr-5 pl-9 h-12 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964] justify-center"
             placeholder="Weight..."
             keyboardType="numeric"
             placeholderTextColor={"#B0B0C3"}

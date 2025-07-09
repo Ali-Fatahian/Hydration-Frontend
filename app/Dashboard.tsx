@@ -10,7 +10,7 @@ import axiosInstance from "@/axiosInstance";
 import { useContextState } from "./Context";
 import WeatherFetcher from "@/components/WeatherFetcher";
 import WaterIntakeLoader from "@/components/WaterIntakeLoader";
-import Loader from "@/assets/Loader";
+import Loader from "@/assets/Loader"; // Assuming this is your loading spinner component
 
 type Props = {};
 
@@ -23,7 +23,8 @@ const Dashboard = (props: Props) => {
   const [createWaterIntake, setCreateWaterIntake] = useState("");
   const [createWaterIntakeError, setCreateWaterIntakeError] = useState("");
   const [fetchWaterIntakeError, setFetchWaterIntakeError] = useState("");
-  const [waterIntakeLoader, setWaterIntakeLoader] = useState(null);
+  // Initialize waterIntakeLoader to true to show loader from the start
+  const [waterIntakeLoader, setWaterIntakeLoader] = useState(true);
   const router = useRouter();
 
   const {
@@ -64,7 +65,8 @@ const Dashboard = (props: Props) => {
   useEffect(() => {
     if (!contextLoading && !token) {
       router.navigate("/Login");
-    } // Putting this code in checkAuth() makes it too slow to run, doesn't work
+      return; // Add return to prevent further execution if redirecting
+    }
 
     if (token) {
       fetchNotification();
@@ -87,23 +89,21 @@ const Dashboard = (props: Props) => {
     };
 
     loadUserFromStorage();
-  }, [token, contextLoading, shouldRefreshDashboard]);
+  }, [token, contextLoading, shouldRefreshDashboard, user]); // Added 'user' to dependencies
 
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[50px] px-2">
       <View className="w-full max-w-lg mx-auto">
         <WeatherFetcher />
-        {weather && (
-          <WaterIntakeLoader
-            token={token}
-            refreshToken={shouldRefreshWaterIntake}
-            setFetchWaterIntake={setFetchWaterIntake}
-            setCreateWaterIntake={setCreateWaterIntake}
-            setCreateWaterIntakeError={setCreateWaterIntakeError}
-            setFetchWaterIntakeError={setFetchWaterIntakeError}
-            setWaterIntakeLoader={setWaterIntakeLoader}
-          />
-        )}
+        {/* Pass the correct props to WaterIntakeLoader */}
+        <WaterIntakeLoader
+          setFetchWaterIntake={setFetchWaterIntake}
+          setCreateWaterIntake={setCreateWaterIntake}
+          setCreateWaterIntakeError={setCreateWaterIntakeError}
+          setFetchWaterIntakeError={setFetchWaterIntakeError}
+          setWaterIntakeLoader={setWaterIntakeLoader}
+        />
+
         <View className="flex justify-center w-full flex-row gap-1">
           <WaterIcon />
           <Text className="text-[20px] font-bold text-white text-center flex flex-row">
@@ -116,55 +116,62 @@ const Dashboard = (props: Props) => {
         <Text className="text-center mt-10 text-[#C9C9E3] text-[14px]">
           Monitor your water intake and stay on top of your hydration goals.
         </Text>
-        {fetchWaterIntakeError.length > 0 ? (
-          <View className="w-full bg-[#BBBBBB] text-xs text-blue-100 rounded-full dark:bg-gray-700 mt-8 text-center p-2 font-bold leading-none">
-            <Text className="text-white">0</Text>
-            <View className={`bg-[#57A8FF] rounded-full w-0`}></View>
-          </View>
-        ) : waterIntakeLoader === true ? (
+
+        {/* Conditional rendering for water intake section */}
+        {waterIntakeLoader ? (
           <Loader className="mt-3" />
+        ) : fetchWaterIntakeError.length > 0 ? (
+          <View className="w-full bg-[#B22222] text-xs text-blue-100 rounded-full mt-8 text-center p-2 font-bold leading-none">
+            <Text className="text-white">
+              Error: {fetchWaterIntakeError || "Could not load water intake."}
+            </Text>
+          </View>
         ) : (
-          waterIntakeLoader === false &&
           fetchWaterIntake && (
-            <View className="w-full bg-[#BBBBBB] rounded-full dark:bg-gray-700 mt-8">
-              <View
-                style={{
-                  width: `${Math.round(
-                    (Number(fetchWaterIntake.user_water_intake) /
-                      Number(fetchWaterIntake.max_water_intake)) *
+            <>
+              <View className="w-full bg-[#BBBBBB] rounded-full dark:bg-gray-700 mt-8">
+                <View
+                  style={{
+                    width: `${Math.min(
+                      Math.round(
+                        (Number(fetchWaterIntake.user_water_intake) /
+                          Number(fetchWaterIntake.max_water_intake)) *
+                          100
+                      ),
                       100
-                  )}%`,
-                }}
-                className={
-                  "bg-[#57A8FF] rounded-full text-center p-2 font-bold leading-none text-xs text-blue-100"
-                }
-              >
-                <View className="flex flex-row items-center justify-end gap-1">
-                <Text className="text-white font-bold">
-                  {Math.round(
-                    (Number(fetchWaterIntake.user_water_intake) /
-                      Number(fetchWaterIntake.max_water_intake)) *
-                      1000
-                  ) / 10}
-                </Text>
-                <Text className="text-blue-100 rounded-xl font-bold">%</Text>
+                    )}%`,
+                  }}
+                  className={
+                    "bg-[#57A8FF] rounded-full text-center p-2 font-bold leading-none text-xs text-blue-100"
+                  }
+                >
+                  <View className="flex flex-row items-center justify-end gap-1">
+                    <Text className="text-white font-bold">
+                      {Math.round(
+                        (Number(fetchWaterIntake.user_water_intake) /
+                          Number(fetchWaterIntake.max_water_intake)) *
+                          1000
+                      ) / 10}
+                    </Text>
+                    <Text className="text-blue-100 rounded-xl font-bold">
+                      %
+                    </Text>
+                  </View>
                 </View>
               </View>
-            </View>
+              <View className="flex flex-row justify-center items-center mt-8 gap-2">
+                <Text className="text-center text-white font-bold text-xl">
+                  {(Math.round(fetchWaterIntake.user_water_intake) * 10) / 10}{" "}
+                  ml
+                </Text>
+                <Text className="text-[#AFAFC1] font-normal text-lg">
+                  of {fetchWaterIntake.max_water_intake}ml
+                </Text>
+              </View>
+            </>
           )
         )}
-        {fetchWaterIntakeError.length === 0 && fetchWaterIntake && (
-          <View className="flex flex-row justify-center items-center mt-8 gap-2">
-            <Text className="text-center text-white font-bold text-xl">
-              {(Math.round(fetchWaterIntake.user_water_intake) * 10) / 10} ml
-            </Text>
-            <Text className="text-[#AFAFC1] font-normal text-lg">
-              of {fetchWaterIntake.max_water_intake}ml
-            </Text>
-          </View>
-        )}
         {notificationError.length > 0 ? (
-          // 1. Show error message if there's a notification error
           <View className="bg-[#B22222] mt-3 p-2 rounded-md">
             <Text className="text-sm text-gray-200">{notificationError}</Text>
           </View>
