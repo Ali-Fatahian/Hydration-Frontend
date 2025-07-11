@@ -11,8 +11,6 @@ type Props = {};
 
 const EnterGender = (props: Props) => {
   const [selectedGender, setSelectedGender] = useState("");
-  // userSafe state might be redundant if you always rely on user from context after initial load
-  // For now, we'll keep it for clarity but note that `user` from context is preferred for updates.
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -20,14 +18,13 @@ const EnterGender = (props: Props) => {
   const {
     token,
     contextLoading,
-    user, // Use 'user' directly from context as the primary source
+    user,
     updateUserInContext,
     updateUserInStorage,
     setShouldRefreshDashboard,
-    setShouldRefreshWaterIntake, // Add this setter from context
+    setShouldRefreshWaterIntake,
   } = useContextState();
 
-  // Load initial gender from context's user state
   useEffect(() => {
     if (!contextLoading) {
       if (!token) {
@@ -36,7 +33,6 @@ const EnterGender = (props: Props) => {
       }
     }
 
-    // Initialize selectedGender from context user, or fallback to AsyncStorage if context user is not yet loaded
     const loadInitialGender = async () => {
       try {
         if (user) {
@@ -53,10 +49,9 @@ const EnterGender = (props: Props) => {
       }
     };
     loadInitialGender();
-  }, [contextLoading, token, user]); // Add user to dependencies to react to context user changes
+  }, [contextLoading, token, user]);
 
   const sendData = async () => {
-    // Rely on `user` from context, it should be available if `token` is.
     if (!user?.id) {
       setError("User information missing. Please log in again.");
       return;
@@ -67,46 +62,48 @@ const EnterGender = (props: Props) => {
     }
 
     setLoading(true);
-    setError(""); // Clear previous errors
+    setError("");
 
     try {
-      // Use user.id from context directly
-      const response = await axiosInstance.patch(`users/${user.id}`, { // Added trailing slash based on common DRF patterns
-        gender: selectedGender.toLowerCase(),
-      }, {
-        headers: { Authorization: `Token ${token}` },
-      });
+      const response = await axiosInstance.patch(
+        `users/${user.id}`,
+        {
+          gender: selectedGender.toLowerCase(),
+        },
+        {
+          headers: { Authorization: `Token ${token}` },
+        }
+      );
 
       if (response.status === 200) {
-        // Create an updated user object
         const updatedUser = {
-          ...user, // Start with current user data from context
+          ...user,
           gender: selectedGender.toLowerCase(),
         };
 
-        // 1. Update user in global context
         updateUserInContext(updatedUser);
-        // 2. Update user in AsyncStorage
         await updateUserInStorage(updatedUser);
 
-        // 3. Trigger refreshes for Dashboard and WaterIntakeLoader
-        setShouldRefreshDashboard((prev: number) => prev + 1); // Increment the number
-        setShouldRefreshWaterIntake((prev: number) => prev + 1); // Increment the number
+        setShouldRefreshDashboard((prev: number) => prev + 1);
+        setShouldRefreshWaterIntake((prev: number) => prev + 1);
 
-        router.replace("/Profile"); // Navigate back to profile or wherever appropriate
+        router.replace("/Profile");
       } else {
         setError("Failed to update gender. Please try again.");
       }
     } catch (err: any) {
       console.error("Error updating gender:", err);
-      setError(err.response?.data?.detail || err.message || "An unexpected error occurred.");
+      setError(
+        err.response?.data?.detail ||
+          err.message ||
+          "An unexpected error occurred."
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const formSubmitHandler = () => {
-    // Simplified validation: check if a gender is selected
     if (selectedGender === "male" || selectedGender === "female") {
       sendData();
     } else {
@@ -133,7 +130,7 @@ const EnterGender = (props: Props) => {
           {["male", "female"].map((gender) => (
             <Pressable
               key={gender}
-              onPress={() => { // Moved onPress to the Pressable component
+              onPress={() => {
                 setError("");
                 setSelectedGender(gender);
               }}
@@ -145,7 +142,7 @@ const EnterGender = (props: Props) => {
                   : "bg-[#2D2F4E]"
               } text-white rounded-lg py-3 px-10 w-fit mx-auto hover:bg-[#2979FF] transition-colors`}
             >
-              <Text className="text-white text-center"> {/* Text needs to be inside the Pressable */}
+              <Text className="text-white text-center">
                 {`${gender.charAt(0).toUpperCase() + gender.slice(1)}`}
               </Text>
             </Pressable>
@@ -158,9 +155,9 @@ const EnterGender = (props: Props) => {
         )}
         {loading && <Loader className="mt-6" />}
         <Pressable
-          onPress={formSubmitHandler} // No need for arrow function if not passing args
+          onPress={formSubmitHandler}
           className="bg-[#816BFF] cursor-pointer rounded-3xl py-3 px-20 mt-10 w-fit mx-auto hover:bg-[#735cf5] active:bg-[#5943d6] transition-colors"
-          disabled={loading} // Disable button while loading
+          disabled={loading}
         >
           <Text className="text-[14px] font-bold text-white text-center">
             {loading ? "Submitting..." : "Submit"}

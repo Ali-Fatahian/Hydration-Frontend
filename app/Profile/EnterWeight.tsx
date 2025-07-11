@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
 import { TextInput } from "react-native-gesture-handler";
-import AsyncStorage from "@react-native-async-storage/async-storage"; // Still needed for initial load fallback
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import axiosInstance from "@/axiosInstance";
 import Loader from "@/assets/Loader";
 import { useContextState } from "../Context";
@@ -13,7 +13,6 @@ type Props = {};
 const EnterWeight = (props: Props) => {
   const router = useRouter();
   const [weight, setWeight] = useState("");
-  // Removed userSafe local state as we'll rely on `user` from context
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,14 +20,13 @@ const EnterWeight = (props: Props) => {
   const {
     token,
     contextLoading,
-    user, // Use 'user' directly from context
+    user,
     setShouldRefreshDashboard,
-    setShouldRefreshWaterIntake, // **IMPORTANT: Add this**
+    setShouldRefreshWaterIntake,
     updateUserInContext,
     updateUserInStorage,
   } = useContextState();
 
-  // Load initial weight from context's user state or AsyncStorage fallback
   useEffect(() => {
     if (!contextLoading) {
       if (!token) {
@@ -42,7 +40,6 @@ const EnterWeight = (props: Props) => {
         if (user) {
           setWeight(user.weight ? String(user.weight) : "");
         } else {
-          // Fallback to AsyncStorage if context user is not yet loaded
           const storedUser = await AsyncStorage.getItem("user");
           if (storedUser) {
             const parsed = JSON.parse(storedUser);
@@ -54,37 +51,34 @@ const EnterWeight = (props: Props) => {
       }
     };
     loadInitialWeight();
-  }, [contextLoading, token, user]); // Add user to dependencies to react to context user changes
+  }, [contextLoading, token, user]);
 
   const sendData = async () => {
-    // Rely on `user` from context for user ID
     if (!user?.id) {
       setError("User information missing. Please log in again.");
-      setLoading(false); // Ensure loading is off if there's an early exit
+      setLoading(false);
       return;
     }
     if (!weight || isNaN(Number(weight))) {
       setError("Please enter a valid number for weight.");
-      setLoading(false); // Ensure loading is off
+      setLoading(false);
       return;
     }
     if (Number(weight) <= 0) {
-      // Add validation for positive weight
       setError("Weight must be a positive number.");
       setLoading(false);
       return;
     }
 
     setLoading(true);
-    setError(""); // Clear previous errors
-    setMessage(""); // Clear previous messages
+    setError("");
+    setMessage("");
 
     try {
       const response = await axiosInstance.patch(
         `users/${user.id}`,
         {
-          // Use user.id from context, no trailing slash
-          weight: Number(weight), // Ensure weight is sent as a number if your API expects it
+          weight: Number(weight),
         },
         {
           headers: { Authorization: `Token ${token}` },
@@ -92,24 +86,18 @@ const EnterWeight = (props: Props) => {
       );
 
       if (response.status === 200) {
-        // Create an updated user object based on current context user
         const updatedUser = {
           ...user,
-          weight: Number(weight), // Store as number for consistency
+          weight: Number(weight),
         };
 
-        // 1. Update user in global context
         updateUserInContext(updatedUser);
-        // 2. Update user in AsyncStorage
         await updateUserInStorage(updatedUser);
 
-        // 3. Trigger refreshes for Dashboard and WaterIntakeLoader
-        setShouldRefreshDashboard((prev: number) => prev + 1); // Increment the number
-        setShouldRefreshWaterIntake((prev: number) => prev + 1); // **IMPORTANT: Increment this too**
+        setShouldRefreshDashboard((prev: number) => prev + 1);
+        setShouldRefreshWaterIntake((prev: number) => prev + 1);
 
         setMessage(`Successfully set to ${weight} kg`);
-        // Optional: Navigate back to profile or dashboard here
-        // router.replace("/Profile");
       } else {
         setError("Failed to update weight. Please try again.");
       }
@@ -126,7 +114,6 @@ const EnterWeight = (props: Props) => {
   };
 
   const formSubmitHandler = () => {
-    // Validation is now part of sendData for cleaner flow
     sendData();
   };
 
@@ -154,8 +141,8 @@ const EnterWeight = (props: Props) => {
             value={weight}
             onChangeText={(text: string) => {
               setWeight(text);
-              setError(""); // Clear error on change
-              setMessage(""); // Clear message on change
+              setError("");
+              setMessage("");
             }}
           />
           {error.length > 0 && (
@@ -171,9 +158,9 @@ const EnterWeight = (props: Props) => {
           {loading && <Loader className="mt-4 mb-[-20px]" />}
         </View>
         <Pressable
-          onPress={formSubmitHandler} // Simplified onPress
+          onPress={formSubmitHandler}
           className="bg-[#816BFF] cursor-pointer rounded-3xl py-3 px-20 mt-10 w-fit mx-auto hover:bg-[#735cf5] active:bg-[#5943d6] transition-colors"
-          disabled={loading} // Disable button while loading
+          disabled={loading}
         >
           <Text className="text-[14px] font-bold text-white text-center">
             {loading ? "Submitting..." : "Submit"}

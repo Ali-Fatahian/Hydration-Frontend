@@ -14,24 +14,20 @@ const WaterIntakeLoader = (props: Props) => {
   const { weather, shouldRefreshWaterIntake, token } = useContextState();
 
   useEffect(() => {
-    console.log('triggered')
-    // Only proceed if we have valid weather data and a token
     if (
       !weather ||
       !token ||
       weather.temperature_celsius == null ||
       weather.humidity_percent == null
     ) {
-      // If conditions aren't met, ensure loader is false so UI doesn't hang
       props.setWaterIntakeLoader(false);
       return;
     }
 
     const createAndFetchWaterIntake = async () => {
-      props.setWaterIntakeLoader(true); // Start loading
+      props.setWaterIntakeLoader(true);
 
       try {
-        // 1. Attempt to create water intake
         const createResponse = await axiosInstance.post(
           "water_intake",
           {
@@ -44,16 +40,14 @@ const WaterIntakeLoader = (props: Props) => {
         );
         if (createResponse.status === 201) {
           props.setCreateWaterIntake(createResponse.data);
-          props.setCreateWaterIntakeError(""); // Clear any previous errors
+          props.setCreateWaterIntakeError("");
         }
       } catch (createErr: any) {
-        // Only set error if it's a real error, not just a 409 (conflict)
-        // You might want to check for specific error codes here if your API returns 409 for "already exists"
         if (createErr.response && createErr.response.status === 409) {
           console.log(
             "Water intake for today already exists, proceeding to fetch."
           );
-          props.setCreateWaterIntakeError(""); // Clear error if it's just a conflict
+          props.setCreateWaterIntakeError("");
         } else {
           console.error("Error creating water intake:", createErr);
           props.setCreateWaterIntakeError(
@@ -63,27 +57,23 @@ const WaterIntakeLoader = (props: Props) => {
       }
 
       try {
-        // 2. Attempt to fetch water intake (regardless of create success/failure)
         const fetchResponse = await axiosInstance.get("water_intake", {
           headers: { Authorization: `Token ${token}` },
         });
         if (fetchResponse.status === 200) {
           props.setFetchWaterIntake(fetchResponse.data);
-          props.setFetchWaterIntakeError(""); // Clear any previous errors
+          props.setFetchWaterIntakeError("");
         }
       } catch (fetchErr: any) {
-        console.error("Error fetching water intake:", fetchErr);
-        props.setFetchWaterIntakeError(
-          fetchErr.message || "Failed to fetch water intake."
-        );
-        props.setFetchWaterIntake(null); // Clear previous data on error
+        props.setFetchWaterIntakeError("Failed to fetch water intake, please fill out your profile info to receive water intake suggestion.");
+        props.setFetchWaterIntake(null);
       } finally {
-        props.setWaterIntakeLoader(false); // End loading, even if there's an error
+        props.setWaterIntakeLoader(false);
       }
     };
 
     createAndFetchWaterIntake();
-  }, [shouldRefreshWaterIntake, weather, token]); // Simplified dependencies
+  }, [shouldRefreshWaterIntake, weather, token]);
 
   return null;
 };

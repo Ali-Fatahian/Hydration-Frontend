@@ -5,10 +5,9 @@ import {
   ScrollView,
   Modal,
   Linking,
-  Platform,
-  Alert, // Import Platform for web/mobile conditional styling
+  Alert,
 } from "react-native";
-import React, { useCallback, useState, useEffect } from "react"; // Added useEffect
+import React, { useCallback, useState, useEffect } from "react";
 import { useFocusEffect, useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
 import { useContextState } from "./Context";
@@ -18,74 +17,55 @@ type Props = {};
 
 const Index = (props: Props) => {
   const router = useRouter();
-  // Initialize modalVisible to false. It will be set to true only if it's the first launch.
   const [modalVisible, setModalVisible] = useState(false);
-  const [privacyTextVisible, setPrivacyTextVisible] = useState(false); // Renamed for clarity
+  const [privacyTextVisible, setPrivacyTextVisible] = useState(false);
 
   const { token, contextLoading } = useContextState();
 
   const handleFirstLaunchCheck = async () => {
-    // Only check if context is not loading and we have a token status
     if (!contextLoading) {
       if (token) {
-        // User is logged in, navigate to Dashboard immediately
         router.navigate("/Dashboard");
         return;
       }
 
-      // If no token, check for first launch to show privacy modal
       try {
         const hasLaunchedBefore = await AsyncStorage.getItem("first_launch");
         if (hasLaunchedBefore === "true") {
-          // Check for "true" string specifically
-          // Not the first launch, user has accepted before, proceed to Login or main screen without modal
-          setModalVisible(false); // Ensure modal is hidden
-          // Optional: If you want to automatically navigate to Login if not first launch and not logged in
-          // router.navigate("/Login");
+          setModalVisible(false);
         } else {
-          // First launch, show the modal
           setModalVisible(true);
-          // Set "first_launch" to "true" after the user accepts the modal
         }
       } catch (e) {
         console.error("Failed to check first launch status:", e);
-        // Fallback: If AsyncStorage fails, assume it's first launch and show modal
         setModalVisible(true);
       }
     }
   };
 
-  // This useEffect now manages the initial load and navigation
   useFocusEffect(
     useCallback(() => {
-      // It's crucial that handleFirstLaunchCheck considers `contextLoading` and `token`
       handleFirstLaunchCheck();
-    }, [contextLoading, token]) // Dependencies ensure it reacts to context state changes
+    }, [contextLoading, token])
   );
 
   const handleAcceptPrivacy = async () => {
     setModalVisible(false);
     try {
-      await AsyncStorage.setItem("first_launch", "true"); // Set to "true" AFTER acceptance
+      await AsyncStorage.setItem("first_launch", "true");
     } catch (e) {
       console.error("Failed to set first launch status:", e);
     }
-    // Optionally navigate to Login after acceptance, or let the user click "Get Started"
-    // router.navigate("/Login");
   };
 
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[50px] px-4">
       <View className="w-full max-w-lg mx-auto">
-        {/* The modal is conditionally rendered based on modalVisible */}
         <Modal
           animationType="slide"
           transparent={true}
           visible={modalVisible}
-          // Only allow closing if you intend for them to be able to back out without accepting
-          // For a privacy policy, often you don't allow dismissal without acceptance to proceed with the app
           onRequestClose={() => {
-            // Optional: Alert the user that they must accept to proceed
             Alert.alert(
               "Consent Required",
               "You must accept the Privacy Policy to use the app."
@@ -94,19 +74,15 @@ const Index = (props: Props) => {
         >
           <View className="flex-1 justify-center items-center bg-black bg-opacity-80">
             {" "}
-            {/* Full screen overlay */}
             <View className="w-full max-w-md py-4 px-6 bg-white rounded-lg mx-4">
               {" "}
-              {/* Adjusted styling for better centering */}
               <ScrollView className="max-h-[70vh]">
                 {" "}
-                {/* Use a percentage for max height */}
                 <Text className="text-lg font-bold text-gray-900 mb-2">
                   Privacy Policy & GDPR Consent
                 </Text>
                 <Text className="leading-6 text-justify text-gray-700 text-sm">
                   {" "}
-                  {/* Reduced line height and font size */}
                   By continuing to use this app, you confirm that you have read
                   and understood our Privacy Policy. We collect and process
                   personal data such as your weight, creatine intake, and
@@ -122,7 +98,6 @@ const Index = (props: Props) => {
                   tapping "Accept," you agree to the processing of your data as
                   described.
                 </Text>
-                {/* Conditionally rendered detailed privacy text */}
                 {privacyTextVisible && (
                   <View>
                     <Text className="leading-6 text-justify mt-6 text-gray-700 text-sm">
@@ -144,7 +119,7 @@ const Index = (props: Props) => {
                       requests, contact us at:
                     </Text>
                     <Text
-                      className="text-blue-600 underline mt-2 text-sm" // Added underline class
+                      className="text-blue-600 underline mt-2 text-sm"
                       onPress={() =>
                         Linking.openURL(
                           "mailto:hydrationiq.team@gmail.com"
@@ -159,13 +134,13 @@ const Index = (props: Props) => {
                 )}
               </ScrollView>
               <Pressable
-                onPress={handleAcceptPrivacy} // Use the new handler
+                onPress={handleAcceptPrivacy}
                 className="bg-[#448AFF] mt-6 rounded-3xl py-2 w-[200px] mx-auto active:bg-[#2979FF] transition-colors"
               >
                 <Text className="text-white text-center">Accept</Text>
               </Pressable>
               <Pressable
-                onPress={() => setPrivacyTextVisible(true)} // Changed state name
+                onPress={() => setPrivacyTextVisible(true)}
                 className="bg-white mt-2 rounded-3xl py-2 w-[200px] mx-auto border-[1px] border-gray-300 active:border-[#5943d6] transition-colors" // Changed border color
               >
                 <Text className="text-gray-800 text-center">
@@ -176,7 +151,6 @@ const Index = (props: Props) => {
           </View>
         </Modal>
 
-        {/* Main Content */}
         <View className="flex flex-col justify-between h-[100%]">
           <View className="flex flex-col justify-center [&>*]:text-center gap-[70px]">
             <View className="flex justify-center w-full flex-row gap-1">

@@ -119,14 +119,12 @@ const PersonalInformation = (props: Props) => {
   };
 
   const sendData = async () => {
-    // Rely on `user` from context for user ID
     if (!user?.id) {
       setError("User information missing. Please log in again.");
       setLoading(false);
       return;
     }
 
-    // Basic form validation
     if (!fullname.trim()) {
       setFormError("Full name cannot be empty.");
       return;
@@ -137,9 +135,9 @@ const PersonalInformation = (props: Props) => {
     }
 
     setLoading(true);
-    setError(""); // Clear previous errors
-    setFormError(""); // Clear previous form validation errors
-    setMessage(""); // Clear previous success messages
+    setError("");
+    setFormError("");
+    setMessage("");
 
     try {
       const formData = new FormData();
@@ -147,11 +145,10 @@ const PersonalInformation = (props: Props) => {
       formData.append("email", email);
 
       if (selectedImageUri && !selectedImageUri.startsWith(IMAGE_BASE)) {
-        // Only append if a new image was picked (not already a remote URL)
         const isValidImage = await checkImageValidity(selectedImageUri);
         if (!isValidImage) {
           setLoading(false);
-          return; // Stop if image is invalid
+          return;
         }
 
         const fileInfo = await FileSystem.getInfoAsync(selectedImageUri);
@@ -160,65 +157,51 @@ const PersonalInformation = (props: Props) => {
           const fileExtension = fileUri.split(".").pop();
           const mimeType = `image/${fileExtension}`;
 
-          // Append image file as 'picture'
           formData.append("picture", {
             uri: fileUri,
-            name: `profile_${user.id}.${fileExtension}`, // More specific filename
+            name: `profile_${user.id}.${fileExtension}`,
             type: mimeType,
-          } as any); // Type assertion for FormData.append for files
+          } as any);
         } else {
           setFormError("Selected image file does not exist locally.");
           setLoading(false);
           return;
         }
       } else if (selectedImageUri === null && user.picture) {
-        // If user had a picture but then cleared it (logic not present for clearing, but good to handle)
-        // Or if the user implicitly removes it by not selecting a new one, and you want to explicitly clear it on the backend.
-        // This might require a specific backend endpoint or value like `null` for 'picture'
-        // formData.append("picture", ""); // Example: send empty string to clear image
       }
 
       const response = await axiosInstance.patch(`users/${user.id}`, formData, {
-        // Use user.id from context
         headers: {
-          "Content-Type": "multipart/form-data", // Important for file uploads
-          Authorization: `Token ${token}`, // Ensure token is passed
+          "Content-Type": "multipart/form-data",
+          Authorization: `Token ${token}`,
         },
       });
 
       if (response.status === 200) {
         setMessage("Profile updated successfully!");
 
-        // Construct the updated user object using the current context user
         const updatedUser = {
           ...user,
           email: email,
           fullname: fullname,
-          // If a new image was uploaded, response.data should contain the new picture path
-          picture: response.data.picture || null, // Update with the new picture URL from backend or null
+          picture: response.data.picture || null,
         };
 
-        // 1. Update user in global context
         updateUserInContext(updatedUser);
-        // 2. Update user in AsyncStorage
         await updateUserInStorage(updatedUser);
 
-        // 3. Trigger refreshes for Dashboard (and Profile if needed) and WaterIntakeLoader
         setShouldRefreshDashboard((prev: number) => prev + 1);
         setShouldRefreshWaterIntake((prev: number) => prev + 1);
 
-        // Update local image state to reflect the new remote URL from the backend
         if (response.data.picture) {
           setSelectedImageUri(`${IMAGE_BASE}${response.data.picture}`);
         } else {
-          setSelectedImageUri(null); // Clear if picture was removed
+          setSelectedImageUri(null);
         }
       } else {
         setError("Failed to save changes. Please try again.");
       }
     } catch (err: any) {
-      console.error("Error sending data:", err);
-      // More specific error messages from backend if available
       setError(
         err.response?.data?.detail ||
           err.message ||
@@ -251,12 +234,11 @@ const PersonalInformation = (props: Props) => {
       const selectedUri = result.assets[0].uri;
       const isValid = await checkImageValidity(selectedUri);
       if (isValid) {
-        setSelectedImageUri(selectedUri); // Set the local URI
-        setError(""); // Clear any previous general errors
-        setFormError(""); // Clear any previous form validation errors
+        setSelectedImageUri(selectedUri);
+        setError("");
+        setFormError("");
       }
     } else if (result.canceled) {
-      // User cancelled, do nothing or show a passive message
     } else {
       Alert.alert(
         "Image Selection Error",
@@ -306,7 +288,6 @@ const PersonalInformation = (props: Props) => {
               placeholderTextColor={"#9CA3AF"}
               value={fullname}
               onChangeText={(v: string) => {
-                // Type as string
                 setFullname(v);
                 setError("");
                 setFormError("");
@@ -322,7 +303,6 @@ const PersonalInformation = (props: Props) => {
               placeholderTextColor={"#9CA3AF"}
               value={email}
               onChangeText={(v: string) => {
-                // Type as string
                 setEmail(v);
                 setError("");
                 setFormError("");
@@ -348,9 +328,9 @@ const PersonalInformation = (props: Props) => {
         )}
         {loading && <Loader className="mt-4 mb-[-20px]" />}
         <Pressable
-          onPress={sendData} // Simplified onPress
+          onPress={sendData}
           className="bg-[#816BFF] mt-[40px] rounded-3xl py-3 px-20 w-fit mx-auto active:bg-[#735cf5] transition-colors" // Added active state
-          disabled={loading} // Disable button while loading
+          disabled={loading}
         >
           <Text className="text-sm font-bold text-white text-center">
             {loading ? "Saving..." : "Save Changes"}
@@ -358,7 +338,7 @@ const PersonalInformation = (props: Props) => {
         </Pressable>
         <Link
           href="/Profile"
-          className="mt-3 text-white text-[14px] font-light text-center active:underline" // Added active state
+          className="mt-3 text-white text-[14px] font-light text-center active:underline"
         >
           Back
         </Link>

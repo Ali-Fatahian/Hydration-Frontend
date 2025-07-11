@@ -43,7 +43,6 @@ const Profile = () => {
       }
 
       if (Platform.OS === "web") {
-        // On web, get CSV as text and create downloadable link
         const csv = response.data;
         const blob = new Blob([csv], { type: "text/csv" });
         const url = URL.createObjectURL(blob);
@@ -55,7 +54,6 @@ const Profile = () => {
 
         URL.revokeObjectURL(url);
       } else {
-        // On mobile, save to local file system and share
         const csv = response.data;
         const uri = FileSystem.documentDirectory + "user_info.csv";
         await FileSystem.writeAsStringAsync(uri, csv, {

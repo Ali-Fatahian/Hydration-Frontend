@@ -10,7 +10,7 @@ import axiosInstance from "@/axiosInstance";
 import { useContextState } from "./Context";
 import WeatherFetcher from "@/components/WeatherFetcher";
 import WaterIntakeLoader from "@/components/WaterIntakeLoader";
-import Loader from "@/assets/Loader"; // Assuming this is your loading spinner component
+import Loader from "@/assets/Loader";
 
 type Props = {};
 
@@ -89,13 +89,12 @@ const Dashboard = (props: Props) => {
     };
 
     loadUserFromStorage();
-  }, [token, contextLoading, shouldRefreshDashboard, user]); // Added 'user' to dependencies
+  }, [token, contextLoading, shouldRefreshDashboard, user]);
 
   return (
     <ScrollView className="bg-[#1e1f3f] h-full w-full py-[50px] px-2">
       <View className="w-full max-w-lg mx-auto">
         <WeatherFetcher />
-        {/* Pass the correct props to WaterIntakeLoader */}
         <WaterIntakeLoader
           setFetchWaterIntake={setFetchWaterIntake}
           setCreateWaterIntake={setCreateWaterIntake}
@@ -117,13 +116,12 @@ const Dashboard = (props: Props) => {
           Monitor your water intake and stay on top of your hydration goals.
         </Text>
 
-        {/* Conditional rendering for water intake section */}
         {waterIntakeLoader ? (
           <Loader className="mt-3" />
         ) : fetchWaterIntakeError.length > 0 ? (
-          <View className="w-full bg-[#B22222] text-xs text-blue-100 rounded-full mt-8 text-center p-2 font-bold leading-none">
+          <View className="w-full bg-[#B22222] text-xs text-blue-100 rounded-full mt-8 text-center p-4 font-bold leading-none">
             <Text className="text-white">
-              Error: {fetchWaterIntakeError || "Could not load water intake."}
+              {fetchWaterIntakeError || "Could not load water intake."}
             </Text>
           </View>
         ) : (

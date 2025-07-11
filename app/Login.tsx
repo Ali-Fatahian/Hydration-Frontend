@@ -71,7 +71,7 @@ const Login = (props: Props) => {
         router.replace("/Dashboard");
       }
     } catch (err: any) {
-      setError(err.message);
+      setError('Please provide your correct email and password.');
     }
     setLoading(false);
   };
