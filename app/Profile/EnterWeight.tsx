@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable } from "react-native";
+import { View, Text, ScrollView, Pressable, Platform } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
@@ -134,7 +134,7 @@ const EnterWeight = (props: Props) => {
         </Text>
         <View className="mt-10 w-full max-w-sm mx-auto relative">
           <TextInput
-            className="transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light pr-5 pl-9 h-12 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964] justify-center"
+            className="transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light pr-5 py-3 pl-9 h-12 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964] justify-center"
             placeholder="Weight..."
             keyboardType="numeric"
             placeholderTextColor={"#B0B0C3"}
@@ -144,6 +144,7 @@ const EnterWeight = (props: Props) => {
               setError("");
               setMessage("");
             }}
+            multiline={Platform.OS === "ios" || Platform.OS === "android"}
           />
           {error.length > 0 && (
             <View className="bg-[#B22222] mt-3 p-2 rounded-md">

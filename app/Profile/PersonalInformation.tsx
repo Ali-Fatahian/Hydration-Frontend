@@ -21,17 +21,15 @@ import { useContextState } from "../Context";
 type Props = {};
 
 const PersonalInformation = (props: Props) => {
-  // Use a different name for local image state to distinguish from user.picture
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
   const [fullname, setFullname] = useState("");
   const [email, setEmail] = useState("");
-  const [error, setError] = useState(""); // General API error
-  const [formError, setFormError] = useState(""); // Validation errors for form fields
-  const [message, setMessage] = useState(""); // Success messages
+  const [error, setError] = useState("");
+  const [formError, setFormError] = useState("");
+  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // Define IMAGE_BASE for displaying remote images
   const IMAGE_BASE =
     Platform.OS === "web" || Platform.OS === "ios"
       ? "http://localhost:8000"
@@ -40,15 +38,13 @@ const PersonalInformation = (props: Props) => {
   const {
     token,
     contextLoading,
-    user, // The user object from global context (primary source of truth)
+    user,
     updateUserInContext,
     updateUserInStorage,
     setShouldRefreshDashboard,
-    setShouldRefreshWaterIntake, // **IMPORTANT: Add this**
+    setShouldRefreshWaterIntake,
   } = useContextState();
 
-  // This useEffect will load user data either from context or AsyncStorage as a fallback
-  // and initialize the local form states (fullname, email, selectedImageUri)
   useEffect(() => {
     if (!contextLoading) {
       if (!token) {
@@ -60,7 +56,6 @@ const PersonalInformation = (props: Props) => {
     const loadUserData = async () => {
       let currentUser = user;
       if (!currentUser) {
-        // Fallback to AsyncStorage if context user isn't immediately available
         try {
           const storedUser = await AsyncStorage.getItem("user");
           if (storedUser) {
@@ -77,7 +72,8 @@ const PersonalInformation = (props: Props) => {
         setFullname(currentUser.fullname);
         // Set the image URI from the user's picture, if available
         if (currentUser.picture) {
-          setSelectedImageUri(`${IMAGE_BASE}${currentUser.picture}`); // Prepend base URL for display
+          setSelectedImageUri(`${currentUser.picture}`); // Prepend base URL for display
+          // setSelectedImageUri(`${IMAGE_BASE}${currentUser.picture}`); // Prepend base URL for display
         }
       }
     };
@@ -144,7 +140,10 @@ const PersonalInformation = (props: Props) => {
       formData.append("fullname", fullname);
       formData.append("email", email);
 
-      if (selectedImageUri && !selectedImageUri.startsWith(IMAGE_BASE)) {
+      if (
+        selectedImageUri &&
+        !selectedImageUri.startsWith("http://localhost:8000")
+      ) {
         const isValidImage = await checkImageValidity(selectedImageUri);
         if (!isValidImage) {
           setLoading(false);
@@ -194,7 +193,8 @@ const PersonalInformation = (props: Props) => {
         setShouldRefreshWaterIntake((prev: number) => prev + 1);
 
         if (response.data.picture) {
-          setSelectedImageUri(`${IMAGE_BASE}${response.data.picture}`);
+          setSelectedImageUri(`${response.data.picture}`);
+          // setSelectedImageUri(`${IMAGE_BASE}${response.data.picture}`);
         } else {
           setSelectedImageUri(null);
         }
@@ -273,8 +273,11 @@ const PersonalInformation = (props: Props) => {
                 }}
                 source={
                   selectedImageUri
-                    ? { uri: selectedImageUri }
-                    : require("../../assets/images/default-profile.png") // fallback image
+                    ? selectedImageUri.startsWith("http") ||
+                      selectedImageUri.startsWith("file")
+                      ? { uri: selectedImageUri }
+                      : { uri: `${IMAGE_BASE}${selectedImageUri}` }
+                    : require("../../assets/images/default-profile.png")
                 }
               />
             </Pressable>
@@ -283,7 +286,7 @@ const PersonalInformation = (props: Props) => {
           <View className="mt-6">
             <Text className="text-white mb-2">Full Name</Text>
             <TextInput
-              className="peer transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light px-5 h-12 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964] justify-center"
+              className="peer transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light px-5 py-3 h-12 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964] justify-center"
               placeholder={user ? user.fullname : "Full Name"}
               placeholderTextColor={"#9CA3AF"}
               value={fullname}
@@ -293,12 +296,13 @@ const PersonalInformation = (props: Props) => {
                 setFormError("");
                 setMessage("");
               }}
+              multiline={Platform.OS === "ios" || Platform.OS === "android"}
             />
           </View>
           <View className="mt-4">
             <Text className="text-white mb-2">Email</Text>
             <TextInput
-              className="peer transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light px-5 h-12 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964] justify-center"
+              className="peer transition-all bg-[#2D2F50] border border-[#3D3F6E] focus:border-none font-light px-5 py-3 h-12 w-full text-sm text-white rounded-md outline-none select-all focus:bg-[#373964] justify-center"
               placeholder={user ? user.email : "Email"}
               placeholderTextColor={"#9CA3AF"}
               value={email}
@@ -308,6 +312,7 @@ const PersonalInformation = (props: Props) => {
                 setFormError("");
                 setMessage("");
               }}
+              multiline={Platform.OS === "ios" || Platform.OS === "android"}
             />
             {formError.length > 0 && (
               <View className="bg-[#B22222] mt-3 p-2 rounded-md">

@@ -1,4 +1,11 @@
-import { View, Text, ScrollView, Pressable, TextInput } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  Pressable,
+  TextInput,
+  Platform,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import WaterIcon from "@/assets/WaterIcon";
@@ -113,6 +120,7 @@ const DailyGoal = (props: Props) => {
             placeholderTextColor={"#9CA3AF"}
             value={userConsumption}
             onChangeText={(v: any) => handleInputChange(v)}
+            multiline={Platform.OS === "ios" || Platform.OS === "android"}
           />
           {error && error.length > 0 && (
             <View className="w-full mt-3">

@@ -26,7 +26,7 @@ const Profile = () => {
   const [deleteUserError, setDeleteUserError] = useState("");
   const defaultImage = require("../../assets/images/default-profile.png");
   const IMAGE_BASE =
-    Platform.OS === "web" || Platform.OS === 'ios'
+    Platform.OS === "web" || Platform.OS === "ios"
       ? "http://localhost:8000"
       : "http://192.168.178.101:8000";
 
@@ -137,7 +137,10 @@ const Profile = () => {
               }}
               source={
                 hasRemoteImage
-                  ? { uri: `${IMAGE_BASE}${userSafe?.picture}` }
+                  ? userSafe.picture.startsWith("http") ||
+                    userSafe.picture.startsWith("file")
+                    ? { uri: userSafe.picture }
+                    : { uri: `${IMAGE_BASE}${userSafe.picture}` }
                   : defaultImage
               }
             />
@@ -191,11 +194,7 @@ const Profile = () => {
                   Personal Information
                 </Text>
               </View>
-              <Ionicons
-                name="arrow-forward"
-                size={18}
-                color="#E6E6E6"
-              />
+              <Ionicons name="arrow-forward" size={18} color="#E6E6E6" />
             </Pressable>
             <Pressable
               onPress={() => router.navigate("/Profile/EnterGender")}
@@ -213,11 +212,7 @@ const Profile = () => {
                     : "Not Set"}
                 </Text>
               </View>
-              <Ionicons
-                name="arrow-forward"
-                size={18}
-                color="#E6E6E6" 
-              />
+              <Ionicons name="arrow-forward" size={18} color="#E6E6E6" />
             </Pressable>
             <Pressable
               onPress={() => router.push("/Profile/EnterWeight")}
@@ -231,11 +226,7 @@ const Profile = () => {
                   {userSafe.weight ? Number(userSafe.weight) : "Not Set"}
                 </Text>
               </View>
-              <Ionicons
-                name="arrow-forward"
-                size={18}
-                color="#E6E6E6" 
-              />
+              <Ionicons name="arrow-forward" size={18} color="#E6E6E6" />
             </Pressable>
             <Pressable
               onPress={() => router.navigate("/Profile/EnterActivityLevel")}
@@ -249,11 +240,7 @@ const Profile = () => {
                   {userSafe.activity ? userSafe.activity : "Not Set"}
                 </Text>
               </View>
-              <Ionicons
-                name="arrow-forward"
-                size={18}
-                color="#E6E6E6" 
-              />
+              <Ionicons name="arrow-forward" size={18} color="#E6E6E6" />
             </Pressable>
             <Pressable
               onPress={() => router.navigate("/Profile/CreatineIntake")}
@@ -273,11 +260,7 @@ const Profile = () => {
                   </Text>
                 )}
               </View>
-              <Ionicons
-                name="arrow-forward"
-                size={18}
-                color="#E6E6E6" 
-              />
+              <Ionicons name="arrow-forward" size={18} color="#E6E6E6" />
             </Pressable>
             {/* <Pressable
               onPress={() => router.navigate("/ConnectSmartBottle")}
@@ -319,11 +302,7 @@ const Profile = () => {
               <Text className="text-white text-[14px] font-bold">
                 Download CSV
               </Text>
-              <Ionicons
-                name="arrow-forward"
-                size={18}
-                color="#E6E6E6" 
-              />
+              <Ionicons name="arrow-forward" size={18} color="#E6E6E6" />
             </Pressable>
             <Pressable
               onPress={() => setModalVisible(true)}
@@ -332,11 +311,7 @@ const Profile = () => {
               <Text className="text-white text-[14px] font-bold">
                 Delete Account
               </Text>
-              <Ionicons
-                name="arrow-forward"
-                size={18}
-                color="#E6E6E6" 
-              />
+              <Ionicons name="arrow-forward" size={18} color="#E6E6E6" />
             </Pressable>
             {downloadError && downloadError.length > 0 && (
               <View className="bg-[#B22222] mt-3 p-2 rounded-md">
